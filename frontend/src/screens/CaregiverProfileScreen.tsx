@@ -135,24 +135,14 @@ const CaregiverProfileScreen: React.FC<Props> = ({ navigation }) => {
 
     return (
         <View style={commonStyles.container}>
-            {/* Header with back button and logo */}
+            {/* Header with logo */}
             <View style={commonStyles.header}>
-                <TouchableOpacity
-                    onPress={() => {
-                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                        navigation.goBack();
-                    }}
-                >
-                    <View style={commonStyles.ArrowIconCircle}>
-                        <Ionicons name="arrow-back" size={24} color="#4A90E2" />
-                    </View>
-                </TouchableOpacity>
+                <View style={commonStyles.headerSpacer} />
                 <View style={commonStyles.headerCenter}>
                     <Image
                         source={require('../../assets/mnesya-logo.png')}
                         style={commonStyles.logo}
                     />
-                    <Text style={commonStyles.appName}>Mnesya</Text>
                 </View>
                 <TouchableOpacity
                     onPress={() => {
@@ -433,7 +423,10 @@ const styles = StyleSheet.create({
 
     // MENU STYLES
     menuButton: {
-        padding: 8,
+        width: 44,
+        height: 44,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
 });
 

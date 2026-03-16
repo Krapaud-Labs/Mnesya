@@ -234,7 +234,6 @@ const UserHomeScreen: React.FC<Props> = ({ navigation }) => {
                         source={require('../../assets/mnesya-logo.png')}
                         style={commonStyles.logo}
                     />
-                    <Text style={commonStyles.appName}>Mnesya</Text>
                 </View>
                 <TouchableOpacity
                     style={styles.menuButton}
@@ -387,6 +386,9 @@ const styles = StyleSheet.create({
     },
     // Menu styles
     menuButton: {
-        padding: 8,
+        width: 44,
+        height: 44,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
 });

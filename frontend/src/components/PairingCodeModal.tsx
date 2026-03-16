@@ -5,11 +5,12 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Modal, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, Modal, TouchableOpacity, SafeAreaView, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
+import { commonStyles } from '../styles/commonStyles';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -107,7 +108,7 @@ const PairingCodeModal: React.FC<PairingCodeModalProps> = ({
         <Modal visible={visible} transparent={true} animationType="slide" onRequestClose={onClose}>
             <SafeAreaView style={styles.container}>
                 {/* Header with back button and logo */}
-                <View style={styles.header}>
+                <View style={commonStyles.header}>
                     {showBackButton ? (
                         <TouchableOpacity onPress={onBack ?? onClose} style={styles.backButton}>
                             <Ionicons name="arrow-back" size={24} color="#4A90E2" />
@@ -115,10 +116,13 @@ const PairingCodeModal: React.FC<PairingCodeModalProps> = ({
                     ) : (
                         <View style={[styles.backButton, { backgroundColor: 'transparent' }]} />
                     )}
-                    <View style={styles.headerCenter}>
-                        <Text style={styles.appName}>Mnesya</Text>
+                    <View style={commonStyles.headerCenter}>
+                        <Image
+                            source={require('../../assets/mnesya-logo.png')}
+                            style={commonStyles.logo}
+                        />
                     </View>
-                    <View style={styles.headerSpacer} />
+                    <View style={commonStyles.headerSpacer} />
                 </View>
 
                 {/* Main content */}
@@ -179,24 +183,12 @@ const styles = StyleSheet.create({
         paddingVertical: 15,
     },
     backButton: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
+        width: 44,
+        height: 44,
+        borderRadius: 22,
         backgroundColor: '#F0F0F0',
         alignItems: 'center',
         justifyContent: 'center',
-    },
-    headerCenter: {
-        flex: 1,
-        alignItems: 'center',
-    },
-    appName: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: '#333333',
-    },
-    headerSpacer: {
-        width: 40,
     },
     content: {
         flex: 1,

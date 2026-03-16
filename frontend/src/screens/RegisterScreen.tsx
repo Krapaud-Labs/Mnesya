@@ -176,7 +176,6 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
                         source={require('../../assets/mnesya-logo.png')}
                         style={commonStyles.logo}
                     />
-                    <Text style={commonStyles.appName}>Mnesya</Text>
                 </View>
                 <View style={commonStyles.headerSpacer} />
             </View>
