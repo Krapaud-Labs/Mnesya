@@ -357,7 +357,7 @@ const RemindersListScreen: React.FC<Props> = ({ navigation }) => {
                     onContentSizeChange={handleContentSizeChange}
                 >
                     {(getFilteredReminders?.() ?? []).length === 0 ? (
-                        <Text style={commonStyles.emptyMessage}>No reminders yet</Text>
+                        <Text style={commonStyles.emptyMessage}>{t('reminders.messages.noReminders')}</Text>
                     ) : (
                         (getFilteredReminders?.() ?? []).map((reminder) => (
                             <ReminderCard

@@ -21,8 +21,10 @@ from app.schemas.authentication_schema import (
     CaregiverProfile,
 )
 from app.services.caregiver_facade import CaregiverFacade
-from app.schemas.caregiver_schema import CaregiverResponse
+from app.schemas.caregiver_schema import CaregiverResponse, CaregiverUpdate
 from app import get_db
+from sqlalchemy.exc import IntegrityError
+from uuid import UUID
 from app.persistence.revoked_token_repository import RevokedTokenRepository
 
 # JWT Configuration
@@ -435,6 +437,67 @@ async def get_current_user(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to get profile: {str(e)}",
+        )
+
+
+@router.put(
+    "/me",
+    response_model=CaregiverResponse,
+    summary="Update current caregiver profile",
+)
+async def update_current_user(
+    request: CaregiverUpdate,
+    token_payload: dict = Depends(verify_token),
+    caregiver_facade: CaregiverFacade = Depends(get_caregiver_facade),
+):
+    """Update authenticated caregiver's profile."""
+    caregiver_id = token_payload.get("sub")
+    try:
+        caregiver = caregiver_facade.get_caregiver(UUID(caregiver_id))
+        if not caregiver:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Caregiver not found",
+            )
+
+        update_data = request.model_dump(exclude_none=True, exclude={"current_password"})
+
+        if "password" in update_data:
+            if not request.current_password:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="current_password is required to change password",
+                )
+            if not caregiver.verify_password(request.current_password):
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Current password is incorrect",
+                )
+
+        target = caregiver_facade.update_caregiver(UUID(caregiver_id), update_data) if update_data else caregiver
+        return CaregiverResponse(
+            id=str(target.id),
+            first_name=target.first_name,
+            last_name=target.last_name,
+            email=target.email,
+            created_at=target.created_at,
+        )
+
+    except HTTPException:
+        raise
+    except IntegrityError as e:
+        if "ix_caregiver_email" in str(e.orig) or "unique constraint" in str(e.orig).lower():
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Email address already in use",
+            )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Database constraint violation")
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to update profile: {str(e)}",
         )
 
 

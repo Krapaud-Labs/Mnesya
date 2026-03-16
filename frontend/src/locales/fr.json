@@ -156,6 +156,9 @@
         "labels": {
             "Date:": "Date :"
         },
+        "messages": {
+            "noReminders": "Aucun rappel pour le moment"
+        },
         "status": {
             "Pending": "En attente",
             "Postponed": "Reporté",
@@ -346,6 +349,13 @@
         "Home": "Accueil",
         "Profile": "Profil",
         "Reminders": "Rappels",
-        "Refresh": "Actualiser"
+        "Refresh": "Actualiser",
+        "Emergency": "Urgences"
+    },
+    "emergency": {
+        "title": "Numéros d'urgence",
+        "country": "Pays détecté",
+        "callButton": "Appeler",
+        "callHint": "Appuyer pour appeler le {{number}}"
     }
 }
