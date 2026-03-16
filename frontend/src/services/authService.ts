@@ -54,7 +54,6 @@ export const getCurrentUser = async (): Promise<CaregiverProfile> => {
 export const updateCaregiverProfile = async (data: {
     first_name: string;
     last_name: string;
-    email: string;
 }): Promise<CaregiverProfile> => {
     const response = await apiClient.put('/api/auth/me', data);
     return response.data;
