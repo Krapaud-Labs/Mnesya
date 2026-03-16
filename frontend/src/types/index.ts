@@ -3,6 +3,7 @@
  *
  * @module types
  */
+import type { NavigatorScreenParams } from '@react-navigation/native';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -12,7 +13,7 @@ export type RootStackParamList = {
     Register: undefined;
     CreateProfile: undefined;
     UserPairing: undefined;
-    Dashboard: undefined;
+    Dashboard: NavigatorScreenParams<CaregiverTabsParamList> | undefined;
     CreateReminder: { profileId?: string };
     UserProfileDetails: { profileId: string };
     UserDashboard: undefined;
