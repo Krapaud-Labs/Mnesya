@@ -120,6 +120,8 @@ const App: React.FC = () => {
                         message: data.message,
                         profileId: data.profileId,
                     });
+                } else if (navigationRef.current && data && (data.isCaregiverAlert || data.type === 'caregiver_alert')) {
+                    navigationRef.current.navigate('Dashboard', undefined);
                 }
             }
         );
