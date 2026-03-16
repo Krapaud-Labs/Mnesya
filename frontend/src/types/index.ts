@@ -33,4 +33,5 @@ export type CaregiverTabsParamList = {
 export type UserTabsParamList = {
     Emergency: undefined;
     Refresh: undefined;
+    Emergency: undefined;
 };
