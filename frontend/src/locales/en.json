@@ -156,6 +156,9 @@
         "labels": {
             "Date:": "Date:"
         },
+        "messages": {
+            "noReminders": "No reminders yet"
+        },
         "status": {
             "Pending": "Pending",
             "Postponed": "Postponed",
