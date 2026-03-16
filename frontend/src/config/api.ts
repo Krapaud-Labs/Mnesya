@@ -10,13 +10,8 @@
  * @module api
  */
 
-import Constants from 'expo-constants';
-
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-const hostUri = Constants.expoConfig?.hostUri;
-const localIp = hostUri ? hostUri.split(':')[0] : null;
-
-export const API_BASE_URL = localIp ? `http://${localIp}:8000` : 'https://api.mnesya.app'; // production fallback
+export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'https://api.mnesya.app';
 
 export const BACKUP_API_URL = 'https://api.mnesya.app';
