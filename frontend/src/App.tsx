@@ -94,6 +94,7 @@ const App: React.FC = () => {
                     profileId: string | number;
                     isUserNotification?: boolean;
                     isCaregiverAlert?: boolean;
+                    type?: string;
                 };
 
                 // If it's a user notification, cancel all other remaining notifications
@@ -121,7 +122,7 @@ const App: React.FC = () => {
                         profileId: data.profileId,
                     });
                 } else if (navigationRef.current && data && (data.isCaregiverAlert || data.type === 'caregiver_alert')) {
-                    navigationRef.current.navigate('Dashboard', undefined);
+                    navigationRef.current.navigate('Dashboard', { screen: 'Reminders' });
                 }
             }
         );
