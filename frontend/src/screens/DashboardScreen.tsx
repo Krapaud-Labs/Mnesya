@@ -125,7 +125,6 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
                         source={require('../../assets/mnesya-logo.png')}
                         style={commonStyles.logo}
                     />
-                    <Text style={commonStyles.appName}>Mnesya</Text>
                 </View>
                 <TouchableOpacity
                     style={styles.bellButton}

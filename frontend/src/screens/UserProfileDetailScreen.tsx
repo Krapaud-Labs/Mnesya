@@ -204,7 +204,6 @@ const UserProfileDetailScreen: React.FC<Props> = ({ navigation, route }: Props) 
                         source={require('../../assets/mnesya-logo.png')}
                         style={commonStyles.logo}
                     />
-                    <Text style={commonStyles.appName}>Mnesya</Text>
                 </View>
                 <TouchableOpacity
                     onPress={() => {
@@ -514,7 +513,10 @@ const styles = StyleSheet.create({
 
     // MENU
     menuButton: {
-        padding: 8,
+        width: 44,
+        height: 44,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     menuOverlay: {
         position: 'absolute',
