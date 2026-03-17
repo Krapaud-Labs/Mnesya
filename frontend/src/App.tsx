@@ -92,6 +92,7 @@ const App: React.FC = () => {
                     reminder_id: string;
                     message: string;
                     profileId: string | number;
+                    profile_id?: string;
                     isUserNotification?: boolean;
                     isCaregiverAlert?: boolean;
                     type?: string;
@@ -122,7 +123,12 @@ const App: React.FC = () => {
                         profileId: data.profileId,
                     });
                 } else if (navigationRef.current && data && (data.isCaregiverAlert || data.type === 'caregiver_alert')) {
-                    navigationRef.current.navigate('Dashboard', { screen: 'Reminders' });
+                    const profileId = data.profile_id ?? (data.profileId != null ? String(data.profileId) : undefined);
+                    if (profileId) {
+                        navigationRef.current.navigate('UserProfileDetails', { profileId });
+                    } else {
+                        navigationRef.current.navigate('Dashboard', { screen: 'Reminders' });
+                    }
                 }
             }
         );
@@ -132,8 +138,59 @@ const App: React.FC = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    const handleNotificationNavigation = async () => {
+        // eslint-disable-next-line @typescript-eslint/no-deprecated
+        const lastResponse = await Notifications.getLastNotificationResponseAsync();
+        if (!lastResponse) return;
+
+        // Avoid re-navigating if this notification was already handled in a previous session
+        const notifId = lastResponse.notification.request.identifier;
+        const handledKey = `handled_notif_${notifId}`;
+        const alreadyHandled = await AsyncStorage.getItem(handledKey);
+        if (alreadyHandled) return;
+        await AsyncStorage.setItem(handledKey, '1');
+
+        const data = lastResponse.notification.request.content.data as {
+            reminder_id: string;
+            message: string;
+            profileId: string | number;
+            profile_id?: string;
+            isUserNotification?: boolean;
+            isCaregiverAlert?: boolean;
+            type?: string;
+        };
+
+        if (data.isUserNotification && data.reminder_id) {
+            try {
+                const storageKey = `notification_ids_${data.reminder_id}`;
+                const storedIds = await AsyncStorage.getItem(storageKey);
+                if (storedIds) {
+                    const notificationIds = JSON.parse(storedIds) as string[];
+                    await cancelNotifications(notificationIds);
+                    await AsyncStorage.removeItem(storageKey);
+                    await Notifications.setBadgeCountAsync(0);
+                }
+            } catch (_error) {}
+        }
+
+        if (data && !data.isCaregiverAlert && data.type !== 'caregiver_alert') {
+            navigationRef.current?.navigate('ReminderNotification', {
+                reminderId: data.reminder_id,
+                message: data.message,
+                profileId: data.profileId,
+            });
+        } else if (data && (data.isCaregiverAlert || data.type === 'caregiver_alert')) {
+            const profileId = data.profile_id ?? String(data.profileId);
+            if (profileId) {
+                navigationRef.current?.navigate('UserProfileDetails', { profileId });
+            } else {
+                navigationRef.current?.navigate('Dashboard', { screen: 'Reminders' });
+            }
+        }
+    };
+
     return (
-        <NavigationContainer ref={navigationRef}>
+        <NavigationContainer ref={navigationRef} onReady={handleNotificationNavigation}>
             <AppNavigator />
         </NavigationContainer>
     );

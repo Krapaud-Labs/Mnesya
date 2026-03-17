@@ -150,7 +150,7 @@ def send_caregiver_escalations():
                     tokens=token_strings,
                     title=my_title,
                     body=my_body,
-                    data={"type": "caregiver_alert", "reminder_id": str(reminder.id)},
+                    data={"type": "caregiver_alert", "reminder_id": str(reminder.id), "profile_id": str(reminder.user_id)},
                 )
 
             # Always mark reminder as MISSED, even if no caregiver token exists
