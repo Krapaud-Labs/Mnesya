@@ -26,6 +26,8 @@ interface PlatformDatePickerProps {
     onClose: () => void;
     /** Allow selecting dates in the past (default: false) */
     allowPastDates?: boolean;
+    /** Allow selecting dates in the future (default: true) */
+    allowFutureDates?: boolean;
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -36,6 +38,7 @@ const PlatformDatePicker: React.FC<PlatformDatePickerProps> = ({
     visible,
     onClose,
     allowPastDates = false,
+    allowFutureDates = true,
 }) => {
     const { t } = useTranslation();
     const [currentMonth, setCurrentMonth] = useState(
@@ -55,11 +58,12 @@ const PlatformDatePicker: React.FC<PlatformDatePickerProps> = ({
         return t('common.pickersText.months', { returnObjects: true }) as string[];
     };
 
-    /** Generates the list of selectable years (1920 to next year). */
+    /** Generates the list of selectable years (1920 to next year, or current year if future dates not allowed). */
     const generateYears = (): number[] => {
         const currentYear = new Date().getFullYear();
+        const maxYear = allowFutureDates ? currentYear + 1 : currentYear;
         const years: number[] = [];
-        for (let year = 1920; year <= currentYear + 1; year++) {
+        for (let year = 1920; year <= maxYear; year++) {
             years.push(year);
         }
         return years.reverse(); // Most recent first
@@ -128,8 +132,13 @@ const PlatformDatePicker: React.FC<PlatformDatePickerProps> = ({
     const isPastDate = (date: Date): boolean => {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-
         return date < today;
+    };
+
+    const isFutureDate = (date: Date): boolean => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return date > today;
     };
 
     if (!visible) {
@@ -279,7 +288,8 @@ const PlatformDatePicker: React.FC<PlatformDatePickerProps> = ({
                             const todayHighlight = isToday(date);
                             const selectedHighlight = isSelected(date);
                             const isPast = isPastDate(date);
-                            const isDisabled = !allowPastDates && isPast;
+                            const isFuture = isFutureDate(date);
+                            const isDisabled = (!allowPastDates && isPast) || (!allowFutureDates && isFuture);
 
                             return (
                                 <TouchableOpacity
