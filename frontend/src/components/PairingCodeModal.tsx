@@ -108,7 +108,7 @@ const PairingCodeModal: React.FC<PairingCodeModalProps> = ({
         <Modal visible={visible} transparent={true} animationType="slide" onRequestClose={onClose}>
             <SafeAreaView style={styles.container}>
                 {/* Header with back button and logo */}
-                <View style={commonStyles.header}>
+                <View style={styles.header}>
                     {showBackButton ? (
                         <TouchableOpacity onPress={onBack ?? onClose} style={styles.backButton}>
                             <Ionicons name="arrow-back" size={24} color="#4A90E2" />
