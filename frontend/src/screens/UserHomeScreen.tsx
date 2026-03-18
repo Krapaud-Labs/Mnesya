@@ -24,7 +24,7 @@ import { saveUserInfo, deleteToken, deleteUserInfo } from '../services/tokenServ
 import { getCurrentUserProfile } from '../services/profileService';
 import { useRefresh } from '../contexts/RefreshContext';
 import { getUserReminders } from '../services/reminderService';
-import { useReminderStatus, useAutoRefresh } from '../hooks';
+import { useAutoRefresh } from '../hooks';
 import { ConfirmationModal, MenuModal } from '../components';
 import type { UserProfileData, ReminderData } from '../types/interfaces';
 
@@ -48,33 +48,22 @@ const statusColorMap: Record<string, object> = {
 interface UserReminderItemProps {
     reminder: ReminderData;
     onBellPress: () => void;
-    reloadTrigger?: number;
 }
 
 /**
  * Displays a single reminder card with its status badge.
- * The bell icon is disabled (grey) when the status is DONE or UNABLE.
- *
- * Extracted as a sub-component so that `useReminderStatus` can be called
- * as a proper React hook (hooks cannot be called inside `.map()`).
+ * Status comes from the reminder data fetched by the parent screen.
  */
-const UserReminderItem: React.FC<UserReminderItemProps> = ({
-    reminder,
-    onBellPress,
-    reloadTrigger,
-}) => {
+const UserReminderItem: React.FC<UserReminderItemProps> = ({ reminder, onBellPress }) => {
     const { t } = useTranslation();
-    const { reminderStatus } = useReminderStatus(reminder.id, undefined, reloadTrigger);
+    const currentStatus = reminder.current_status ?? null;
 
-    const statusKey = reminderStatus?.status
-        ? reminderStatus.status.charAt(0).toUpperCase() +
-          reminderStatus.status.slice(1).toLowerCase()
+    const statusKey = currentStatus
+        ? currentStatus.charAt(0).toUpperCase() + currentStatus.slice(1).toLowerCase()
         : null;
 
     const isClosed =
-        reminderStatus?.status === 'DONE' ||
-        reminderStatus?.status === 'UNABLE' ||
-        reminderStatus?.status === 'MISSED';
+        currentStatus === 'DONE' || currentStatus === 'UNABLE' || currentStatus === 'MISSED';
 
     return (
         <View style={commonStyles.reminderCard}>
@@ -120,7 +109,7 @@ const UserReminderItem: React.FC<UserReminderItemProps> = ({
                     <Text
                         style={[
                             commonStyles.statusText,
-                            statusColorMap[reminderStatus!.status] ?? commonStyles.statusPending,
+                            statusColorMap[currentStatus!] ?? commonStyles.statusPending,
                         ]}
                     >
                         {t(`reminders.status.${statusKey}`)}
@@ -283,7 +272,6 @@ const UserHomeScreen: React.FC<Props> = ({ navigation }) => {
                             <UserReminderItem
                                 key={reminder.id}
                                 reminder={reminder}
-                                reloadTrigger={refreshTrigger + focusTrigger}
                                 onBellPress={() => {
                                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                                     if (isReminderAvailable(reminder.scheduled_at)) {
