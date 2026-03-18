@@ -15,6 +15,7 @@ interface UseActivityLogResult {
     loading: boolean;
     error: string | null;
     reload: () => Promise<void>;
+    silentReload: () => Promise<void>;
 }
 
 // ─── Hook ───────────────────────────────────────────────────────────────────────
@@ -31,19 +32,19 @@ export const useActivityLog = (onAuthError?: () => void): UseActivityLogResult =
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const loadEntries = useCallback(async () => {
+    const loadEntries = useCallback(async (silent = false) => {
         try {
-            setLoading(true);
+            if (!silent) setLoading(true);
             setError(null);
             const data = await getCaregiverActivityLog();
             setEntries(data);
         } catch (err) {
-            setError('common.errors.failedToLoadActivityLog');
+            if (!silent) setError('common.errors.failedToLoadActivityLog');
             if (err instanceof Error && err.message.includes('401')) {
                 onAuthError?.();
             }
         } finally {
-            setLoading(false);
+            if (!silent) setLoading(false);
         }
     }, [onAuthError]);
 
@@ -51,10 +52,8 @@ export const useActivityLog = (onAuthError?: () => void): UseActivityLogResult =
         loadEntries();
     }, [loadEntries]);
 
-    return {
-        entries,
-        loading,
-        error,
-        reload: loadEntries,
-    };
+    const reload = useCallback(() => loadEntries(false), [loadEntries]);
+    const silentReload = useCallback(() => loadEntries(true), [loadEntries]);
+
+    return { entries, loading, error, reload, silentReload };
 };
