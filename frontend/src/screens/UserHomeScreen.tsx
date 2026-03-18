@@ -135,9 +135,9 @@ const UserReminderItem: React.FC<UserReminderItemProps> = ({
 
 const UserHomeScreen: React.FC<Props> = ({ navigation }) => {
     const { t } = useTranslation();
-    const { refreshTrigger, isRefreshing, setIsRefreshing, triggerRefresh } = useRefresh();
+    const { refreshTrigger, isRefreshing, setIsRefreshing, triggerRefresh, silentTriggerRefresh } = useRefresh();
 
-    useAutoRefresh(triggerRefresh);
+    useAutoRefresh(silentTriggerRefresh);
 
     const [showAlert, setShowAlert] = useState(false);
     const [showMenu, setShowMenu] = useState(false);

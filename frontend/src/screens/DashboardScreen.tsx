@@ -41,7 +41,7 @@ type Props = CompositeScreenProps<
 const DashboardScreen: React.FC<Props> = ({ navigation }) => {
     const { t } = useTranslation();
     // Load user profiles from API
-    const { userData, loading, error, reload } = useUserProfiles();
+    const { userData, loading, error, reload, silentReload } = useUserProfiles();
     const isInitialLoading = loading && userData === null;
     const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -51,23 +51,34 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
     // ISO timestamp of the most recent entry seen when the modal was last opened.
     // Persisted in AsyncStorage so it survives app restarts.
     const lastSeenAt = useRef<string | null>(null);
+    const [lastSeenLoaded, setLastSeenLoaded] = useState(false);
     const {
         entries: activityEntries,
         loading: activityLoading,
         error: activityError,
         reload: reloadActivity,
+        silentReload: silentReloadActivity,
     } = useActivityLog();
 
     // Restore the persisted lastSeenAt on mount.
+    // lastSeenLoaded signals when the value is ready to avoid a race condition
+    // with activityEntries loading before AsyncStorage resolves.
     useEffect(() => {
         AsyncStorage.getItem('activity_log_last_seen_at').then((stored) => {
             lastSeenAt.current = stored;
+            setLastSeenLoaded(true);
         });
     }, []);
 
     // Show badge when any entry is newer than the last time the modal was opened.
+    // Wait for lastSeenLoaded to avoid treating all entries as unread on first render.
     useEffect(() => {
-        if (!activityEntries || activityEntries.length === 0) return;
+        if (!lastSeenLoaded) return;
+        if (!activityEntries || activityEntries.length === 0) {
+            setHasUnread(false);
+            Notifications.setBadgeCountAsync(0);
+            return;
+        }
         const newestAt = activityEntries[0].occurred_at;
         if (!lastSeenAt.current || newestAt > lastSeenAt.current) {
             const unreadCount = lastSeenAt.current
@@ -76,11 +87,12 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
             setHasUnread(true);
             Notifications.setBadgeCountAsync(unreadCount);
         } else {
+            setHasUnread(false);
             Notifications.setBadgeCountAsync(0);
         }
-    }, [activityEntries]);
+    }, [activityEntries, lastSeenLoaded]);
 
-    useAutoRefresh(() => { reload(); reloadActivity(); }, 15_000);
+    useAutoRefresh(() => { silentReload(); silentReloadActivity(); }, 15_000);
 
     const handleRefresh = useCallback(async () => {
         setIsRefreshing(true);

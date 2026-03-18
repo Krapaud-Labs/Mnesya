@@ -11,6 +11,7 @@ type RefreshContextType = {
     refreshTrigger: number;
     isRefreshing: boolean;
     triggerRefresh: () => void;
+    silentTriggerRefresh: () => void;
     setIsRefreshing: (value: boolean) => void;
 };
 
@@ -27,9 +28,13 @@ export const RefreshProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setRefreshTrigger((prev) => prev + 1);
     }, []);
 
+    const silentTriggerRefresh = useCallback(() => {
+        setRefreshTrigger((prev) => prev + 1);
+    }, []);
+
     return (
         <RefreshContext.Provider
-            value={{ refreshTrigger, isRefreshing, triggerRefresh, setIsRefreshing }}
+            value={{ refreshTrigger, isRefreshing, triggerRefresh, silentTriggerRefresh, setIsRefreshing }}
         >
             {children}
         </RefreshContext.Provider>
