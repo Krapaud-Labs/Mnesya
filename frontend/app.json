@@ -14,8 +14,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.krapaud.mnesya",
-      "buildNumber": "$(EAS_BUILD_NUMBER)",
-      "infoPlist": {
+"infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
     },

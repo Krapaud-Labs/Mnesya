@@ -5,6 +5,7 @@
  */
 import React, { useEffect, useRef } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AppState as RNAppState, AppStateStatus } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import './i18n'; // Initialize internationalization before any component renders
@@ -190,9 +191,11 @@ const App: React.FC = () => {
     };
 
     return (
-        <NavigationContainer ref={navigationRef} onReady={handleNotificationNavigation}>
-            <AppNavigator />
-        </NavigationContainer>
+        <SafeAreaProvider>
+            <NavigationContainer ref={navigationRef} onReady={handleNotificationNavigation}>
+                <AppNavigator />
+            </NavigationContainer>
+        </SafeAreaProvider>
     );
 };
 

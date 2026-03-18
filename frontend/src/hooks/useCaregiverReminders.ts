@@ -15,6 +15,7 @@ interface UseReminderResult {
     loading: boolean;
     error: string | null;
     reload: () => Promise<void>;
+    silentReload: () => Promise<void>;
 }
 
 // ─── Hook ───────────────────────────────────────────────────────────────────────
@@ -30,28 +31,26 @@ export const useCaregiverReminders = (onAuthError?: () => void): UseReminderResu
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const loadReminders = useCallback(async () => {
+    const loadReminders = useCallback(async (silent = false) => {
         try {
-            setLoading(true);
+            if (!silent) setLoading(true);
             setError(null);
             const reminders = await getCaregiverReminders();
             setReminderData(reminders);
         } catch (err) {
-            setError('common.errors.failedToLoadReminders');
+            if (!silent) setError('common.errors.failedToLoadReminders');
             if (err instanceof Error && err.message.includes('401')) {
                 onAuthError?.();
             }
         } finally {
-            setLoading(false);
+            if (!silent) setLoading(false);
         }
     }, [onAuthError]);
     useEffect(() => {
         loadReminders();
     }, [loadReminders]);
-    return {
-        reminderData,
-        loading,
-        error,
-        reload: loadReminders,
-    };
+    const reload = useCallback(() => loadReminders(false), [loadReminders]);
+    const silentReload = useCallback(() => loadReminders(true), [loadReminders]);
+
+    return { reminderData, loading, error, reload, silentReload };
 };
