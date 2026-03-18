@@ -108,6 +108,7 @@ class ReminderResponse(BaseModel):
     user_id: UUID
     user_first_name: Optional[str] = None
     user_last_name: Optional[str] = None
+    current_status: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 

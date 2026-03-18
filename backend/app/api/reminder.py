@@ -18,6 +18,7 @@ from app.schemas.reminder_schema import (
     ReminderUpdate,
 )
 from app.services.user_facade import UserFacade
+from app.services.reminder_status_facade import ReminderStatusFacade
 from app.api.authentication import verify_token
 from app import get_db
 
@@ -43,7 +44,11 @@ def get_caregiver_id(
     return token.get("sub")
 
 
-def build_reminder_response(reminder) -> ReminderResponse:
+def get_reminder_status_facade(db: Session = Depends(get_db)) -> ReminderStatusFacade:
+    return ReminderStatusFacade(db)
+
+
+def build_reminder_response(reminder, current_status: str = None) -> ReminderResponse:
     """Build a ReminderResponse from a reminder object."""
     return ReminderResponse(
         id=reminder.id,
@@ -54,6 +59,7 @@ def build_reminder_response(reminder) -> ReminderResponse:
         user_id=reminder.user_id,
         user_first_name=getattr(reminder, "user_first_name", None),
         user_last_name=getattr(reminder, "user_last_name", None),
+        current_status=current_status,
         created_at=reminder.created_at,
         updated_at=reminder.updated_at,
     )
@@ -223,6 +229,7 @@ async def get_all_reminder_by_user(
     user_id: str = Depends(get_caregiver_id),
     reminder_facade: ReminderFacade = Depends(get_reminder_facade),
     user_facade: UserFacade = Depends(get_user_facade),
+    status_facade: ReminderStatusFacade = Depends(get_reminder_status_facade),
 ):
     """Get all reminders for the authenticated user.
 
@@ -249,7 +256,8 @@ async def get_all_reminder_by_user(
                 detail="User not found",
             )
         reminders = reminder_facade.get_reminder_by_user(UUID(user_id))
-        return [build_reminder_response(r) for r in reminders]
+        statuses = status_facade.get_latest_statuses_for_reminder_ids([r.id for r in reminders])
+        return [build_reminder_response(r, statuses.get(r.id)) for r in reminders]
 
     except Exception as e:
         traceback.print_exc()
