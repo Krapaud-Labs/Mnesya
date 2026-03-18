@@ -24,7 +24,7 @@ import { saveUserInfo, deleteToken, deleteUserInfo } from '../services/tokenServ
 import { getCurrentUserProfile } from '../services/profileService';
 import { useRefresh } from '../contexts/RefreshContext';
 import { getUserReminders } from '../services/reminderService';
-import { useReminderStatus } from '../hooks';
+import { useReminderStatus, useAutoRefresh } from '../hooks';
 import { ConfirmationModal, MenuModal } from '../components';
 import type { UserProfileData, ReminderData } from '../types/interfaces';
 
@@ -136,6 +136,8 @@ const UserReminderItem: React.FC<UserReminderItemProps> = ({
 const UserHomeScreen: React.FC<Props> = ({ navigation }) => {
     const { t } = useTranslation();
     const { refreshTrigger, isRefreshing, setIsRefreshing, triggerRefresh } = useRefresh();
+
+    useAutoRefresh(triggerRefresh);
 
     const [showAlert, setShowAlert] = useState(false);
     const [showMenu, setShowMenu] = useState(false);

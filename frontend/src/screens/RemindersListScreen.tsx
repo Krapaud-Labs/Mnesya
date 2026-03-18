@@ -28,7 +28,7 @@ import { commonStyles } from '../styles/commonStyles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { cancelNotifications } from '../utils/notifications';
 import { deleteReminder } from '../services/reminderService';
-import { useCaregiverReminders } from '../hooks';
+import { useCaregiverReminders, useAutoRefresh } from '../hooks';
 import ReminderCard from '../components/ReminderCard';
 import FilterPickerModal from '../components/FilterPickerModal';
 import { ConfirmationModal } from '../components';
@@ -47,6 +47,8 @@ const RemindersListScreen: React.FC<Props> = ({ navigation }) => {
     const { reminderData, reload } = useCaregiverReminders();
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [reloadCounter, setReloadCounter] = useState(0);
+
+    useAutoRefresh(() => { reload(); setReloadCounter((c) => c + 1); }, 20_000);
 
     const handleRefresh = useCallback(async () => {
         setIsRefreshing(true);

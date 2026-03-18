@@ -25,7 +25,7 @@ import type { CompositeScreenProps } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList, CaregiverTabsParamList } from '../types/index';
 import { commonStyles } from '../styles/commonStyles';
-import { useUserProfiles, useActivityLog } from '../hooks';
+import { useUserProfiles, useActivityLog, useAutoRefresh } from '../hooks';
 import { ActivityLogModal } from '../components';
 import { calculateAge } from '../utils/dateUtils';
 
@@ -79,6 +79,8 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
             Notifications.setBadgeCountAsync(0);
         }
     }, [activityEntries]);
+
+    useAutoRefresh(() => { reload(); reloadActivity(); }, 15_000);
 
     const handleRefresh = useCallback(async () => {
         setIsRefreshing(true);
