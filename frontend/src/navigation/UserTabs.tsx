@@ -35,7 +35,7 @@ const UserTabsContent: React.FC = () => {
                     tabBarActiveTintColor: styles.activeTab.color,
                     tabBarInactiveTintColor: styles.inactiveTab.color,
                     tabBarStyle: {
-                        height: 40 + insets.bottom,
+                        height: 60 + insets.bottom,
                         paddingBottom: 6 + insets.bottom,
                         paddingTop: 5,
                     },

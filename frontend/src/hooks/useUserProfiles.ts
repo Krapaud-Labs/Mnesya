@@ -15,6 +15,7 @@ interface UseUserProfilesResult {
     loading: boolean;
     error: string | null;
     reload: () => Promise<void>;
+    silentReload: () => Promise<void>;
 }
 
 // ─── Hook ───────────────────────────────────────────────────────────────────────
@@ -30,21 +31,19 @@ export const useUserProfiles = (onAuthError?: () => void): UseUserProfilesResult
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const loadProfiles = useCallback(async () => {
+    const loadProfiles = useCallback(async (silent = false) => {
         try {
-            setLoading(true);
+            if (!silent) setLoading(true);
             setError(null);
             const profiles = await getProfiles();
             setUserData(profiles);
         } catch (err) {
-            setError('common.errors.failedToLoadProfiles');
-
-            // Handle authentication errors
+            if (!silent) setError('common.errors.failedToLoadProfiles');
             if (err instanceof Error && err.message.includes('401')) {
                 onAuthError?.();
             }
         } finally {
-            setLoading(false);
+            if (!silent) setLoading(false);
         }
     }, [onAuthError]);
 
@@ -53,10 +52,8 @@ export const useUserProfiles = (onAuthError?: () => void): UseUserProfilesResult
         loadProfiles();
     }, [loadProfiles]);
 
-    return {
-        userData,
-        loading,
-        error,
-        reload: loadProfiles,
-    };
+    const reload = useCallback(() => loadProfiles(false), [loadProfiles]);
+    const silentReload = useCallback(() => loadProfiles(true), [loadProfiles]);
+
+    return { userData, loading, error, reload, silentReload };
 };
