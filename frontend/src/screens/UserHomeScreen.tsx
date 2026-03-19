@@ -277,6 +277,8 @@ const UserHomeScreen: React.FC<Props> = ({ navigation }) => {
                                     if (isReminderAvailable(reminder.scheduled_at)) {
                                         navigation.getParent()?.navigate('ReminderNotification', {
                                             reminderId: reminder.id,
+                                            title: reminder.title,
+                                            message: reminder.description,
                                         });
                                     } else {
                                         setShowAlert(true);

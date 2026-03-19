@@ -9,7 +9,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useTranslation } from 'react-i18next';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import type { UserTabsParamList } from '../types/index';
 
 // ─── Navigator ──────────────────────────────────────────────────────────────
@@ -22,7 +22,6 @@ const Tab = createBottomTabNavigator<UserTabsParamList>();
 
 const UserTabsContent: React.FC = () => {
     const { t } = useTranslation();
-    const insets = useSafeAreaInsets();
     const { triggerRefresh, isRefreshing } = useRefresh();
     const [emergencyVisible, setEmergencyVisible] = useState(false);
 
@@ -35,8 +34,6 @@ const UserTabsContent: React.FC = () => {
                     tabBarActiveTintColor: styles.activeTab.color,
                     tabBarInactiveTintColor: styles.inactiveTab.color,
                     tabBarStyle: {
-                        height: 60 + insets.bottom,
-                        paddingBottom: 6 + insets.bottom,
                         paddingTop: 5,
                     },
                     tabBarLabelStyle: styles.tabBarLabel,

@@ -19,6 +19,7 @@ export type RootStackParamList = {
     UserDashboard: undefined;
     ReminderNotification: {
         reminderId: string;
+        title?: string;
         message?: string;
         profileId?: string | number;
     };

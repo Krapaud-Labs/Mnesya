@@ -8,7 +8,6 @@ import { StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { CaregiverTabsParamList } from '../types/index';
 
 // ─── Navigator ──────────────────────────────────────────────────────────────
@@ -21,7 +20,6 @@ const Tab = createBottomTabNavigator<CaregiverTabsParamList>();
 
 const CaregiverTabs: React.FC = () => {
     const { t } = useTranslation();
-    const insets = useSafeAreaInsets();
 
     return (
         <Tab.Navigator
@@ -31,8 +29,6 @@ const CaregiverTabs: React.FC = () => {
                 tabBarActiveTintColor: styles.activeTab.color,
                 tabBarInactiveTintColor: styles.inactiveTab.color,
                 tabBarStyle: {
-                    height: 60 + insets.bottom,
-                    paddingBottom: 6 + insets.bottom,
                     paddingTop: 5,
                 },
                 tabBarLabelStyle: styles.tabBarLabel,

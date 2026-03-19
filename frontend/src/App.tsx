@@ -91,6 +91,7 @@ const App: React.FC = () => {
             async (response) => {
                 const data = response.notification.request.content.data as {
                     reminder_id: string;
+                    title?: string;
                     message: string;
                     profileId: string | number;
                     profile_id?: string;
@@ -120,6 +121,7 @@ const App: React.FC = () => {
                 if (navigationRef.current && data && !data.isCaregiverAlert && data.type !== 'caregiver_alert') {
                     navigationRef.current.navigate('ReminderNotification', {
                         reminderId: data.reminder_id,
+                        title: data.title,
                         message: data.message,
                         profileId: data.profileId,
                     });
@@ -153,6 +155,7 @@ const App: React.FC = () => {
 
         const data = lastResponse.notification.request.content.data as {
             reminder_id: string;
+            title?: string;
             message: string;
             profileId: string | number;
             profile_id?: string;
@@ -177,6 +180,7 @@ const App: React.FC = () => {
         if (data && !data.isCaregiverAlert && data.type !== 'caregiver_alert') {
             navigationRef.current?.navigate('ReminderNotification', {
                 reminderId: data.reminder_id,
+                title: data.title,
                 message: data.message,
                 profileId: data.profileId,
             });
