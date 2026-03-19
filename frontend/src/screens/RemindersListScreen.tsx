@@ -46,6 +46,7 @@ const RemindersListScreen: React.FC<Props> = ({ navigation }) => {
     const { t } = useTranslation();
     const { reminderData, reload, silentReload } = useCaregiverReminders();
     const [isRefreshing, setIsRefreshing] = useState(false);
+    const isFirstFocus = useRef(true);
 
     useAutoRefresh(silentReload, 20_000);
 
@@ -76,8 +77,13 @@ const RemindersListScreen: React.FC<Props> = ({ navigation }) => {
         setShowScrollFade(!isAtBottom);
     };
 
+    // Skip the first focus — the hook already loads on mount.
     useFocusEffect(
         useCallback(() => {
+            if (isFirstFocus.current) {
+                isFirstFocus.current = false;
+                return;
+            }
             reload();
         }, [reload])
     );

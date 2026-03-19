@@ -44,6 +44,7 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
     const { userData, loading, error, reload, silentReload } = useUserProfiles();
     const isInitialLoading = loading && userData === null;
     const [isRefreshing, setIsRefreshing] = useState(false);
+    const isFirstFocus = useRef(true);
 
     // Activity log
     const [showActivityLog, setShowActivityLog] = useState(false);
@@ -121,9 +122,14 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
         setShowScrollFade(!isAtBottom);
     };
 
-    // Reload profiles and activity log when screen comes into focus
+    // Reload profiles and activity log when screen comes into focus.
+    // Skip the first focus — the hooks already load on mount.
     useFocusEffect(
         useCallback(() => {
+            if (isFirstFocus.current) {
+                isFirstFocus.current = false;
+                return;
+            }
             reload();
             reloadActivity();
         }, [reload, reloadActivity])
