@@ -154,6 +154,30 @@ class ReminderRepository(BaseRepository[ReminderModel]):
             .all()
         )
 
+    def delete_by_user_id(self, user_id: UUID) -> int:
+        """Delete all reminders and their statuses for a given user.
+
+        Args:
+            user_id (UUID): The user's unique identifier
+
+        Returns:
+            int: Number of reminders deleted
+        """
+        reminder_ids = [
+            r.id for r in self.db.query(self.model).filter(
+                self.model._user_id == user_id
+            ).all()
+        ]
+        if reminder_ids:
+            self.db.query(ReminderStatusModel).filter(
+                ReminderStatusModel._reminder_id.in_(reminder_ids)
+            ).delete(synchronize_session=False)
+        deleted_count = self.db.query(self.model).filter(
+            self.model._user_id == user_id
+        ).delete(synchronize_session=False)
+        self.db.commit()
+        return deleted_count
+
     def get_reminders_to_escalate(self, delay_minutes: int = 10) -> List[ReminderModel]:
         """Get reminders that should be escalated to the caregiver.
 
