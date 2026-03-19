@@ -11,6 +11,8 @@ from typing import List
 from app.models.user import UserModel
 from app.persistence.user_repository import UserRepository
 from app.persistence.pairing_code_repository import PairingCodeRepository
+from app.persistence.reminder_repository import ReminderRepository
+from app.persistence.push_token_repository import PushTokenRepository
 
 
 class UserFacade:
@@ -28,6 +30,8 @@ class UserFacade:
         """Initialize the facade with a user repository."""
         self.user_repo = UserRepository(db)
         self.pairing_code_repo = PairingCodeRepository(db)
+        self.reminder_repo = ReminderRepository(db)
+        self.push_token_repo = PushTokenRepository(db)
 
     # ==================== USER BUSINESS LOGIC ====================
 
@@ -92,7 +96,8 @@ class UserFacade:
         Raises:
             Exception: If database operation fails
         """
-        # Delete all pairing codes associated with the user first
-        # to avoid foreign key constraint violations
+        # Delete dependent records first to avoid foreign key constraint violations
+        self.reminder_repo.delete_by_user_id(user_id)
         self.pairing_code_repo.delete_by_user_id(user_id)
+        self.push_token_repo.delete_by_user_id(user_id)
         return self.user_repo.delete(user_id)

@@ -141,6 +141,11 @@ class ReminderStatusFacade:
         """
         return self.reminder_status_repo.get_latest_status(reminder_id)
 
+    def get_latest_statuses_for_reminder_ids(self, reminder_ids: list) -> dict:
+        """Returns a dict {reminder_id: status_str} for a list of reminder IDs."""
+        statuses = self.reminder_status_repo.get_latest_statuses_for_reminder_ids(reminder_ids)
+        return {s.reminder_id: s.status for s in statuses}
+
     def get_recent_activity(self, caregiver_id, hours: int = 48) -> list:
         """Get all user-interaction statuses across all reminders of a caregiver
         over the last `hours` hours.

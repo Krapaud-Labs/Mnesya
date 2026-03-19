@@ -72,6 +72,21 @@ class PushTokenRepository(BaseRepository):
             return True
         return False
 
+    def delete_by_user_id(self, user_id: UUID) -> int:
+        """Delete all push tokens for a given user.
+
+        Args:
+            user_id (UUID): The user's unique identifier
+
+        Returns:
+            int: Number of tokens deleted
+        """
+        deleted_count = self.db.query(PushTokenModel).filter(
+            PushTokenModel._user_id == user_id
+        ).delete(synchronize_session=False)
+        self.db.commit()
+        return deleted_count
+
     def delete_by_token(self, token: str) -> bool:
         """Delete a push token by its token string.
         
