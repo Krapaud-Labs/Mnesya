@@ -66,6 +66,35 @@ class ReminderStatusRepository(BaseRepository[ReminderStatusModel]):
             .first()
         )
 
+    def get_latest_statuses_for_reminder_ids(
+        self, reminder_ids: List[UUID]
+    ) -> List[ReminderStatusModel]:
+        """Get the most recent status for each reminder in one query."""
+        if not reminder_ids:
+            return []
+
+        from sqlalchemy import func
+
+        subquery = (
+            self.db.query(
+                self.model._reminder_id.label('reminder_id'),
+                func.max(self.model._created_at).label('max_created_at'),
+            )
+            .filter(self.model._reminder_id.in_(reminder_ids))
+            .group_by(self.model._reminder_id)
+            .subquery()
+        )
+
+        return (
+            self.db.query(self.model)
+            .join(
+                subquery,
+                (self.model._reminder_id == subquery.c.reminder_id)
+                & (self.model._created_at == subquery.c.max_created_at),
+            )
+            .all()
+        )
+
     def get_recent_activity_by_caregiver(
         self, caregiver_id: UUID, hours: int = 48
     ) -> List[ReminderStatusModel]:
