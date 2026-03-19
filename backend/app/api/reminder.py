@@ -130,6 +130,7 @@ def build_reminder_response(reminder, current_status: str = None) -> ReminderRes
 async def get_all_reminder_by_caregiver(
     caregiver_id: str = Depends(get_caregiver_id),
     reminder_facade: ReminderFacade = Depends(get_reminder_facade),
+    status_facade: ReminderStatusFacade = Depends(get_reminder_status_facade),
 ):
     """Get all reminders created by the authenticated caregiver.
 
@@ -140,6 +141,7 @@ async def get_all_reminder_by_caregiver(
         caregiver_id (str): ID of the authenticated caregiver
             (extracted from JWT token)
         reminder_facade (ReminderFacade): Reminder service facade
+        status_facade (ReminderStatusFacade): Reminder status service facade
 
     Returns:
         List[ReminderResponse]: List of reminders created by the caregiver
@@ -149,7 +151,8 @@ async def get_all_reminder_by_caregiver(
     """
     try:
         reminders = reminder_facade.get_reminder_by_caregiver(UUID(caregiver_id))
-        return [build_reminder_response(r) for r in reminders]
+        statuses = status_facade.get_latest_statuses_for_reminder_ids([r.id for r in reminders])
+        return [build_reminder_response(r, statuses.get(r.id)) for r in reminders]
 
     except Exception as e:
         traceback.print_exc()

@@ -46,14 +46,12 @@ const RemindersListScreen: React.FC<Props> = ({ navigation }) => {
     const { t } = useTranslation();
     const { reminderData, reload, silentReload } = useCaregiverReminders();
     const [isRefreshing, setIsRefreshing] = useState(false);
-    const [reloadCounter, setReloadCounter] = useState(0);
 
-    useAutoRefresh(() => { silentReload(); setReloadCounter((c) => c + 1); }, 20_000);
+    useAutoRefresh(silentReload, 20_000);
 
     const handleRefresh = useCallback(async () => {
         setIsRefreshing(true);
         await reload();
-        setReloadCounter((c) => c + 1);
         setIsRefreshing(false);
     }, [reload]);
 
@@ -81,7 +79,6 @@ const RemindersListScreen: React.FC<Props> = ({ navigation }) => {
     useFocusEffect(
         useCallback(() => {
             reload();
-            setReloadCounter((c) => c + 1);
         }, [reload])
     );
 
@@ -365,7 +362,6 @@ const RemindersListScreen: React.FC<Props> = ({ navigation }) => {
                                 key={reminder.id}
                                 reminder={reminder}
                                 onDelete={handleDeleteReminder}
-                                reloadTrigger={reloadCounter}
                             />
                         ))
                     )}

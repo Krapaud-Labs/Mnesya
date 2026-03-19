@@ -8,7 +8,6 @@ import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { useReminderStatus } from '../hooks';
 import { commonStyles } from '../styles/commonStyles';
 import type { ReminderData } from '../types/interfaces';
 
@@ -17,14 +16,13 @@ import type { ReminderData } from '../types/interfaces';
 interface ReminderCardProps {
     reminder: ReminderData;
     onDelete: (id: string) => void;
-    reloadTrigger?: number;
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-const ReminderCard: React.FC<ReminderCardProps> = ({ reminder, onDelete, reloadTrigger }) => {
+const ReminderCard: React.FC<ReminderCardProps> = ({ reminder, onDelete }) => {
     const { t } = useTranslation();
-    const { reminderStatus } = useReminderStatus(reminder.id, undefined, reloadTrigger);
+    const currentStatus = reminder.current_status;
 
     return (
         <View style={commonStyles.reminderCard}>
@@ -66,7 +64,7 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ reminder, onDelete, reloadT
                         </Text>
                     </View>
                 </View>
-                {reminderStatus && (
+                {currentStatus && (
                     <Text
                         style={[
                             commonStyles.statusText,
@@ -76,11 +74,11 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ reminder, onDelete, reloadT
                                 POSTPONED: commonStyles.statusPostponed,
                                 UNABLE: commonStyles.statusUnable,
                                 MISSED: commonStyles.statusMissed,
-                            }[reminderStatus.status] ?? commonStyles.statusPending,
+                            }[currentStatus] ?? commonStyles.statusPending,
                         ]}
                     >
                         {t(
-                            `reminders.status.${reminderStatus.status.charAt(0).toUpperCase() + reminderStatus.status.slice(1).toLowerCase()}`
+                            `reminders.status.${currentStatus.charAt(0).toUpperCase() + currentStatus.slice(1).toLowerCase()}`
                         )}
                     </Text>
                 )}
