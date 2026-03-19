@@ -146,8 +146,11 @@ class NotificationService:
         body = reminder_description or "Vous avez un rappel"
         data = {
             "type": "reminder",
-            "reminder_id": reminder_id, **(extra_data or {})
-        } if reminder_id else {"type": "reminder"}
+            "reminder_id": reminder_id,
+            "title": reminder_title,
+            "message": body,
+            **(extra_data or {})
+        } if reminder_id else {"type": "reminder", "title": reminder_title, "message": body}
 
         return self.send_notification(
             tokens=tokens,
