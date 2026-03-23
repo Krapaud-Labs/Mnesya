@@ -11,6 +11,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional
 from sqlalchemy.orm import Session
 import os
+import logging
 from app.limiter import limiter
 import uuid as _uuid
 
@@ -26,6 +27,8 @@ from app import get_db
 from sqlalchemy.exc import IntegrityError
 from uuid import UUID
 from app.persistence.revoked_token_repository import RevokedTokenRepository
+
+logger = logging.getLogger(__name__)
 
 # JWT Configuration
 SECRET_KEY = os.environ["SECRET_KEY"]
@@ -101,6 +104,7 @@ def verify_token(
 
         jti = payload.get("jti")
         if jti and RevokedTokenRepository(db).is_revoked(jti):
+            logger.warning("Revoked token used — sub=%s jti=%s", payload.get("sub"), jti)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Token has been revoked",
@@ -109,6 +113,7 @@ def verify_token(
 
         return payload
     except JWTError:
+        logger.warning("Invalid JWT token rejected")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
@@ -308,6 +313,7 @@ async def login(
         caregiver = caregiver_facade.get_caregiver_by_email(body.email)
 
         if not caregiver:
+            logger.warning("Failed login attempt — email not found: %s", body.email)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid email or password",
@@ -316,6 +322,7 @@ async def login(
 
         # Verify password
         if not caregiver.verify_password(body.password):
+            logger.warning("Failed login attempt — wrong password for: %s", body.email)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid email or password",
