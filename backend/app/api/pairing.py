@@ -4,12 +4,11 @@ This module provides endpoints for generating and verifying pairing codes.
 Pairing codes allow users to connect their devices with their profiles.
 """
 
-from fastapi import APIRouter, HTTPException, Depends, status
+from fastapi import APIRouter, HTTPException, Depends, status, Request
 from sqlalchemy.orm import Session
-from datetime import datetime, timezone, timedelta
-import string
-import secrets
+from datetime import timedelta
 from uuid import UUID
+from app.limiter import limiter
 
 from app.schemas.pairing_code_schema import (
     PairingCodeCreate,
@@ -19,8 +18,8 @@ from app.schemas.pairing_code_schema import (
     UserTokenRefreshResponse,
 )
 
-from app.persistence.pairing_code_repository import PairingCodeRepository
-from app.persistence.user_repository import UserRepository
+from app.services.pairing_facade import PairingFacade
+from app.services.user_facade import UserFacade
 from app.api.authentication import verify_token, create_access_token
 from app import get_db
 
@@ -29,17 +28,14 @@ ACCESS_TOKEN_EXPIRE_DAYS = 90
 router = APIRouter(prefix="/api/pairing", tags=["Pairing"])
 
 
-def generate_pairing_code(length: int = 6) -> str:
-    """Generate a random alphanumeric pairing code.
+def get_pairing_facade(db: Session = Depends(get_db)) -> PairingFacade:
+    """Dependency to create PairingFacade instance with database session."""
+    return PairingFacade(db)
 
-    Args:
-        length (int): Length of the code (default: 6)
 
-    Returns:
-        str: Randomly generated uppercase alphanumeric code
-    """
-    chars = string.ascii_uppercase + string.digits
-    return "".join(secrets.choice(chars) for _ in range(length))
+def get_user_facade(db: Session = Depends(get_db)) -> UserFacade:
+    """Dependency to create UserFacade instance with database session."""
+    return UserFacade(db)
 
 
 def get_current_caregiver_id(token_payload: dict = Depends(verify_token)) -> str:
@@ -59,24 +55,24 @@ def get_current_caregiver_id(token_payload: dict = Depends(verify_token)) -> str
     summary="Generate pairing code",
     description="""
     Generate a new pairing code for a user profile.
-    
+
     Creates a unique alphanumeric pairing code that allows an elderly person
     to pair their device with their profile. If an active (unexpired and unused)
     code already exists for this user, it will be returned instead of creating
     a new one.
-    
+
     **Authentication required:** Bearer token (caregiver)
-    
+
     **Code characteristics:**
     - 6 characters (uppercase letters and digits)
     - Unique across all codes
     - Valid for 5 minutes
     - Single use only
-    
+
     **Access control:**
     - Caregiver must be associated with the user
     - Returns 403 Forbidden if access is denied
-    
+
     **Use case:**
     Caregiver generates code and shares it with the elderly person,
     who enters it in their app to link their device to their profile.
@@ -121,13 +117,12 @@ def get_current_caregiver_id(token_payload: dict = Depends(verify_token)) -> str
 async def generate_code(
     request: PairingCodeCreate,
     caregiver_id: str = Depends(get_current_caregiver_id),
-    db: Session = Depends(get_db),
+    pairing_facade: PairingFacade = Depends(get_pairing_facade),
+    user_facade: UserFacade = Depends(get_user_facade),
 ):
     """Generate a pairing code for a user."""
     try:
-        # Verify caregiver owns this user
-        user_repo = UserRepository(db)
-        user = user_repo.get(request.user_id)
+        user = user_facade.get_user(request.user_id)
 
         if not user:
             raise HTTPException(
@@ -140,34 +135,15 @@ async def generate_code(
                 detail="You don't have access to this user",
             )
 
-        # Check if there's already an active code
-        pairing_repo = PairingCodeRepository(db)
-        existing_code = pairing_repo.find_active_by_user_id(request.user_id)
-
-        if existing_code:
-            return PairingCodeResponse(
-                code=existing_code.code, expires_at=existing_code.expires_at
-            )
-
-        # Generate new code
-        code = generate_pairing_code()
-        while pairing_repo.find_by_code(code):
-            code = generate_pairing_code()
-
-        # Create pairing code
-        from app.models.pairing_code import PairingCodeModel
-
-        pairing_code = PairingCodeModel()
-        pairing_code.code = code
-        pairing_code.user_id = request.user_id
-        pairing_code.caregiver_id = UUID(caregiver_id)
-        pairing_code.expires_at = datetime.now(timezone.utc) + timedelta(minutes=5)
-
-        pairing_repo.add(pairing_code)
+        pairing_code = pairing_facade.get_or_create_pairing_code(
+            request.user_id, UUID(caregiver_id)
+        )
 
         return PairingCodeResponse(
             code=pairing_code.code, expires_at=pairing_code.expires_at
         )
+    except HTTPException:
+        raise
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
@@ -178,27 +154,27 @@ async def generate_code(
     summary="Verify pairing code",
     description="""
     Verify a pairing code and authenticate the user.
-    
+
     This endpoint is used by the elderly person's app to verify the pairing
     code provided by their caregiver. Upon successful verification:
     - The code is marked as used (single use)
     - User information is returned
     - A JWT access token is issued for the user
-    
+
     **No authentication required** - This is the initial authentication endpoint
-    
+
     **Verification checks:**
     - Code must exist in the system
     - Code must not be expired (valid for 5 minutes from generation)
     - Code must not have been used previously
-    
+
     **What happens after verification:**
     1. Code is marked as used and cannot be reused
     2. User receives an access token for their session
     3. User's device is now paired with their profile
-    
+
     **Token expiration:** 60 minutes
-    
+
     **Use case:**
     Elderly person enters the code from their caregiver into their app,
     verifies it with this endpoint, and receives authentication to access
@@ -240,11 +216,15 @@ async def generate_code(
         },
     },
 )
-async def verify_code(request: PairingCodeVerify, db: Session = Depends(get_db)):
+@limiter.limit("10/minute")
+async def verify_code(
+    request: Request,
+    body: PairingCodeVerify,
+    pairing_facade: PairingFacade = Depends(get_pairing_facade),
+):
     """Verify a pairing code and return user info."""
     try:
-        pairing_repo = PairingCodeRepository(db)
-        pairing_code = pairing_repo.find_by_code(request.code)
+        pairing_code = pairing_facade.find_pairing_code(body.code)
 
         if not pairing_code:
             raise HTTPException(
@@ -257,23 +237,15 @@ async def verify_code(request: PairingCodeVerify, db: Session = Depends(get_db))
                 detail="Pairing code has expired or been used",
             )
 
-        # Mark code as used
-        pairing_code.is_used = True
-        pairing_repo.add(pairing_code)
+        user = pairing_facade.consume_pairing_code(pairing_code)
 
-        # Get user info
-        user_repo = UserRepository(db)
-        user = user_repo.get(pairing_code.user_id)
-
-        # Generate JWT token for the user
-        access_token_expires = timedelta(days=ACCESS_TOKEN_EXPIRE_DAYS)
         access_token = create_access_token(
             data={
                 "sub": str(user.id),
                 "firstname": user.first_name,
                 "lastname": user.last_name,
             },
-            expires_delta=access_token_expires,
+            expires_delta=timedelta(days=ACCESS_TOKEN_EXPIRE_DAYS),
         )
 
         return PairingCodeVerifyResponse(

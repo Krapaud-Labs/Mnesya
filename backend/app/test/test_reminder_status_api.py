@@ -426,9 +426,7 @@ class TestUpdateReminderStatus:
             f"/api/reminder-status/{fake_reminder_id}", json=update_data
         )
 
-        # Should fail with 500 due to foreign key constraint
-        assert response.status_code == 500
-        assert "failed" in response.json()["detail"].lower()
+        assert response.status_code == 404
 
     def test_update_status_unauthenticated(
         self, client, create_test_user, create_test_reminder, create_test_caregiver

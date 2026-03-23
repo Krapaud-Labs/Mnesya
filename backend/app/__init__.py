@@ -120,6 +120,12 @@ def create_app():
         allow_headers=["Content-Type", "Authorization"],
     )
 
+    @app.get("/openapi.json", include_in_schema=False)
+    async def protected_openapi(
+            credentials: HTTPBasicCredentials = Depends(security)):
+        verify_docs_credentials(credentials)
+        return app.openapi()
+
     @app.get("/docs", include_in_schema=False)
     async def custom_swagger(
             credentials: HTTPBasicCredentials = Depends(security)):
