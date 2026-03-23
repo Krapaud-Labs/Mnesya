@@ -4,10 +4,11 @@ This module handles the initialization of the FastAPI application,
 including database setup, CORS configuration, and API documentation.
 """
 
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from starlette.middleware.base import BaseHTTPMiddleware
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base, Session
 from contextlib import asynccontextmanager
@@ -68,6 +69,18 @@ async def lifespan(app: FastAPI):
     if engine:
         engine.dispose()
 
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    """Adds security headers to every HTTP response."""
+
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["Cache-Control"] = "no-store"
+        return response
+
+
 security = HTTPBasic()
 
 
@@ -112,6 +125,7 @@ def create_app():
         docs_url=None,
         redoc_url=None)
 
+    app.add_middleware(SecurityHeadersMiddleware)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["http://localhost:8081", "https://mnesya.com"],
@@ -119,6 +133,12 @@ def create_app():
         allow_methods=["GET", "POST", "PUT", "DELETE"],
         allow_headers=["Content-Type", "Authorization"],
     )
+
+    @app.get("/openapi.json", include_in_schema=False)
+    async def protected_openapi(
+            credentials: HTTPBasicCredentials = Depends(security)):
+        verify_docs_credentials(credentials)
+        return app.openapi()
 
     @app.get("/docs", include_in_schema=False)
     async def custom_swagger(

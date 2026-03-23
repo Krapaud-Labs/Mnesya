@@ -333,6 +333,7 @@ async def get_all_reminder_by_user(
 )
 async def get_reminder(
     reminder_id: UUID,
+    token_payload: dict = Depends(verify_token),
     reminder_facade: ReminderFacade = Depends(get_reminder_facade),
 ):
     """Get a specific reminder by ID.
@@ -341,13 +342,14 @@ async def get_reminder(
 
     Args:
         reminder_id (UUID): Unique identifier of the reminder
+        token_payload (dict): Decoded JWT token
         reminder_facade (ReminderFacade): Reminder service facade
 
     Returns:
         ReminderResponse: The requested reminder details
 
     Raises:
-        HTTPException: 404 if reminder not found, 500 if retrieval fails
+        HTTPException: 404 if reminder not found, 403 if access denied, 500 if retrieval fails
     """
     try:
         reminder = reminder_facade.get_reminder(str(reminder_id))
@@ -356,6 +358,13 @@ async def get_reminder(
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="reminder not found",
+            )
+
+        caller_id = token_payload.get("sub")
+        if str(reminder.caregiver_id) != caller_id and str(reminder.user_id) != caller_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You don't have access to this reminder",
             )
 
         return build_reminder_response(reminder)
@@ -678,6 +687,7 @@ async def update_reminder(
 async def postpone_reminder(
     reminder_id: UUID,
     delay_minutes: int = Body(default=5, embed=True),
+    token_payload: dict = Depends(verify_token),
     reminder_facade: ReminderFacade = Depends(get_reminder_facade),
 ):
     """Postpone a reminder by a given number of minutes.
@@ -689,21 +699,31 @@ async def postpone_reminder(
     Args:
         reminder_id (UUID): Unique identifier of the reminder to postpone
         delay_minutes (int): Number of minutes to postpone (default: 5)
+        token_payload (dict): Decoded JWT token
         reminder_facade (ReminderFacade): Reminder service facade
 
     Returns:
         ReminderResponse: The updated reminder
 
     Raises:
-        HTTPException: 404 if reminder not found, 500 if update fails
+        HTTPException: 404 if reminder not found, 403 if access denied, 500 if update fails
     """
     try:
-        reminder = reminder_facade.postpone_reminder(str(reminder_id), delay_minutes)
+        reminder = reminder_facade.get_reminder(str(reminder_id))
         if not reminder:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Reminder not found",
             )
+
+        caller_id = token_payload.get("sub")
+        if str(reminder.user_id) != caller_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You don't have access to this reminder",
+            )
+
+        reminder = reminder_facade.postpone_reminder(str(reminder_id), delay_minutes)
         return build_reminder_response(reminder)
 
     except HTTPException:
