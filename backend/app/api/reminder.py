@@ -333,6 +333,7 @@ async def get_all_reminder_by_user(
 )
 async def get_reminder(
     reminder_id: UUID,
+    _: dict = Depends(verify_token),
     reminder_facade: ReminderFacade = Depends(get_reminder_facade),
 ):
     """Get a specific reminder by ID.
@@ -678,6 +679,7 @@ async def update_reminder(
 async def postpone_reminder(
     reminder_id: UUID,
     delay_minutes: int = Body(default=5, embed=True),
+    _: dict = Depends(verify_token),
     reminder_facade: ReminderFacade = Depends(get_reminder_facade),
 ):
     """Postpone a reminder by a given number of minutes.
