@@ -55,7 +55,7 @@ class CaregiverModel(database):
     # ==================== Getter Setter ====================
 
     @property
-    def id(self):
+    def id(self) -> uuid.UUID:
         """Get the caregiver's unique identifier.
 
         Returns:
