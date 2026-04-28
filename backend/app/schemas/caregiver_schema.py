@@ -5,11 +5,14 @@ and serialization.
 Includes comprehensive password validation for security.
 """
 
+import re
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 from datetime import datetime, date
 from uuid import UUID
 from typing import List, Optional
 import validators
+
+_NAME_RE = re.compile(r"^[A-Za-zÀ-ÖØ-öø-ÿ' \-]+$")
 
 
 class CaregiverCreate(BaseModel):
@@ -30,23 +33,17 @@ class CaregiverCreate(BaseModel):
     password: str = Field(..., min_length=8, max_length=255)
 
     @field_validator('first_name', 'last_name')
+    @classmethod
     def validate_name(cls, value: str) -> str:
-        """Validate and sanitize name fields.
-
-        Args:
-            value (str): The name value to validate
-
-        Returns:
-            str: Trimmed name
-
-        Raises:
-            ValueError: If name is empty, only whitespace, or too long
-        """
-        if (not value or len(value) > 100 or len(value.strip()) == 0):
+        value = value.strip()
+        if not value or len(value) > 100:
             raise ValueError("Name is required and must be <= 100 chars")
-        return value.strip()
+        if not _NAME_RE.match(value):
+            raise ValueError("Name must contain only letters, spaces, hyphens, or apostrophes")
+        return value
 
     @field_validator('email')
+    @classmethod
     def validate_email(cls, value: str) -> str:
         """Validate email format.
 
@@ -65,6 +62,7 @@ class CaregiverCreate(BaseModel):
         return value
 
     @field_validator('password')
+    @classmethod
     def validate_password(cls, value: str) -> str:
         """Validate password meets security requirements.
 
@@ -140,23 +138,19 @@ class CaregiverUpdate(BaseModel):
     current_password: Optional[str] = Field(None, min_length=8, max_length=255)
 
     @field_validator('first_name', 'last_name')
+    @classmethod
     def validate_name(cls, value: Optional[str]) -> Optional[str]:
-        """Validate and sanitize name fields if provided.
-
-        Args:
-            value (Optional[str]): The name value to validate
-
-        Returns:
-            Optional[str]: Trimmed name or None
-
-        Raises:
-            ValueError: If name is only whitespace or too long
-        """
-        if value is not None and (len(value) > 100 or len(value.strip()) == 0):
+        if value is None:
+            return None
+        value = value.strip()
+        if len(value) == 0 or len(value) > 100:
             raise ValueError("Name must be <= 100 chars and not empty")
-        return value.strip() if value else None
+        if not _NAME_RE.match(value):
+            raise ValueError("Name must contain only letters, spaces, hyphens, or apostrophes")
+        return value
 
     @field_validator('email')
+    @classmethod
     def validate_email(cls, value: Optional[str]) -> Optional[str]:
         """Validate email format if provided.
 
@@ -174,6 +168,7 @@ class CaregiverUpdate(BaseModel):
         return value.strip() if value else None
 
     @field_validator('password')
+    @classmethod
     def validate_password(cls, value: Optional[str]) -> Optional[str]:
         """Validate password meets security requirements if provided.
 

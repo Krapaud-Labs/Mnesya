@@ -28,28 +28,28 @@ class ReminderModel(database):
         updated_at (datetime): Timestamp of last update
     """
     __tablename__ = 'reminder'
-    _id = Column(
+    _id: uuid.UUID = Column(
         'id',
         UUID(
             as_uuid=True),
         primary_key=True,
         default=uuid.uuid4)
-    _title = Column('title', String(200), nullable=False)
-    _description = Column('description', Text, nullable=True)
-    _scheduled_at = Column(
+    _title: str = Column('title', String(200), nullable=False)
+    _description: str | None = Column('description', Text, nullable=True)
+    _scheduled_at: datetime = Column(
         'scheduled_at', DateTime(
             timezone=True), nullable=False)
-    _caregiver_id = Column(
+    _caregiver_id: uuid.UUID = Column(
         'caregiver_id',
         UUID(
             as_uuid=True),
         ForeignKey('caregiver.id'))
-    _user_id = Column('user_id', UUID(as_uuid=True), ForeignKey('user.id'))
-    _created_at = Column(
+    _user_id: uuid.UUID = Column('user_id', UUID(as_uuid=True), ForeignKey('user.id'))
+    _created_at: datetime = Column(
         DateTime(
             timezone=True), default=lambda: datetime.now(
             timezone.utc), nullable=False)
-    _updated_at = Column(
+    _updated_at: datetime = Column(
         DateTime(
             timezone=True), default=lambda: datetime.now(
             timezone.utc), onupdate=lambda: datetime.now(
@@ -58,7 +58,7 @@ class ReminderModel(database):
     # ==================== Getter Setter ====================
 
     @property
-    def id(self):
+    def id(self) -> uuid.UUID:
         """Get the reminder's unique identifier.
 
         Returns:

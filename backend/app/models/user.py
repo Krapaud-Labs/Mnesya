@@ -27,27 +27,27 @@ class UserModel(database):
         updated_at (datetime): Timestamp of last update
     """
     __tablename__ = 'user'
-    _id = Column(
+    _id: uuid.UUID = Column(
         'id',
         UUID(
             as_uuid=True),
         primary_key=True,
         default=uuid.uuid4)
-    _first_name = Column('first_name', String(100), nullable=False)
-    _last_name = Column('last_name', String(100), nullable=False)
-    _birthday = Column('birthday', Date, nullable=False)
-    _caregiver_ids = Column(
+    _first_name: str = Column('first_name', String(100), nullable=False)
+    _last_name: str = Column('last_name', String(100), nullable=False)
+    _birthday: date = Column('birthday', Date, nullable=False)
+    _caregiver_ids: list = Column(
         'caregiver_ids',
         ARRAY(
             UUID(
                 as_uuid=True),
             ForeignKey('caregiver.id')),
         default=list)
-    _created_at = Column(
+    _created_at: datetime = Column(
         DateTime(
             timezone=True), default=lambda: datetime.now(
             timezone.utc), nullable=False)
-    _updated_at = Column(
+    _updated_at: datetime = Column(
         DateTime(
             timezone=True), default=lambda: datetime.now(
             timezone.utc), onupdate=lambda: datetime.now(
@@ -56,7 +56,7 @@ class UserModel(database):
     # ==================== Getter Setter ====================
 
     @property
-    def id(self):
+    def id(self) -> uuid.UUID:
         """Get the user's unique identifier.
 
         Returns:
@@ -229,7 +229,7 @@ class UserModel(database):
         if self._caregiver_ids and caregiver_id in self._caregiver_ids:
             self._caregiver_ids.remove(caregiver_id)
 
-    def get_age(self) -> int:
+    def get_age(self) -> int | None:
         """Calculate the user's current age based on their birthday.
 
         Returns:
