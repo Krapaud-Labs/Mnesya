@@ -4,11 +4,14 @@ This module defines Pydantic schemas for User entity validation and serializatio
 Schemas are used for API request/response validation and data transformation.
 """
 
+import re
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 from datetime import datetime, date
 from uuid import UUID
 from typing import List, Optional
 from app.schemas.pairing_code_schema import PairingCodeResponse
+
+_NAME_RE = re.compile(r"^[A-Za-zÀ-ÖØ-öø-ÿ' \-]+$")
 
 
 class UserCreate(BaseModel):
@@ -27,20 +30,12 @@ class UserCreate(BaseModel):
 
     @field_validator('first_name', 'last_name')
     def validate_name(cls, value: str) -> str:
-        """Validate and sanitize name fields.
-
-        Args:
-            value (str): The name value to validate
-
-        Returns:
-            str: Trimmed name
-
-        Raises:
-            ValueError: If name is empty, only whitespace, or too long
-        """
-        if (not value or len(value) > 100 or len(value.strip()) == 0):
-            raise ValueError("First name is required and must be <= 100 chars")
-        return value.strip()
+        value = value.strip()
+        if not value or len(value) > 100:
+            raise ValueError("Name is required and must be <= 100 chars")
+        if not _NAME_RE.match(value):
+            raise ValueError("Name must contain only letters, spaces, hyphens, or apostrophes")
+        return value
 
 
 class UserUpdate(BaseModel):
@@ -59,20 +54,14 @@ class UserUpdate(BaseModel):
 
     @field_validator('first_name', 'last_name')
     def validate_name(cls, value: Optional[str]) -> Optional[str]:
-        """Validate and sanitize name fields if provided.
-
-        Args:
-            value (Optional[str]): The name value to validate
-
-        Returns:
-            Optional[str]: Trimmed name or None
-
-        Raises:
-            ValueError: If name is only whitespace or too long
-        """
-        if (not value or len(value) > 100 or len(value.strip()) == 0):
-            raise ValueError("First name is required and must be <= 100 chars")
-        return value.strip() if value else None
+        if value is None:
+            return None
+        value = value.strip()
+        if len(value) == 0 or len(value) > 100:
+            raise ValueError("Name must be <= 100 chars and not empty")
+        if not _NAME_RE.match(value):
+            raise ValueError("Name must contain only letters, spaces, hyphens, or apostrophes")
+        return value
 
 
 class UserResponse(BaseModel):
