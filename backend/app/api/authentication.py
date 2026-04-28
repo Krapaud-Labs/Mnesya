@@ -15,6 +15,12 @@ import logging
 from app.limiter import limiter
 import uuid as _uuid
 
+from passlib.hash import bcrypt as _bcrypt
+
+# Pre-computed dummy hash used to normalise response time when an email is not
+# found, preventing timing-based account enumeration (ÉLEVÉ-01).
+_DUMMY_HASH = _bcrypt.hash("__dummy__")
+
 from app.schemas.authentication_schema import (
     LoginRequest,
     RegisterRequest,
@@ -27,6 +33,7 @@ from app import get_db
 from sqlalchemy.exc import IntegrityError
 from uuid import UUID
 from app.persistence.revoked_token_repository import RevokedTokenRepository
+from app.persistence.user_session_revocation_repository import UserSessionRevocationRepository
 
 logger = logging.getLogger(__name__)
 
@@ -110,6 +117,21 @@ def verify_token(
                 detail="Token has been revoked",
                 headers={"WWW-Authenticate": "Bearer"},
             )
+
+        sub = payload.get("sub")
+        iat = payload.get("iat")
+        if sub and iat:
+            revoked_before = UserSessionRevocationRepository(db).get_revoked_before(sub)
+            if revoked_before:
+                from datetime import timezone as _tz
+                token_issued_at = datetime.fromtimestamp(iat, tz=_tz.utc)
+                if token_issued_at <= revoked_before:
+                    logger.warning("Session-revoked token used — sub=%s", sub)
+                    raise HTTPException(
+                        status_code=status.HTTP_401_UNAUTHORIZED,
+                        detail="Token has been revoked",
+                        headers={"WWW-Authenticate": "Bearer"},
+                    )
 
         return payload
     except JWTError:
@@ -209,7 +231,7 @@ async def register(
         if existing_caregiver:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Email already registered",
+                detail="Registration failed",
             )
 
         # Create new caregiver
@@ -313,6 +335,8 @@ async def login(
         caregiver = caregiver_facade.get_caregiver_by_email(body.email)
 
         if not caregiver:
+            # Constant-time dummy comparison to prevent timing-based email enumeration
+            _bcrypt.verify(body.password, _DUMMY_HASH)
             logger.warning("Failed login attempt — email not found: %s", body.email)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -332,7 +356,7 @@ async def login(
         # Create access token
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(
-            data={"sub": str(caregiver.id), "email": caregiver.email},
+            data={"sub": str(caregiver.id), "email": caregiver.email, "role": "caregiver"},
             expires_delta=access_token_expires,
         )
 
@@ -406,7 +430,7 @@ async def login(
     },
 )
 async def get_current_user(
-    token_payload: dict = Depends(verify_token),
+    token_payload: dict = Depends(require_caregiver_role),
     caregiver_facade: CaregiverFacade = Depends(get_caregiver_facade),
 ):
     """Get current authenticated caregiver profile.
@@ -454,7 +478,7 @@ async def get_current_user(
 )
 async def update_current_user(
     request: CaregiverUpdate,
-    token_payload: dict = Depends(verify_token),
+    token_payload: dict = Depends(require_caregiver_role),
     caregiver_facade: CaregiverFacade = Depends(get_caregiver_facade),
 ):
     """Update authenticated caregiver's profile."""
@@ -469,11 +493,11 @@ async def update_current_user(
 
         update_data = request.model_dump(exclude_none=True, exclude={"current_password"})
 
-        if "password" in update_data:
+        if "password" in update_data or "email" in update_data:
             if not request.current_password:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="current_password is required to change password",
+                    detail="current_password is required to change email or password",
                 )
             if not caregiver.verify_password(request.current_password):
                 raise HTTPException(
@@ -550,6 +574,10 @@ async def logout(
     if jti:
         RevokedTokenRepository(db).revoke(jti)
 
+    sub = payload.get("sub")
+    if sub:
+        UserSessionRevocationRepository(db).revoke_all_for_user(sub)
+
 
 @router.post(
     "/refresh",
@@ -612,11 +640,12 @@ async def refresh_token(token_payload: dict = Depends(verify_token)):
     try:
         caregiver_id = token_payload.get("sub")
         email = token_payload.get("email")
+        role = token_payload.get("role", "caregiver")
 
         # Create new access token
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(
-            data={"sub": caregiver_id, "email": email},
+            data={"sub": caregiver_id, "email": email, "role": role},
             expires_delta=access_token_expires,
         )
 
@@ -633,5 +662,17 @@ async def refresh_token(token_payload: dict = Depends(verify_token)):
         )
 
 
+def require_caregiver_role(
+    token_payload: dict = Depends(verify_token),
+) -> dict:
+    """Dependency that rejects non-caregiver tokens."""
+    if token_payload.get("role") != "caregiver":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Caregiver role required",
+        )
+    return token_payload
+
+
 # Export for use in other modules
-__all__ = ["router", "verify_token"]
+__all__ = ["router", "verify_token", "require_caregiver_role"]

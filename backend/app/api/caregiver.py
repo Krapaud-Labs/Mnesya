@@ -10,7 +10,7 @@ from sqlalchemy.exc import IntegrityError
 from uuid import UUID
 from app.services.caregiver_facade import CaregiverFacade
 from app.schemas.caregiver_schema import CaregiverUpdate, CaregiverResponse
-from app.api.authentication import verify_token
+from app.api.authentication import verify_token, require_caregiver_role
 from app import get_db
 
 # Router
@@ -23,7 +23,7 @@ def get_caregiver_facade(db: Session = Depends(get_db)) -> CaregiverFacade:
 
 
 def get_current_caregiver_id(
-        token_payload: dict = Depends(verify_token)) -> str:
+        token_payload: dict = Depends(require_caregiver_role)) -> str:
     """Extract caregiver ID from JWT token.
 
     Args:
@@ -185,17 +185,18 @@ async def update_my_profile(
             update_data["last_name"] = request.last_name
         if request.email is not None:
             update_data["email"] = request.email
-        if request.password is not None:
+        if request.password is not None or request.email is not None:
             if not request.current_password:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="current_password is required to change password"
+                    detail="current_password is required to change email or password"
                 )
             if not caregiver.verify_password(request.current_password):
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail="Current password is incorrect"
                 )
+        if request.password is not None:
             update_data["password"] = request.password
 
         # If no fields to update, return current data

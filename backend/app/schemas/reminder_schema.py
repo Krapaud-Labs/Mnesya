@@ -4,10 +4,13 @@ This module defines Pydantic schemas for Reminder entity validation and
 serialization.
 """
 
+import re
 from pydantic import BaseModel, Field, field_validator, ConfigDict
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID
 from typing import List, Optional
+
+_HTML_RE = re.compile(r"[<>\"'&]")
 
 
 class ReminderCreate(BaseModel):
@@ -23,26 +26,41 @@ class ReminderCreate(BaseModel):
         user_id (UUID): ID of user this reminder is for
     """
     title: str = Field(..., min_length=1, max_length=200)
-    description: Optional[str] = None
+    description: Optional[str] = Field(None, max_length=2000)
     scheduled_at: datetime
     user_id: UUID
 
     @field_validator('title')
     def validate_title(cls, value: str) -> str:
-        """Validate and sanitize title field.
-
-        Args:
-            value (str): The title to validate
-
-        Returns:
-            str: Trimmed title
-
-        Raises:
-            ValueError: If title is empty, only whitespace, or too long
-        """
-        if not value or len(value) > 200 or len(value.strip()) == 0:
+        value = value.strip()
+        if not value or len(value) > 200:
             raise ValueError("Title is required and must be <= 200 chars")
-        return value.strip()
+        if _HTML_RE.search(value):
+            raise ValueError("Title must not contain HTML characters")
+        return value
+
+    @field_validator('description')
+    def validate_description(cls, value: Optional[str]) -> Optional[str]:
+        if value is None:
+            return None
+        value = value.strip()
+        if len(value) > 2000:
+            raise ValueError("Description must be <= 2000 chars")
+        if _HTML_RE.search(value):
+            raise ValueError("Description must not contain HTML characters")
+        return value
+
+    @field_validator('scheduled_at')
+    def validate_scheduled_at(cls, value: datetime) -> datetime:
+        now = datetime.now(timezone.utc)
+        if value.tzinfo is None:
+            value = value.replace(tzinfo=timezone.utc)
+        if value <= now:
+            raise ValueError("scheduled_at must be in the future")
+        max_future = now.replace(year=now.year + 2)
+        if value > max_future:
+            raise ValueError("scheduled_at must be within the next 2 years")
+        return value
 
 
 class ReminderUpdate(BaseModel):
@@ -58,27 +76,32 @@ class ReminderUpdate(BaseModel):
         user_id (Optional[UUID]): Updated user ID
     """
     title: Optional[str] = Field(None, min_length=1, max_length=200)
-    description: Optional[str] = None
+    description: Optional[str] = Field(None, max_length=2000)
     scheduled_at: Optional[datetime] = None
     caregiver_id: Optional[UUID] = None
     user_id: Optional[UUID] = None
 
     @field_validator('title')
     def validate_title(cls, value: Optional[str]) -> Optional[str]:
-        """Validate and sanitize title if provided.
-
-        Args:
-            value (Optional[str]): The title to validate
-
-        Returns:
-            Optional[str]: Trimmed title or None
-
-        Raises:
-            ValueError: If title is only whitespace or too long
-        """
-        if value is not None and (len(value) > 200 or len(value.strip()) == 0):
+        if value is None:
+            return None
+        value = value.strip()
+        if len(value) == 0 or len(value) > 200:
             raise ValueError("Title must be <= 200 chars and not empty")
-        return value.strip() if value else None
+        if _HTML_RE.search(value):
+            raise ValueError("Title must not contain HTML characters")
+        return value
+
+    @field_validator('description')
+    def validate_description(cls, value: Optional[str]) -> Optional[str]:
+        if value is None:
+            return None
+        value = value.strip()
+        if len(value) > 2000:
+            raise ValueError("Description must be <= 2000 chars")
+        if _HTML_RE.search(value):
+            raise ValueError("Description must not contain HTML characters")
+        return value
 
 
 class ReminderResponse(BaseModel):

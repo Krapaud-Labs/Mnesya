@@ -88,10 +88,8 @@ class CaregiverCreate(BaseModel):
         SpecialSym = ['$', '@', '#', '%', '*', '!', '~', '&']
 
         # Length validation
-        if len(value) < 8:
-            raise ValueError('Length should be at least 8')
-        if len(value) > 20:
-            raise ValueError('Length should not be greater than 20')
+        if len(value) < 8 or len(value) > 72:
+            raise ValueError('Password does not meet requirements')
 
         # Check for required character types
         has_digit = has_upper = has_lower = has_sym = False
@@ -194,10 +192,8 @@ class CaregiverUpdate(BaseModel):
         SpecialSym = ['$', '@', '#', '%', '*', '!', '~', '&']
 
         # Length validation
-        if len(value) < 8:
-            raise ValueError('Length should be at least 8')
-        if len(value) > 20:
-            raise ValueError('Length should not be greater than 20')
+        if len(value) < 8 or len(value) > 72:
+            raise ValueError('Password does not meet requirements')
 
         # Check for required character types
         has_digit = has_upper = has_lower = has_sym = False
