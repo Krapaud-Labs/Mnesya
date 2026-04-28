@@ -56,7 +56,7 @@ class UserModel(database):
     # ==================== Getter Setter ====================
 
     @property
-    def id(self):
+    def id(self) -> uuid.UUID:
         """Get the user's unique identifier.
 
         Returns:
