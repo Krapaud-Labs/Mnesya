@@ -9,6 +9,7 @@ from app import get_db
 from app.api.authentication import verify_token
 from app.models.push_token import PushTokenModel
 from app.persistence.push_token_repository import PushTokenRepository
+from app.persistence.user_repository import UserRepository
 from app.schemas.push_token_schema import (
     PushTokenCreate,
     PushTokenResponse,
@@ -116,22 +117,33 @@ async def register_push_token(
     try:
         repo = PushTokenRepository(db)
         caller_id = UUID(token_payload.get("sub"))
-        is_caregiver = "email" in token_payload
+        is_caregiver = token_payload.get("role") == "caregiver"
+
+        # CRIT-10: enforce ownership of the user_id
+        if is_caregiver:
+            # Caregiver may register a token for one of their patients
+            resolved_user_id = token_data.user_id
+            if resolved_user_id is not None:
+                user_repo = UserRepository(db)
+                target_user = user_repo.get(resolved_user_id)
+                if not target_user or caller_id not in (target_user.caregiver_ids or []):
+                    raise HTTPException(
+                        status_code=status.HTTP_403_FORBIDDEN,
+                        detail="You don't have access to this user",
+                    )
+            resolved_caregiver_id = caller_id
+        else:
+            # Patient: always bind to own user_id, ignore any user_id in the payload
+            resolved_user_id = caller_id
+            resolved_caregiver_id = token_data.caregiver_id
 
         # Check if token already exists
         existing = repo.get_by_token(token_data.token)
         if existing:
-            # Update existing token
             existing.is_active = True
             existing.device_name = token_data.device_name
-            if token_data.user_id:
-                existing.user_id = token_data.user_id
-            elif not is_caregiver:
-                existing.user_id = caller_id
-            if token_data.caregiver_id:
-                existing.caregiver_id = token_data.caregiver_id
-            elif is_caregiver:
-                existing.caregiver_id = caller_id
+            existing.user_id = resolved_user_id
+            existing.caregiver_id = resolved_caregiver_id
             db.commit()
             db.refresh(existing)
             return existing
@@ -140,25 +152,23 @@ async def register_push_token(
         push_token = PushTokenModel()
         push_token.token = token_data.token
         push_token.device_name = token_data.device_name
-        if is_caregiver:
-            push_token.caregiver_id = token_data.caregiver_id or caller_id
-            push_token.user_id = token_data.user_id
-        else:
-            push_token.user_id = token_data.user_id or caller_id
-            push_token.caregiver_id = token_data.caregiver_id
+        push_token.user_id = resolved_user_id
+        push_token.caregiver_id = resolved_caregiver_id
 
         repo.add(push_token)
         return push_token
-        
+
+    except HTTPException:
+        raise
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
         )
-    except Exception as e:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to register push token: {str(e)}"
+            detail="Failed to register push token"
         )
 
 

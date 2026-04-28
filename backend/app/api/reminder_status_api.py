@@ -7,13 +7,14 @@ Statuses track the lifecycle of reminders (PENDING, DONE, POSTPONED, UNABLE).
 from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy.orm import Session
 from app.services.reminder_status_facade import ReminderStatusFacade
+from app.services.reminder_facade import ReminderFacade
 from app.schemas.reminder_status_schema import (
     ReminderStatusResponse,
     ReminderStatusUpdate,
     ActivityLogEntry,
 )
 from app.models.reminder_status_enum import ReminderStatusEnum
-from app.api.authentication import verify_token
+from app.api.authentication import verify_token, require_caregiver_role
 from app import get_db
 from uuid import UUID
 from typing import List
@@ -24,6 +25,11 @@ router = APIRouter(prefix="/api/reminder-status", tags=["Reminder Status"])
 def get_reminder_status_facade(db: Session = Depends(get_db)) -> ReminderStatusFacade:
     """Dependency to create ReminderStatusFacade instance with database session."""
     return ReminderStatusFacade(db)
+
+
+def get_reminder_facade(db: Session = Depends(get_db)) -> ReminderFacade:
+    """Dependency to create ReminderFacade instance with database session."""
+    return ReminderFacade(db)
 
 
 @router.get(
@@ -90,8 +96,9 @@ def get_reminder_status_facade(db: Session = Depends(get_db)) -> ReminderStatusF
 )
 async def get_current_status(
     reminder_id: UUID,
-    user_id: str = Depends(lambda token=Depends(verify_token): token.get("sub")),
+    token_payload: dict = Depends(verify_token),
     facade: ReminderStatusFacade = Depends(get_reminder_status_facade),
+    reminder_facade: ReminderFacade = Depends(get_reminder_facade),
 ):
     """Get the current status of a reminder.
 
@@ -99,16 +106,30 @@ async def get_current_status(
 
     Args:
         reminder_id (UUID): Unique identifier of the reminder
-        user_id (str): ID of the authenticated user (from JWT token)
+        token_payload (dict): Decoded JWT token
         facade (ReminderStatusFacade): Status service facade
+        reminder_facade (ReminderFacade): Reminder service facade
 
     Returns:
         ReminderStatusResponse: The current status of the reminder
 
     Raises:
-        HTTPException: 404 if no status found for reminder
+        HTTPException: 403 if access denied, 404 if no status found for reminder
     """
     try:
+        reminder = reminder_facade.get_reminder(str(reminder_id))
+        if not reminder:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Reminder not found",
+            )
+        caller_id = token_payload.get("sub")
+        if str(reminder.caregiver_id) != caller_id and str(reminder.user_id) != caller_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You don't have access to this reminder",
+            )
+
         current_status = facade.get_latest_status(reminder_id)
 
         if not current_status:
@@ -218,8 +239,9 @@ async def get_current_status(
 )
 async def get_status_history(
     reminder_id: UUID,
-    user_id: str = Depends(lambda token=Depends(verify_token): token.get("sub")),
+    token_payload: dict = Depends(verify_token),
     facade: ReminderStatusFacade = Depends(get_reminder_status_facade),
+    reminder_facade: ReminderFacade = Depends(get_reminder_facade),
 ):
     """Get the complete status history of a reminder.
 
@@ -228,16 +250,30 @@ async def get_status_history(
 
     Args:
         reminder_id (UUID): Unique identifier of the reminder
-        user_id (str): ID of the authenticated user (from JWT token)
+        token_payload (dict): Decoded JWT token
         facade (ReminderStatusFacade): Status service facade
+        reminder_facade (ReminderFacade): Reminder service facade
 
     Returns:
         List[ReminderStatusResponse]: List of all status entries (newest first)
 
     Raises:
-        HTTPException: 500 if retrieval fails
+        HTTPException: 403 if access denied, 500 if retrieval fails
     """
     try:
+        reminder = reminder_facade.get_reminder(str(reminder_id))
+        if not reminder:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Reminder not found",
+            )
+        caller_id = token_payload.get("sub")
+        if str(reminder.caregiver_id) != caller_id and str(reminder.user_id) != caller_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You don't have access to this reminder",
+            )
+
         statuses = facade.get_statuses_by_reminder(reminder_id)
 
         return [
@@ -251,6 +287,8 @@ async def get_status_history(
             for s in statuses
         ]
 
+    except HTTPException:
+        raise
     except Exception as e:
         import traceback
 
@@ -341,8 +379,9 @@ async def get_status_history(
 async def update_reminder_status(
     reminder_id: UUID,
     request: ReminderStatusUpdate,
-    user_id: str = Depends(lambda token=Depends(verify_token): token.get("sub")),
+    token_payload: dict = Depends(verify_token),
     facade: ReminderStatusFacade = Depends(get_reminder_status_facade),
+    reminder_facade: ReminderFacade = Depends(get_reminder_facade),
 ):
     """Update the status of a reminder.
 
@@ -356,16 +395,30 @@ async def update_reminder_status(
     Args:
         reminder_id (UUID): Unique identifier of the reminder
         request (ReminderStatusUpdate): New status value
-        user_id (str): ID of the authenticated user (from JWT token)
+        token_payload (dict): Decoded JWT token
         facade (ReminderStatusFacade): Status service facade
+        reminder_facade (ReminderFacade): Reminder service facade
 
     Returns:
         ReminderStatusResponse: The newly created status entry
 
     Raises:
-        HTTPException: 400 for validation errors, 500 if update fails
+        HTTPException: 403 if access denied, 400 for validation errors, 500 if update fails
     """
     try:
+        reminder = reminder_facade.get_reminder(str(reminder_id))
+        if not reminder:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Reminder not found",
+            )
+        caller_id = token_payload.get("sub")
+        if str(reminder.caregiver_id) != caller_id and str(reminder.user_id) != caller_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You don't have access to this reminder",
+            )
+
         # Create new status entry (preserves history)
         status_data = {"status": request.status, "reminder_id": reminder_id}
 
@@ -379,6 +432,8 @@ async def update_reminder_status(
             updated_at=new_status.updated_at,
         )
 
+    except HTTPException:
+        raise
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
@@ -441,7 +496,7 @@ async def update_reminder_status(
     },
 )
 async def get_caregiver_activity_log(
-    token_payload: dict = Depends(verify_token),
+    token_payload: dict = Depends(require_caregiver_role),
     facade: ReminderStatusFacade = Depends(get_reminder_status_facade),
 ):
     """Get the activity log for the authenticated caregiver.

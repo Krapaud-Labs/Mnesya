@@ -26,23 +26,23 @@ class ReminderStatusModel(database):
         updated_at (datetime): Timestamp of last update
     """
     __tablename__ = 'reminder_status'
-    _id = Column(
+    _id: uuid.UUID = Column(
         'id',
         UUID(
             as_uuid=True),
         primary_key=True,
         default=uuid.uuid4)
-    _status = Column('status', String(15), nullable=False)
-    _reminder_id = Column(
+    _status: str = Column('status', String(15), nullable=False)
+    _reminder_id: uuid.UUID = Column(
         'reminder_id',
         UUID(
             as_uuid=True),
         ForeignKey('reminder.id'))
-    _created_at = Column(
+    _created_at: datetime = Column(
         DateTime(
             timezone=True), default=lambda: datetime.now(
             timezone.utc), nullable=False)
-    _updated_at = Column(
+    _updated_at: datetime = Column(
         DateTime(
             timezone=True), default=lambda: datetime.now(
             timezone.utc), onupdate=lambda: datetime.now(

@@ -551,8 +551,7 @@ class TestReminderAuthentication:
         """Test that getting reminder by ID requires authentication."""
         response = client.get(f"/api/reminder/{uuid4()}")
         
-        # This endpoint might not require auth based on the code, so adjust if needed
-        assert response.status_code in [200, 401, 404]
+        assert response.status_code in [401, 403]
     
     def test_update_reminder_without_authentication(self, client):
         """Test that updating reminder requires authentication."""
