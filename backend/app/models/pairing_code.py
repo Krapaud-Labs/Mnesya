@@ -27,24 +27,24 @@ class PairingCodeModel(database):
     """
     __tablename__ = 'pairing_code'
 
-    _id = Column(
+    _id: uuid.UUID = Column(
         'id',
         UUID(
             as_uuid=True),
         primary_key=True,
         default=uuid.uuid4)
-    _code = Column('code', String(6), unique=True, nullable=False, index=True)
-    _user_id = Column(
+    _code: str = Column('code', String(6), unique=True, nullable=False, index=True)
+    _user_id: uuid.UUID = Column(
         'user_id', UUID(
             as_uuid=True), ForeignKey(
             'user.id', ondelete='CASCADE'), nullable=False)
-    _caregiver_id = Column(
+    _caregiver_id: uuid.UUID = Column(
         'caregiver_id', UUID(
             as_uuid=True), ForeignKey(
             'caregiver.id', ondelete='CASCADE'), nullable=False)
-    _expires_at = Column('expires_at', DateTime(timezone=True), nullable=False)
-    _is_used = Column('is_used', Boolean, default=False, nullable=False)
-    _created_at = Column(
+    _expires_at: datetime = Column('expires_at', DateTime(timezone=True), nullable=False)
+    _is_used: bool = Column('is_used', Boolean, default=False, nullable=False)
+    _created_at: datetime = Column(
         '_created_at', DateTime(
             timezone=True), default=lambda: datetime.now(
             timezone.utc), nullable=False)
