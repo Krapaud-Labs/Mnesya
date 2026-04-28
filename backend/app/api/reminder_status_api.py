@@ -14,7 +14,7 @@ from app.schemas.reminder_status_schema import (
     ActivityLogEntry,
 )
 from app.models.reminder_status_enum import ReminderStatusEnum
-from app.api.authentication import verify_token
+from app.api.authentication import verify_token, require_caregiver_role
 from app import get_db
 from uuid import UUID
 from typing import List
@@ -496,7 +496,7 @@ async def update_reminder_status(
     },
 )
 async def get_caregiver_activity_log(
-    token_payload: dict = Depends(verify_token),
+    token_payload: dict = Depends(require_caregiver_role),
     facade: ReminderStatusFacade = Depends(get_reminder_status_facade),
 ):
     """Get the activity log for the authenticated caregiver.

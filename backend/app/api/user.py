@@ -13,7 +13,7 @@ from app.services.caregiver_facade import CaregiverFacade
 from app.schemas.user_schema import UserCreate, UserUpdate, UserResponse, UserWithPairingCodeResponse
 from app.schemas.pairing_code_schema import PairingCodeResponse
 from app.services.user_facade import UserFacade
-from app.api.authentication import verify_token
+from app.api.authentication import verify_token, require_caregiver_role
 from app.persistence.pairing_code_repository import PairingCodeRepository
 from app.models.pairing_code import PairingCodeModel
 from app import get_db
@@ -35,18 +35,8 @@ def get_caregiver_facade(db: Session = Depends(get_db)) -> CaregiverFacade:
 
 
 def get_current_caregiver_id(
-        token_payload: dict = Depends(verify_token)) -> str:
-    """Extract caregiver ID from JWT token.
-
-    Args:
-        token_payload (dict): Decoded JWT token
-
-    Returns:
-        str: Caregiver ID
-
-    Raises:
-        HTTPException: If token is invalid
-    """
+        token_payload: dict = Depends(require_caregiver_role)) -> str:
+    """Extract caregiver ID from JWT token, rejecting non-caregiver tokens."""
     caregiver_id = token_payload.get("sub")
     if not caregiver_id:
         raise HTTPException(
