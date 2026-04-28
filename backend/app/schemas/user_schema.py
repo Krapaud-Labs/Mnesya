@@ -29,6 +29,7 @@ class UserCreate(BaseModel):
     birthday: date
 
     @field_validator('first_name', 'last_name')
+    @classmethod
     def validate_name(cls, value: str) -> str:
         value = value.strip()
         if not value or len(value) > 100:
@@ -53,6 +54,7 @@ class UserUpdate(BaseModel):
     birthday: Optional[date] = None
 
     @field_validator('first_name', 'last_name')
+    @classmethod
     def validate_name(cls, value: Optional[str]) -> Optional[str]:
         if value is None:
             return None

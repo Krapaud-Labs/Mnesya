@@ -22,6 +22,7 @@ class LoginRequest(BaseModel):
     password: str = Field(..., min_length=8, max_length=255)
 
     @field_validator('email')
+    @classmethod
     def validate_email(cls, value: str) -> str:
         """Validate email format."""
         value = value.strip()
@@ -45,6 +46,7 @@ class RegisterRequest(BaseModel):
     password: str = Field(..., min_length=8, max_length=255)
 
     @field_validator('first_name', 'last_name')
+    @classmethod
     def validate_name(cls, value: str) -> str:
         value = value.strip()
         if not value:
@@ -54,6 +56,7 @@ class RegisterRequest(BaseModel):
         return value
 
     @field_validator('email')
+    @classmethod
     def validate_email(cls, value: str) -> str:
         """Validate email format."""
         value = value.strip()
@@ -62,6 +65,7 @@ class RegisterRequest(BaseModel):
         return value
 
     @field_validator('password')
+    @classmethod
     def validate_password(cls, value: str) -> str:
         """Validate password strength."""
         value = value.strip()
