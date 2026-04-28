@@ -143,6 +143,18 @@ def verify_token(
         )
 
 
+def require_caregiver_role(
+    token_payload: dict = Depends(verify_token),
+) -> dict:
+    """Dependency that rejects non-caregiver tokens."""
+    if token_payload.get("role") != "caregiver":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Caregiver role required",
+        )
+    return token_payload
+
+
 @router.post(
     "/register",
     response_model=CaregiverProfile,
@@ -660,18 +672,6 @@ async def refresh_token(token_payload: dict = Depends(verify_token)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Token refresh failed: {str(e)}",
         )
-
-
-def require_caregiver_role(
-    token_payload: dict = Depends(verify_token),
-) -> dict:
-    """Dependency that rejects non-caregiver tokens."""
-    if token_payload.get("role") != "caregiver":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Caregiver role required",
-        )
-    return token_payload
 
 
 # Export for use in other modules
