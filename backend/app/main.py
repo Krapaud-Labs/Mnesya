@@ -6,6 +6,7 @@ and registers all API routers. This is the entry point for the Mnesya backend.
 
 from app import create_app, init_app
 import os
+from app.models import user_session_revocation  # noqa: F401 — ensures table is created
 from app.api import (
     authentication,
     user,

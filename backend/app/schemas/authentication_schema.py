@@ -3,9 +3,12 @@
 This module defines Pydantic schemas for authentication operations.
 """
 
+import re
 from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
 import validators
+
+_NAME_RE = re.compile(r"^[A-Za-zÀ-ÖØ-öø-ÿ' \-]+$")
 
 
 class LoginRequest(BaseModel):
@@ -19,6 +22,7 @@ class LoginRequest(BaseModel):
     password: str = Field(..., min_length=8, max_length=255)
 
     @field_validator('email')
+    @classmethod
     def validate_email(cls, value: str) -> str:
         """Validate email format."""
         value = value.strip()
@@ -42,14 +46,17 @@ class RegisterRequest(BaseModel):
     password: str = Field(..., min_length=8, max_length=255)
 
     @field_validator('first_name', 'last_name')
+    @classmethod
     def validate_name(cls, value: str) -> str:
-        """Validate name fields."""
         value = value.strip()
-        if not value or len(value.strip()) == 0:
+        if not value:
             raise ValueError("Name is required")
+        if not _NAME_RE.match(value):
+            raise ValueError("Name must contain only letters, spaces, hyphens, or apostrophes")
         return value
 
     @field_validator('email')
+    @classmethod
     def validate_email(cls, value: str) -> str:
         """Validate email format."""
         value = value.strip()
@@ -58,15 +65,14 @@ class RegisterRequest(BaseModel):
         return value
 
     @field_validator('password')
+    @classmethod
     def validate_password(cls, value: str) -> str:
         """Validate password strength."""
         value = value.strip()
         SpecialSym = ['$', '@', '#', '%', '*', '!', '~', '&']
 
-        if len(value) < 8:
-            raise ValueError('Password must be at least 8 characters')
-        if len(value) > 20:
-            raise ValueError('Password must not exceed 20 characters')
+        if len(value) < 8 or len(value) > 72:
+            raise ValueError('Password does not meet requirements')
 
         has_digit = has_upper = has_lower = has_sym = False
 
