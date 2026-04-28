@@ -19,7 +19,7 @@ from app.schemas.reminder_schema import (
 )
 from app.services.user_facade import UserFacade
 from app.services.reminder_status_facade import ReminderStatusFacade
-from app.api.authentication import verify_token
+from app.api.authentication import verify_token, require_caregiver_role
 from app import get_db
 
 router = APIRouter(prefix="/api/reminder", tags=["Reminder"])
@@ -38,9 +38,9 @@ def get_user_facade(db: Session = Depends(get_db)) -> UserFacade:
 
 
 def get_caregiver_id(
-    token: dict = Depends(verify_token),
+    token: dict = Depends(require_caregiver_role),
 ) -> str:
-    """Extract caregiver ID from JWT token."""
+    """Extract caregiver ID from JWT token, rejecting non-caregiver tokens."""
     return token.get("sub")
 
 

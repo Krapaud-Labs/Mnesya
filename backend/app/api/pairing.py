@@ -23,7 +23,7 @@ from app.services.user_facade import UserFacade
 from app.api.authentication import verify_token, create_access_token
 from app import get_db
 
-ACCESS_TOKEN_EXPIRE_DAYS = 90
+ACCESS_TOKEN_EXPIRE_DAYS = 14
 
 router = APIRouter(prefix="/api/pairing", tags=["Pairing"])
 
@@ -216,7 +216,7 @@ async def generate_code(
         },
     },
 )
-@limiter.limit("10/minute")
+@limiter.limit("5/15minutes")
 async def verify_code(
     request: Request,
     body: PairingCodeVerify,
@@ -244,6 +244,7 @@ async def verify_code(
                 "sub": str(user.id),
                 "firstname": user.first_name,
                 "lastname": user.last_name,
+                "role": "patient",
             },
             expires_delta=timedelta(days=ACCESS_TOKEN_EXPIRE_DAYS),
         )
@@ -310,6 +311,7 @@ async def refresh_user_token(
             "sub": user_id,
             "firstname": token_payload.get("firstname", ""),
             "lastname": token_payload.get("lastname", ""),
+            "role": token_payload.get("role", "patient"),
         },
         expires_delta=timedelta(days=ACCESS_TOKEN_EXPIRE_DAYS),
     )
