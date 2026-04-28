@@ -31,6 +31,7 @@ class ReminderCreate(BaseModel):
     user_id: UUID
 
     @field_validator('title')
+    @classmethod
     def validate_title(cls, value: str) -> str:
         value = value.strip()
         if not value or len(value) > 200:
@@ -40,6 +41,7 @@ class ReminderCreate(BaseModel):
         return value
 
     @field_validator('description')
+    @classmethod
     def validate_description(cls, value: Optional[str]) -> Optional[str]:
         if value is None:
             return None
@@ -51,6 +53,7 @@ class ReminderCreate(BaseModel):
         return value
 
     @field_validator('scheduled_at')
+    @classmethod
     def validate_scheduled_at(cls, value: datetime) -> datetime:
         now = datetime.now(timezone.utc)
         if value.tzinfo is None:
@@ -82,6 +85,7 @@ class ReminderUpdate(BaseModel):
     user_id: Optional[UUID] = None
 
     @field_validator('title')
+    @classmethod
     def validate_title(cls, value: Optional[str]) -> Optional[str]:
         if value is None:
             return None
@@ -93,6 +97,7 @@ class ReminderUpdate(BaseModel):
         return value
 
     @field_validator('description')
+    @classmethod
     def validate_description(cls, value: Optional[str]) -> Optional[str]:
         if value is None:
             return None

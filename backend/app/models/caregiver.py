@@ -32,20 +32,20 @@ class CaregiverModel(database):
     """
 
     __tablename__ = "caregiver"
-    _id = Column("id", UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    _first_name = Column("first_name", String(100), nullable=False)
-    _last_name = Column("last_name", String(100), nullable=False)
-    _email = Column("email", String(255), unique=True, nullable=False, index=True)
-    _password = Column("password", String(255), nullable=False)
-    _user_ids = Column(
+    _id: uuid.UUID = Column("id", UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    _first_name: str = Column("first_name", String(100), nullable=False)
+    _last_name: str = Column("last_name", String(100), nullable=False)
+    _email: str = Column("email", String(255), unique=True, nullable=False, index=True)
+    _password: str = Column("password", String(255), nullable=False)
+    _user_ids: list = Column(
         "user_ids", ARRAY(UUID(as_uuid=True), ForeignKey("user.id")), default=list
     )
-    _created_at = Column(
+    _created_at: datetime = Column(
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),
         nullable=False,
     )
-    _updated_at = Column(
+    _updated_at: datetime = Column(
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
@@ -55,7 +55,7 @@ class CaregiverModel(database):
     # ==================== Getter Setter ====================
 
     @property
-    def id(self):
+    def id(self) -> uuid.UUID:
         """Get the caregiver's unique identifier.
 
         Returns:

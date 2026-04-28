@@ -7,7 +7,7 @@ authentication and user management.
 from sqlalchemy.orm import Session
 from app.models.caregiver import CaregiverModel
 from app.persistence.caregiver_repository import CaregiverRepository
-from sqlalchemy.dialects.postgresql import UUID
+from uuid import UUID
 
 
 class CaregiverFacade:
