@@ -6,7 +6,7 @@ This module provides data access operations specific to Caregiver entities.
 from app.models.caregiver import CaregiverModel
 from app.persistence.base_repository import BaseRepository
 from sqlalchemy.orm import Session
-from sqlalchemy.dialects.postgresql import UUID
+from uuid import UUID
 
 
 class CaregiverRepository(BaseRepository[CaregiverModel]):

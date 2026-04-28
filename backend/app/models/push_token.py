@@ -26,16 +26,16 @@ class PushTokenModel(database):
     """
     __tablename__ = 'push_token'
 
-    _id = Column('id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    _token = Column('token', String(255), nullable=False, unique=True)
-    _user_id = Column('user_id', UUID(as_uuid=True), ForeignKey('user.id'), nullable=True)
-    _caregiver_id = Column('caregiver_id', UUID(as_uuid=True), ForeignKey('caregiver.id'), nullable=True)
-    _device_name = Column('device_name', String(100), nullable=True)
-    _is_active = Column('is_active', Boolean, default=True, nullable=False)
-    _locale = Column('locale', String(5), default='fr')
-    _created_at = Column('created_at', DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
-    _updated_at = Column('updated_at', DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), 
-                         onupdate=lambda: datetime.now(timezone.utc), nullable=False)
+    _id: uuid.UUID = Column('id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    _token: str = Column('token', String(255), nullable=False, unique=True)
+    _user_id: uuid.UUID | None = Column('user_id', UUID(as_uuid=True), ForeignKey('user.id'), nullable=True)
+    _caregiver_id: uuid.UUID | None = Column('caregiver_id', UUID(as_uuid=True), ForeignKey('caregiver.id'), nullable=True)
+    _device_name: str | None = Column('device_name', String(100), nullable=True)
+    _is_active: bool = Column('is_active', Boolean, default=True, nullable=False)
+    _locale: str = Column('locale', String(5), default='fr')
+    _created_at: datetime = Column('created_at', DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
+    _updated_at: datetime = Column('updated_at', DateTime(timezone=True), default=lambda: datetime.now(timezone.utc),
+                                   onupdate=lambda: datetime.now(timezone.utc), nullable=False)
 
     # ==================== PROPERTIES ====================
 
