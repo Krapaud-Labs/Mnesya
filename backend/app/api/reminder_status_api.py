@@ -7,7 +7,7 @@ Statuses track the lifecycle of reminders (PENDING, DONE, POSTPONED, UNABLE).
 from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy.orm import Session
 from app.services.reminder_status_facade import ReminderStatusFacade
-from app.services.reminder_facade import ReminderFacade
+from app.services.reminder_facade import ReminderFacade, schedule_next_occurrence
 from app.schemas.reminder_status_schema import (
     ReminderStatusResponse,
     ReminderStatusUpdate,
@@ -423,6 +423,10 @@ async def update_reminder_status(
         status_data = {"status": request.status, "reminder_id": reminder_id}
 
         new_status = facade.create_reminder_status(status_data)
+
+        # Schedule next occurrence when a terminal status closes a recurring reminder
+        if request.status in ("DONE", "UNABLE") and reminder.is_recurring:
+            schedule_next_occurrence(reminder, reminder_facade.reminder_repo.db)
 
         return ReminderStatusResponse(
             id=new_status.id,

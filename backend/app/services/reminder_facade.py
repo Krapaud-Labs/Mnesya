@@ -4,6 +4,9 @@ This module implements the Facade pattern for Reminder business logic.
 It provides a simplified interface for reminder operations.
 """
 
+import calendar
+from datetime import datetime, timedelta, timezone
+from typing import Optional
 from sqlalchemy.orm import Session
 from app.models.reminder import ReminderModel
 from app.models.reminder_status import ReminderStatusModel
@@ -11,6 +14,79 @@ from app.models.reminder_status_enum import ReminderStatusEnum
 from app.persistence.reminder_repository import ReminderRepository
 from app.persistence.reminder_status_repository import ReminderStatusRepository
 from uuid import UUID
+
+
+def _add_one_month(dt: datetime) -> datetime:
+    month = dt.month + 1
+    year = dt.year + (month - 1) // 12
+    month = (month - 1) % 12 + 1
+    day = min(dt.day, calendar.monthrange(year, month)[1])
+    return dt.replace(year=year, month=month, day=day)
+
+
+def calculate_next_occurrence(reminder: ReminderModel) -> Optional[datetime]:
+    """Return the next scheduled_at for a recurring reminder, or None if exhausted."""
+    if not reminder.is_recurring or not reminder.recurrence_type:
+        return None
+
+    current = reminder.scheduled_at
+    if current.tzinfo is None:
+        current = current.replace(tzinfo=timezone.utc)
+    now = datetime.now(timezone.utc)
+
+    if reminder.recurrence_type == "DAILY":
+        next_dt = current + timedelta(days=1)
+        while next_dt <= now:
+            next_dt += timedelta(days=1)
+
+    elif reminder.recurrence_type == "WEEKLY":
+        days = sorted(reminder.recurrence_days or [])
+        if not days:
+            return None
+        current_weekday = current.weekday()
+        next_dt = None
+        for day in days:
+            diff = (day - current_weekday) % 7 or 7
+            candidate = current + timedelta(days=diff)
+            if next_dt is None or candidate < next_dt:
+                next_dt = candidate
+        while next_dt <= now:
+            next_weekday = next_dt.weekday()
+            min_diff = min(((d - next_weekday) % 7 or 7) for d in days)
+            next_dt += timedelta(days=min_diff)
+
+    elif reminder.recurrence_type == "MONTHLY":
+        next_dt = _add_one_month(current)
+        while next_dt <= now:
+            next_dt = _add_one_month(next_dt)
+
+    else:
+        return None
+
+    if reminder.recurrence_end_date and next_dt.date() > reminder.recurrence_end_date:
+        return None
+
+    return next_dt
+
+
+def schedule_next_occurrence(reminder: ReminderModel, db: Session) -> bool:
+    """Update scheduled_at to next occurrence and create a PENDING status.
+
+    Returns True if a next occurrence was scheduled, False if recurrence is exhausted.
+    """
+    next_dt = calculate_next_occurrence(reminder)
+    if next_dt is None:
+        return False
+
+    reminder.scheduled_at = next_dt
+    db.add(reminder)
+
+    pending = ReminderStatusModel()
+    pending.status = "PENDING"
+    pending.reminder_id = reminder.id
+    db.add(pending)
+    db.commit()
+    return True
 
 
 class ReminderFacade:

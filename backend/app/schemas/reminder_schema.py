@@ -5,8 +5,8 @@ serialization.
 """
 
 import re
-from pydantic import BaseModel, Field, field_validator, ConfigDict
-from datetime import datetime, timezone
+from pydantic import BaseModel, Field, field_validator, model_validator, ConfigDict
+from datetime import datetime, timezone, date
 from uuid import UUID
 from typing import List, Optional
 
@@ -29,6 +29,10 @@ class ReminderCreate(BaseModel):
     description: Optional[str] = Field(None, max_length=2000)
     scheduled_at: datetime
     user_id: UUID
+    is_recurring: bool = False
+    recurrence_type: Optional[str] = None
+    recurrence_days: Optional[List[int]] = None
+    recurrence_end_date: Optional[date] = None
 
     @field_validator('title')
     @classmethod
@@ -51,6 +55,36 @@ class ReminderCreate(BaseModel):
         if _HTML_RE.search(value):
             raise ValueError("Description must not contain HTML characters")
         return value
+
+    @field_validator('recurrence_type')
+    @classmethod
+    def validate_recurrence_type(cls, value: Optional[str]) -> Optional[str]:
+        if value is not None and value not in ("DAILY", "WEEKLY", "MONTHLY"):
+            raise ValueError("recurrence_type must be DAILY, WEEKLY or MONTHLY")
+        return value
+
+    @field_validator('recurrence_days')
+    @classmethod
+    def validate_recurrence_days(cls, value: Optional[List[int]]) -> Optional[List[int]]:
+        if value is not None:
+            if not value:
+                raise ValueError("recurrence_days must not be empty")
+            if not all(isinstance(d, int) and 0 <= d <= 6 for d in value):
+                raise ValueError("recurrence_days must be integers between 0 (Mon) and 6 (Sun)")
+        return value
+
+    @model_validator(mode='after')
+    def validate_recurrence_consistency(self) -> 'ReminderCreate':
+        if self.is_recurring:
+            if not self.recurrence_type:
+                raise ValueError("recurrence_type is required when is_recurring is true")
+            if self.recurrence_type == "WEEKLY" and not self.recurrence_days:
+                raise ValueError("recurrence_days is required for WEEKLY recurrence")
+        else:
+            self.recurrence_type = None
+            self.recurrence_days = None
+            self.recurrence_end_date = None
+        return self
 
     @field_validator('scheduled_at')
     @classmethod
@@ -83,6 +117,10 @@ class ReminderUpdate(BaseModel):
     scheduled_at: Optional[datetime] = None
     caregiver_id: Optional[UUID] = None
     user_id: Optional[UUID] = None
+    is_recurring: Optional[bool] = None
+    recurrence_type: Optional[str] = None
+    recurrence_days: Optional[List[int]] = None
+    recurrence_end_date: Optional[date] = None
 
     @field_validator('title')
     @classmethod
@@ -137,6 +175,10 @@ class ReminderResponse(BaseModel):
     user_first_name: Optional[str] = None
     user_last_name: Optional[str] = None
     current_status: Optional[str] = None
+    is_recurring: bool = False
+    recurrence_type: Optional[str] = None
+    recurrence_days: Optional[List[int]] = None
+    recurrence_end_date: Optional[date] = None
     created_at: datetime
     updated_at: datetime
 
