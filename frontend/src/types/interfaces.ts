@@ -112,6 +112,10 @@ export interface CreateReminder {
     description?: string;
     scheduled_at: string;
     user_id: string;
+    is_recurring?: boolean;
+    recurrence_type?: 'DAILY' | 'WEEKLY' | 'MONTHLY';
+    recurrence_days?: number[];
+    recurrence_end_date?: string;
 }
 
 /** Full reminder data returned by the backend. */
@@ -125,6 +129,10 @@ export interface ReminderData {
     user_last_name?: string;
     caregiver_id: string;
     current_status?: string;
+    is_recurring: boolean;
+    recurrence_type?: 'DAILY' | 'WEEKLY' | 'MONTHLY';
+    recurrence_days?: number[];
+    recurrence_end_date?: string;
     created_at: string;
     updated_at: string;
 }

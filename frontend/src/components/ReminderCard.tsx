@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { commonStyles } from '../styles/commonStyles';
@@ -20,9 +20,25 @@ interface ReminderCardProps {
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
+const DAY_KEYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+function recurrenceLabel(reminder: ReminderData, t: (k: string) => string): string | null {
+    if (!reminder.is_recurring || !reminder.recurrence_type) return null;
+    if (reminder.recurrence_type === 'DAILY') return t('reminders.recurrence.daily');
+    if (reminder.recurrence_type === 'MONTHLY') return t('reminders.recurrence.monthly');
+    if (reminder.recurrence_type === 'WEEKLY' && reminder.recurrence_days?.length) {
+        const dayLabels = reminder.recurrence_days
+            .sort((a, b) => a - b)
+            .map((d) => t(`reminders.recurrence.day_short.${d}`));
+        return dayLabels.join(', ');
+    }
+    return null;
+}
+
 const ReminderCard: React.FC<ReminderCardProps> = ({ reminder, onDelete }) => {
     const { t } = useTranslation();
     const currentStatus = reminder.current_status;
+    const recLabel = recurrenceLabel(reminder, t);
 
     return (
         <View style={commonStyles.reminderCard}>
@@ -63,6 +79,12 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ reminder, onDelete }) => {
                             })}
                         </Text>
                     </View>
+                    {recLabel && (
+                        <View style={cardStyles.recurrenceBadge}>
+                            <Ionicons name="repeat-outline" size={13} color="#4A90E2" />
+                            <Text style={cardStyles.recurrenceBadgeText}>{recLabel}</Text>
+                        </View>
+                    )}
                 </View>
                 {currentStatus && (
                     <Text
@@ -86,5 +108,19 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ reminder, onDelete }) => {
         </View>
     );
 };
+
+const cardStyles = StyleSheet.create({
+    recurrenceBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        marginTop: 4,
+    },
+    recurrenceBadgeText: {
+        fontSize: 12,
+        color: '#4A90E2',
+        fontWeight: '500',
+    },
+});
 
 export default ReminderCard;

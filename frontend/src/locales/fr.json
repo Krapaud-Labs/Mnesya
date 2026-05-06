@@ -56,7 +56,15 @@
                 "Novembre",
                 "Décembre"
             ],
-            "weekDays": ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"]
+            "weekDays": [
+                "Dim",
+                "Lun",
+                "Mar",
+                "Mer",
+                "Jeu",
+                "Ven",
+                "Sam"
+            ]
         }
     },
     "welcome": {
@@ -173,6 +181,19 @@
         },
         "errors": {
             "deleteError": "Une erreur est survenue lors de la suppression du rappel."
+        },
+        "recurrence": {
+            "daily": "Quotidien",
+            "monthly": "Mensuel",
+            "day_short": {
+                "0": "Lu",
+                "1": "Ma",
+                "2": "Me",
+                "3": "Je",
+                "4": "Ve",
+                "5": "Sa",
+                "6": "Di"
+            }
         }
     },
     "CreateReminder": {
@@ -203,6 +224,28 @@
             "message": "Êtes-vous sûr de vouloir créer ce rappel ?",
             "cancel": "Annuler",
             "confirm": "Confirmer"
+        },
+        "recurrence": {
+            "toggle": "Rappel récurrent",
+            "types": {
+                "DAILY": "Quotidien",
+                "WEEKLY": "Hebdo",
+                "MONTHLY": "Mensuel"
+            },
+            "days_label": "Jours de répétition",
+            "days_required": "Sélectionnez au moins un jour",
+            "end_date_label": "Date de fin (optionnel)",
+            "no_end_date": "Indéfini",
+            "clear_end_date": "Supprimer la date de fin",
+            "day_short": {
+                "0": "Lu",
+                "1": "Ma",
+                "2": "Me",
+                "3": "Je",
+                "4": "Ve",
+                "5": "Sa",
+                "6": "Di"
+            }
         }
     },
     "UserPairing": {
@@ -333,7 +376,6 @@
             }
         }
     },
-
     "notifications": {
         "repetitions": {
             "reminder": "⏰ RAPPEL: {{title}}",
