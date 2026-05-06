@@ -5,9 +5,10 @@ Reminders are created by caregivers for users and track scheduled activities.
 """
 
 import uuid
-from datetime import datetime, timezone
-from sqlalchemy import Column, String, DateTime, Text, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID
+from datetime import datetime, timezone, date
+from typing import List, Optional
+from sqlalchemy import Column, String, DateTime, Text, ForeignKey, Boolean, Date, Integer
+from sqlalchemy.dialects.postgresql import UUID, ARRAY
 from app import database
 
 
@@ -45,6 +46,12 @@ class ReminderModel(database):
             as_uuid=True),
         ForeignKey('caregiver.id'))
     _user_id: uuid.UUID = Column('user_id', UUID(as_uuid=True), ForeignKey('user.id'))
+    _is_recurring: bool = Column('is_recurring', Boolean(), nullable=False, default=False)
+    _recurrence_type: Optional[str] = Column('recurrence_type', String(10), nullable=True)
+    _recurrence_days: Optional[List[int]] = Column(
+        'recurrence_days', ARRAY(Integer()), nullable=True
+    )
+    _recurrence_end_date: Optional[date] = Column('recurrence_end_date', Date(), nullable=True)
     _created_at: datetime = Column(
         DateTime(
             timezone=True), default=lambda: datetime.now(
@@ -179,6 +186,43 @@ class ReminderModel(database):
             value (UUID): The user's unique identifier
         """
         self._user_id = value
+
+    @property
+    def is_recurring(self) -> bool:
+        return self._is_recurring or False
+
+    @is_recurring.setter
+    def is_recurring(self, value: bool) -> None:
+        self._is_recurring = bool(value)
+
+    @property
+    def recurrence_type(self) -> Optional[str]:
+        return self._recurrence_type
+
+    @recurrence_type.setter
+    def recurrence_type(self, value: Optional[str]) -> None:
+        if value is not None and value not in ("DAILY", "WEEKLY", "MONTHLY"):
+            raise ValueError("recurrence_type must be DAILY, WEEKLY or MONTHLY")
+        self._recurrence_type = value
+
+    @property
+    def recurrence_days(self) -> Optional[List[int]]:
+        return self._recurrence_days
+
+    @recurrence_days.setter
+    def recurrence_days(self, value: Optional[List[int]]) -> None:
+        if value is not None:
+            if not all(isinstance(d, int) and 0 <= d <= 6 for d in value):
+                raise ValueError("recurrence_days must be integers between 0 (Mon) and 6 (Sun)")
+        self._recurrence_days = value
+
+    @property
+    def recurrence_end_date(self) -> Optional[date]:
+        return self._recurrence_end_date
+
+    @recurrence_end_date.setter
+    def recurrence_end_date(self, value: Optional[date]) -> None:
+        self._recurrence_end_date = value
 
     @property
     def created_at(self) -> datetime:

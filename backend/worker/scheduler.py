@@ -19,6 +19,7 @@ from app.persistence.push_token_repository import PushTokenRepository
 from app.persistence.reminder_status_repository import ReminderStatusRepository
 from app.services.notification_services import NotificationService
 from app.persistence.revoked_token_repository import RevokedTokenRepository
+from app.services.reminder_facade import schedule_next_occurrence
 
 logger = logging.getLogger(__name__)
 
@@ -164,6 +165,10 @@ def send_caregiver_escalations():
             )
             result = reminder_status_repo.add(missed_status)
             logger.info(f"[Scheduler] MISSED status created: {result.id}")
+
+            if reminder.is_recurring:
+                scheduled = schedule_next_occurrence(reminder, db)
+                logger.info(f"[Scheduler] Next occurrence scheduled: {scheduled}")
     except Exception as e:
         import traceback
 
