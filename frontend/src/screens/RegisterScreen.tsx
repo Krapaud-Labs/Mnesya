@@ -290,7 +290,7 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
             </ScrollView>
 
             {/* Buttons section - fixed at bottom */}
-            <View style={[styles.buttonsContainer, { paddingBottom: insets.bottom + 20 }]}>
+            <View style={[styles.buttonsContainer, { paddingBottom: insets.bottom }]}>
                 {/* Sign up button - navigates to Login after registration */}
                 <TouchableOpacity
                     style={[styles.signUpButton, loading && styles.signUpButtonDisabled]}
