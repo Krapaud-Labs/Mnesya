@@ -114,6 +114,36 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
         return null;
     };
 
+    /** Descriptive sentence shown below the type chips in the modal */
+    const getRecurrenceDescription = (): string => {
+        const time = formatTime(reminderDate);
+        const endSuffix = recurrenceEndDate
+            ? t('CreateReminder.recurrence.description.end_suffix', {
+                  date: formatDate(recurrenceEndDate),
+              })
+            : '';
+        if (recurrenceType === 'DAILY') {
+            return t('CreateReminder.recurrence.description.DAILY', { time, end: endSuffix });
+        }
+        if (recurrenceType === 'MONTHLY') {
+            return t('CreateReminder.recurrence.description.MONTHLY', {
+                day: reminderDate.getDate(),
+                time,
+                end: endSuffix,
+            });
+        }
+        if (recurrenceType === 'WEEKLY') {
+            if (recurrenceDays.length === 0)
+                return t('CreateReminder.recurrence.days_required');
+            const days = recurrenceDays
+                .sort((a, b) => a - b)
+                .map((d) => t(`CreateReminder.recurrence.day_short.${d}`))
+                .join(', ');
+            return t('CreateReminder.recurrence.description.WEEKLY', { days, time, end: endSuffix });
+        }
+        return '';
+    };
+
     /** One-line summary shown in the main form row */
     const getSchedulingSummary = (): string => {
         const base = `${formatDate(reminderDate)} à ${formatTime(reminderDate)}`;
@@ -399,7 +429,7 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
                                     setIsRecurring(val);
                                     if (!val) setRecurrenceDays([]);
                                 }}
-                                trackColor={{ false: '#CCCCCC', true: '#4A90E2' }}
+                                trackColor={{ false: '#F5F5F5', true: '#4A90E2' }}
                                 thumbColor="#FFFFFF"
                             />
                         </View>
@@ -408,33 +438,44 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
                             <>
                                 {/* Type chips */}
                                 <View style={styles.typeRow}>
-                                    {(['DAILY', 'WEEKLY', 'MONTHLY'] as const).map((type) => (
+                                    {([
+                                        { key: 'DAILY', icon: 'sunny-outline' },
+                                        { key: 'WEEKLY', icon: 'calendar-outline' },
+                                        { key: 'MONTHLY', icon: 'calendar-clear-outline' },
+                                    ] as const).map(({ key, icon }) => (
                                         <TouchableOpacity
-                                            key={type}
+                                            key={key}
                                             style={[
                                                 styles.typeChip,
-                                                recurrenceType === type && styles.typeChipActive,
+                                                recurrenceType === key && styles.typeChipActive,
                                             ]}
                                             onPress={() => {
-                                                Haptics.impactAsync(
-                                                    Haptics.ImpactFeedbackStyle.Light
-                                                );
-                                                setRecurrenceType(type);
-                                                if (type !== 'WEEKLY') setRecurrenceDays([]);
+                                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                                setRecurrenceType(key);
+                                                if (key !== 'WEEKLY') setRecurrenceDays([]);
                                             }}
                                         >
+                                            <Ionicons
+                                                name={icon}
+                                                size={20}
+                                                color={recurrenceType === key ? '#FFFFFF' : '#666666'}
+                                            />
                                             <Text
                                                 style={[
                                                     styles.typeChipText,
-                                                    recurrenceType === type &&
-                                                        styles.typeChipTextActive,
+                                                    recurrenceType === key && styles.typeChipTextActive,
                                                 ]}
                                             >
-                                                {t(`CreateReminder.recurrence.types.${type}`)}
+                                                {t(`CreateReminder.recurrence.types.${key}`)}
                                             </Text>
                                         </TouchableOpacity>
                                     ))}
                                 </View>
+
+                                {/* Dynamic description */}
+                                <Text style={styles.recurrenceDescription}>
+                                    {getRecurrenceDescription()}
+                                </Text>
 
                                 {/* Day picker (WEEKLY only) */}
                                 {recurrenceType === 'WEEKLY' && (
@@ -738,17 +779,26 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         backgroundColor: '#F0F0F0',
         alignItems: 'center',
+        gap: 4,
     },
     typeChipActive: {
         backgroundColor: '#4A90E2',
     },
     typeChipText: {
-        fontSize: 13,
+        fontSize: 12,
         fontWeight: '500',
         color: '#666666',
     },
     typeChipTextActive: {
         color: '#FFFFFF',
+    },
+    recurrenceDescription: {
+        fontSize: 13,
+        color: '#4A90E2',
+        fontStyle: 'italic',
+        marginBottom: 16,
+        marginTop: -8,
+        paddingHorizontal: 4,
     },
     daysRow: {
         flexDirection: 'row',

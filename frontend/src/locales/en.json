@@ -246,6 +246,12 @@
                 "4": "Fr",
                 "5": "Sa",
                 "6": "Su"
+            },
+            "description": {
+                "DAILY": "Every day at {{time}}{{end}}",
+                "WEEKLY": "Every {{days}} at {{time}}{{end}}",
+                "MONTHLY": "On the {{day}}th of each month at {{time}}{{end}}",
+                "end_suffix": " · until {{date}}"
             }
         }
     },
