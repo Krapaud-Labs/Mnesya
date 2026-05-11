@@ -201,7 +201,8 @@
         "fields": {
             "For Profile": "Recipient",
             "Reminder Title": "Reminder Title",
-            "Time": "Time"
+            "Time": "Time",
+            "scheduling": "Scheduling"
         },
         "placeholders": {
             "Ex. : Take Medication": "Ex.: Take Medication",

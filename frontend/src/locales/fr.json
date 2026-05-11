@@ -201,7 +201,8 @@
         "fields": {
             "For Profile": "Destinataire",
             "Reminder Title": "Titre du Rappel",
-            "Time": "Heure"
+            "Time": "Heure",
+            "scheduling": "Programmation"
         },
         "placeholders": {
             "Ex. : Take Medication": "Ex : Prendre les médicaments",

@@ -13,6 +13,7 @@ import {
     Image,
     Modal,
     SafeAreaView,
+    ScrollView,
     ActivityIndicator,
     Animated,
     Switch,
@@ -56,18 +57,20 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
         return d;
     });
 
-    const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
-    const [showTimePicker, setShowTimePicker] = useState<boolean>(false);
     const [showProfilePicker, setShowProfilePicker] = useState<boolean>(false);
     const [selectedProfile, setSelectedProfile] = useState<string>('');
     const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
+
+    // Scheduling modal
+    const [showSchedulingModal, setShowSchedulingModal] = useState<boolean>(false);
+    const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
+    const [showTimePicker, setShowTimePicker] = useState<boolean>(false);
 
     // Recurrence state
     const [isRecurring, setIsRecurring] = useState<boolean>(false);
     const [recurrenceType, setRecurrenceType] = useState<'DAILY' | 'WEEKLY' | 'MONTHLY'>('WEEKLY');
     const [recurrenceDays, setRecurrenceDays] = useState<number[]>([]);
     const [recurrenceEndDate, setRecurrenceEndDate] = useState<Date | null>(null);
-    const [showRecurrenceModal, setShowRecurrenceModal] = useState<boolean>(false);
     const [showEndDatePicker, setShowEndDatePicker] = useState<boolean>(false);
 
     const [profileError, setProfileError] = useState<string>('');
@@ -97,41 +100,25 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
         return `${hour}:${minute}`;
     };
 
-    const getRecurrenceSummary = (): string => {
+    const getRecurrenceSummary = (): string | null => {
+        if (!isRecurring) return null;
         if (recurrenceType === 'DAILY') return t('CreateReminder.recurrence.types.DAILY');
         if (recurrenceType === 'MONTHLY') return t('CreateReminder.recurrence.types.MONTHLY');
         if (recurrenceType === 'WEEKLY') {
-            if (recurrenceDays.length === 0) return t('CreateReminder.recurrence.days_required');
+            if (recurrenceDays.length === 0) return '…';
             return recurrenceDays
                 .sort((a, b) => a - b)
                 .map((d) => t(`CreateReminder.recurrence.day_short.${d}`))
                 .join(', ');
         }
-        return '';
+        return null;
     };
 
-    const openDatePicker = () => {
-        setShowDatePicker(true);
-        setShowTimePicker(false);
-        setShowProfilePicker(false);
-    };
-
-    const openTimePicker = () => {
-        setShowTimePicker(true);
-        setShowDatePicker(false);
-        setShowProfilePicker(false);
-    };
-
-    const openProfilePicker = () => {
-        setShowProfilePicker(true);
-        setShowDatePicker(false);
-        setShowTimePicker(false);
-    };
-
-    const handleToggleRecurring = (val: boolean) => {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        setIsRecurring(val);
-        if (val) setShowRecurrenceModal(true);
+    /** One-line summary shown in the main form row */
+    const getSchedulingSummary = (): string => {
+        const base = `${formatDate(reminderDate)} à ${formatTime(reminderDate)}`;
+        const rec = getRecurrenceSummary();
+        return rec ? `${base} · ${rec}` : base;
     };
 
     const handleSaveReminder = () => {
@@ -237,15 +224,16 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
                 <Text style={styles.title}>{t('CreateReminder.Title')}</Text>
             </View>
 
-            {/* Form content — no scroll */}
+            {/* Form content */}
             <View style={styles.formContainer}>
+                {/* Profile */}
                 <Text style={styles.label}>{t('CreateReminder.fields.For Profile')}</Text>
                 {profilesError && <Text style={styles.errorText}>{profilesError}</Text>}
                 <TouchableOpacity
                     style={[styles.input, showProfileError && commonStyles.inputError]}
-                    onPress={openProfilePicker}
+                    onPress={() => setShowProfilePicker(true)}
                 >
-                    <View style={styles.profilePicker}>
+                    <View style={styles.rowBetween}>
                         <Text>
                             {selectedProfileData
                                 ? `${selectedProfileData.first_name} ${selectedProfileData.last_name}`
@@ -264,6 +252,7 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
 
                 {!showProfilePicker && (
                     <>
+                        {/* Title */}
                         <Text style={styles.label}>
                             {t('CreateReminder.fields.Reminder Title')}
                         </Text>
@@ -281,7 +270,8 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
                             {titleError || t('CreateReminder.errors.Please enter a title')}
                         </Text>
 
-                        <Text style={styles.messageLabel}>Message</Text>
+                        {/* Message */}
+                        <Text style={styles.label}>Message</Text>
                         <View
                             style={[
                                 styles.input,
@@ -307,78 +297,34 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
                             {messageError || t('CreateReminder.errors.Please enter a message')}
                         </Text>
 
-                        <Animated.Text style={[styles.text, getPulseScale(pulseAnim)]}>
+                        <Animated.Text style={[styles.warningText, getPulseScale(pulseAnim)]}>
                             {t(
                                 'CreateReminder.message.Be careful not to enter sensitive confidential information.'
                             )}
                         </Animated.Text>
 
-                        <View style={styles.pickerContainer}>
-                            <View style={styles.pickerColumn}>
-                                <Text style={styles.label}>Date</Text>
-                                <TouchableOpacity
-                                    style={styles.pickerButton}
-                                    onPress={openDatePicker}
-                                >
-                                    <View style={styles.pickerRow}>
-                                        <Text>{formatDate(reminderDate)}</Text>
-                                        <Ionicons
-                                            name="calendar-outline"
-                                            size={20}
-                                            color="#999999"
-                                        />
-                                    </View>
-                                </TouchableOpacity>
+                        {/* Scheduling summary row */}
+                        <Text style={styles.label}>{t('CreateReminder.fields.scheduling') || 'Programmation'}</Text>
+                        <TouchableOpacity
+                            style={styles.summaryRow}
+                            onPress={() => {
+                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                setShowSchedulingModal(true);
+                            }}
+                        >
+                            <View style={styles.summaryLeft}>
+                                <Ionicons name="calendar-outline" size={16} color="#4A90E2" />
+                                <Text style={styles.summaryText}>{getSchedulingSummary()}</Text>
                             </View>
-                            <View style={styles.pickerColumn}>
-                                <Text style={styles.label}>{t('CreateReminder.fields.Time')}</Text>
-                                <TouchableOpacity
-                                    style={styles.pickerButton}
-                                    onPress={openTimePicker}
-                                >
-                                    <View style={styles.pickerRow}>
-                                        <Text>{formatTime(reminderDate)}</Text>
-                                        <Ionicons name="time-outline" size={20} color="#999999" />
-                                    </View>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-
-                        {/* Recurrence toggle */}
-                        <View style={styles.recurrenceRow}>
-                            <Text style={styles.label}>
-                                {t('CreateReminder.recurrence.toggle')}
-                            </Text>
-                            <Switch
-                                value={isRecurring}
-                                onValueChange={handleToggleRecurring}
-                                trackColor={{ false: '#CCCCCC', true: '#4A90E2' }}
-                                thumbColor="#FFFFFF"
-                            />
-                        </View>
-
-                        {/* Recurrence summary — tap to open modal */}
-                        {isRecurring && (
-                            <TouchableOpacity
-                                style={styles.recurrenceSummaryRow}
-                                onPress={() => setShowRecurrenceModal(true)}
-                            >
-                                <View style={styles.recurrenceSummaryLeft}>
-                                    <Ionicons name="repeat-outline" size={16} color="#4A90E2" />
-                                    <Text style={styles.recurrenceSummaryText}>
-                                        {getRecurrenceSummary()}
-                                    </Text>
-                                </View>
-                                <Ionicons name="chevron-forward" size={16} color="#4A90E2" />
-                            </TouchableOpacity>
-                        )}
+                            <Ionicons name="chevron-forward" size={16} color="#4A90E2" />
+                        </TouchableOpacity>
                     </>
                 )}
             </View>
 
             {/* Save button */}
             <View style={[styles.buttonsContainer, { paddingBottom: insets.bottom + 20 }]}>
-                {!showDatePicker && !showTimePicker && !showProfilePicker && (
+                {!showProfilePicker && (
                     <TouchableOpacity
                         style={commonStyles.primaryButton}
                         onPress={handleSaveReminder}
@@ -390,134 +336,203 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
                 )}
             </View>
 
-            {/* Recurrence configuration modal */}
+            {/* ── Scheduling modal (date, heure, récurrence) ── */}
             <Modal
-                visible={showRecurrenceModal}
+                visible={showSchedulingModal}
                 animationType="slide"
                 presentationStyle="pageSheet"
-                onRequestClose={() => setShowRecurrenceModal(false)}
+                onRequestClose={() => setShowSchedulingModal(false)}
             >
                 <SafeAreaView style={styles.modalContainer}>
+                    {/* Modal header */}
                     <View style={styles.modalHeader}>
                         <Text style={styles.modalTitle}>
-                            {t('CreateReminder.recurrence.toggle')}
+                            {t('CreateReminder.fields.scheduling') || 'Programmation'}
                         </Text>
-                        <TouchableOpacity onPress={() => setShowRecurrenceModal(false)}>
+                        <TouchableOpacity onPress={() => setShowSchedulingModal(false)}>
                             <Ionicons name="close" size={24} color="#333333" />
                         </TouchableOpacity>
                     </View>
 
-                    <View style={styles.modalContent}>
-                        {/* Type chips */}
-                        <View style={styles.recurrenceTypeRow}>
-                            {(['DAILY', 'WEEKLY', 'MONTHLY'] as const).map((type) => (
-                                <TouchableOpacity
-                                    key={type}
-                                    style={[
-                                        styles.typeChip,
-                                        recurrenceType === type && styles.typeChipActive,
-                                    ]}
-                                    onPress={() => {
-                                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                        setRecurrenceType(type);
-                                        if (type !== 'WEEKLY') setRecurrenceDays([]);
-                                    }}
-                                >
-                                    <Text
-                                        style={[
-                                            styles.typeChipText,
-                                            recurrenceType === type && styles.typeChipTextActive,
-                                        ]}
-                                    >
-                                        {t(`CreateReminder.recurrence.types.${type}`)}
-                                    </Text>
-                                </TouchableOpacity>
-                            ))}
-                        </View>
-
-                        {/* Day picker (WEEKLY only) */}
-                        {recurrenceType === 'WEEKLY' && (
-                            <>
-                                <Text style={styles.label}>
-                                    {t('CreateReminder.recurrence.days_label')}
-                                </Text>
-                                {recurrenceDays.length === 0 && (
-                                    <Text style={styles.errorText}>
-                                        {t('CreateReminder.recurrence.days_required')}
-                                    </Text>
-                                )}
-                                <View style={styles.daysRow}>
-                                    {[0, 1, 2, 3, 4, 5, 6].map((day) => {
-                                        const selected = recurrenceDays.includes(day);
-                                        return (
-                                            <TouchableOpacity
-                                                key={day}
-                                                style={[
-                                                    styles.dayChip,
-                                                    selected && styles.dayChipActive,
-                                                ]}
-                                                onPress={() => {
-                                                    Haptics.impactAsync(
-                                                        Haptics.ImpactFeedbackStyle.Light
-                                                    );
-                                                    setRecurrenceDays((prev) =>
-                                                        selected
-                                                            ? prev.filter((d) => d !== day)
-                                                            : [...prev, day]
-                                                    );
-                                                }}
-                                            >
-                                                <Text
-                                                    style={[
-                                                        styles.dayChipText,
-                                                        selected && styles.dayChipTextActive,
-                                                    ]}
-                                                >
-                                                    {t(`CreateReminder.recurrence.day_short.${day}`)}
-                                                </Text>
-                                            </TouchableOpacity>
-                                        );
-                                    })}
-                                </View>
-                            </>
-                        )}
-
-                        {/* End date */}
-                        <Text style={styles.label}>
-                            {t('CreateReminder.recurrence.end_date_label')}
-                        </Text>
+                    <ScrollView style={styles.modalContent} keyboardShouldPersistTaps="handled">
+                        {/* Date */}
+                        <Text style={styles.label}>Date</Text>
                         <TouchableOpacity
                             style={styles.pickerButton}
-                            onPress={() => setShowEndDatePicker(true)}
+                            onPress={() => {
+                                setShowDatePicker(true);
+                                setShowTimePicker(false);
+                                setShowEndDatePicker(false);
+                            }}
                         >
-                            <View style={styles.pickerRow}>
-                                <Text>
-                                    {recurrenceEndDate
-                                        ? formatDate(recurrenceEndDate)
-                                        : t('CreateReminder.recurrence.no_end_date')}
-                                </Text>
+                            <View style={styles.rowBetween}>
+                                <Text>{formatDate(reminderDate)}</Text>
                                 <Ionicons name="calendar-outline" size={20} color="#999999" />
                             </View>
                         </TouchableOpacity>
-                        {recurrenceEndDate && (
-                            <TouchableOpacity
-                                onPress={() => setRecurrenceEndDate(null)}
-                                style={styles.clearEndDate}
-                            >
-                                <Text style={styles.clearEndDateText}>
-                                    {t('CreateReminder.recurrence.clear_end_date')}
-                                </Text>
-                            </TouchableOpacity>
-                        )}
-                    </View>
 
-                    {/* Validate button */}
+                        {/* Time */}
+                        <Text style={styles.label}>{t('CreateReminder.fields.Time')}</Text>
+                        <TouchableOpacity
+                            style={styles.pickerButton}
+                            onPress={() => {
+                                setShowTimePicker(true);
+                                setShowDatePicker(false);
+                                setShowEndDatePicker(false);
+                            }}
+                        >
+                            <View style={styles.rowBetween}>
+                                <Text>{formatTime(reminderDate)}</Text>
+                                <Ionicons name="time-outline" size={20} color="#999999" />
+                            </View>
+                        </TouchableOpacity>
+
+                        {/* Recurrence toggle */}
+                        <View style={styles.recurrenceRow}>
+                            <Text style={styles.label}>
+                                {t('CreateReminder.recurrence.toggle')}
+                            </Text>
+                            <Switch
+                                value={isRecurring}
+                                onValueChange={(val) => {
+                                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                    setIsRecurring(val);
+                                    if (!val) setRecurrenceDays([]);
+                                }}
+                                trackColor={{ false: '#CCCCCC', true: '#4A90E2' }}
+                                thumbColor="#FFFFFF"
+                            />
+                        </View>
+
+                        {isRecurring && (
+                            <>
+                                {/* Type chips */}
+                                <View style={styles.typeRow}>
+                                    {(['DAILY', 'WEEKLY', 'MONTHLY'] as const).map((type) => (
+                                        <TouchableOpacity
+                                            key={type}
+                                            style={[
+                                                styles.typeChip,
+                                                recurrenceType === type && styles.typeChipActive,
+                                            ]}
+                                            onPress={() => {
+                                                Haptics.impactAsync(
+                                                    Haptics.ImpactFeedbackStyle.Light
+                                                );
+                                                setRecurrenceType(type);
+                                                if (type !== 'WEEKLY') setRecurrenceDays([]);
+                                            }}
+                                        >
+                                            <Text
+                                                style={[
+                                                    styles.typeChipText,
+                                                    recurrenceType === type &&
+                                                        styles.typeChipTextActive,
+                                                ]}
+                                            >
+                                                {t(`CreateReminder.recurrence.types.${type}`)}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    ))}
+                                </View>
+
+                                {/* Day picker (WEEKLY only) */}
+                                {recurrenceType === 'WEEKLY' && (
+                                    <>
+                                        <Text style={styles.label}>
+                                            {t('CreateReminder.recurrence.days_label')}
+                                        </Text>
+                                        {recurrenceDays.length === 0 && (
+                                            <Text style={styles.errorText}>
+                                                {t('CreateReminder.recurrence.days_required')}
+                                            </Text>
+                                        )}
+                                        <View style={styles.daysRow}>
+                                            {[0, 1, 2, 3, 4, 5, 6].map((day) => {
+                                                const selected = recurrenceDays.includes(day);
+                                                return (
+                                                    <TouchableOpacity
+                                                        key={day}
+                                                        style={[
+                                                            styles.dayChip,
+                                                            selected && styles.dayChipActive,
+                                                        ]}
+                                                        onPress={() => {
+                                                            Haptics.impactAsync(
+                                                                Haptics.ImpactFeedbackStyle.Light
+                                                            );
+                                                            setRecurrenceDays((prev) =>
+                                                                selected
+                                                                    ? prev.filter((d) => d !== day)
+                                                                    : [...prev, day]
+                                                            );
+                                                        }}
+                                                    >
+                                                        <Text
+                                                            style={[
+                                                                styles.dayChipText,
+                                                                selected && styles.dayChipTextActive,
+                                                            ]}
+                                                        >
+                                                            {t(
+                                                                `CreateReminder.recurrence.day_short.${day}`
+                                                            )}
+                                                        </Text>
+                                                    </TouchableOpacity>
+                                                );
+                                            })}
+                                        </View>
+                                    </>
+                                )}
+
+                                {/* End date */}
+                                <Text style={styles.label}>
+                                    {t('CreateReminder.recurrence.end_date_label')}
+                                </Text>
+                                <TouchableOpacity
+                                    style={styles.pickerButton}
+                                    onPress={() => {
+                                        setShowEndDatePicker(true);
+                                        setShowDatePicker(false);
+                                        setShowTimePicker(false);
+                                    }}
+                                >
+                                    <View style={styles.rowBetween}>
+                                        <Text>
+                                            {recurrenceEndDate
+                                                ? formatDate(recurrenceEndDate)
+                                                : t('CreateReminder.recurrence.no_end_date')}
+                                        </Text>
+                                        <Ionicons
+                                            name="calendar-outline"
+                                            size={20}
+                                            color="#999999"
+                                        />
+                                    </View>
+                                </TouchableOpacity>
+                                {recurrenceEndDate && (
+                                    <TouchableOpacity
+                                        onPress={() => setRecurrenceEndDate(null)}
+                                        style={styles.clearEndDate}
+                                    >
+                                        <Text style={styles.clearEndDateText}>
+                                            {t('CreateReminder.recurrence.clear_end_date')}
+                                        </Text>
+                                    </TouchableOpacity>
+                                )}
+                            </>
+                        )}
+
+                        <View style={{ height: 20 }} />
+                    </ScrollView>
+
+                    {/* Validate */}
                     <View style={[styles.modalFooter, { paddingBottom: insets.bottom + 16 }]}>
                         <TouchableOpacity
                             style={commonStyles.primaryButton}
                             onPress={() => {
                                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                                setShowRecurrenceModal(false);
+                                setShowSchedulingModal(false);
                             }}
                         >
                             <Text style={commonStyles.primaryButtonText}>
@@ -526,7 +541,19 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
                         </TouchableOpacity>
                     </View>
 
-                    {/* End date picker lives inside the modal */}
+                    {/* Pickers inside modal */}
+                    <PlatformDatePicker
+                        value={reminderDate}
+                        onChange={setReminderDate}
+                        visible={showDatePicker}
+                        onClose={() => setShowDatePicker(false)}
+                    />
+                    <PlatformTimePicker
+                        value={reminderDate}
+                        onChange={setReminderDate}
+                        visible={showTimePicker}
+                        onClose={() => setShowTimePicker(false)}
+                    />
                     <PlatformDatePicker
                         value={recurrenceEndDate ?? new Date()}
                         onChange={(d) => setRecurrenceEndDate(d)}
@@ -536,19 +563,7 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
                 </SafeAreaView>
             </Modal>
 
-            {/* Platform pickers */}
-            <PlatformDatePicker
-                value={reminderDate}
-                onChange={setReminderDate}
-                visible={showDatePicker}
-                onClose={() => setShowDatePicker(false)}
-            />
-            <PlatformTimePicker
-                value={reminderDate}
-                onChange={setReminderDate}
-                visible={showTimePicker}
-                onClose={() => setShowTimePicker(false)}
-            />
+            {/* Profile picker */}
             <FilterPickerModal
                 title={t('common.pickersText.Select a profile')}
                 items={
@@ -586,8 +601,8 @@ const styles = StyleSheet.create({
     titleSection: {
         width: '100%',
         paddingLeft: 10,
-        marginTop: 20,
-        marginBottom: 20,
+        marginTop: 10,
+        marginBottom: 10,
     },
     formContainer: {
         flex: 1,
@@ -599,88 +614,73 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 28,
         fontWeight: 'bold',
-        marginBottom: 10,
+        marginBottom: 6,
     },
     label: {
         fontSize: 18,
         fontWeight: '500',
-        marginBottom: 10,
-        marginTop: 5,
+        marginBottom: 6,
+        marginTop: 2,
     },
-    messageLabel: {
-        fontSize: 18,
-        fontWeight: '500',
-        marginBottom: 10,
-        marginTop: 0,
-    },
-    text: {
-        fontSize: 13,
-        width: '100%',
-        justifyContent: 'flex-start',
+    warningText: {
+        fontSize: 12,
         color: '#FF0000',
-        marginTop: 0,
         marginBottom: 4,
-        paddingBottom: 4,
+        paddingRight: 4,
     },
 
     // ========== FORM ELEMENTS ==========
     input: {
         backgroundColor: '#F5F5F5',
-        padding: 15,
+        padding: 12,
         borderRadius: 20,
-        marginBottom: 10,
+        marginBottom: 4,
         width: '100%',
+    },
+    messageInput: {
+        height: 70,
+        marginBottom: 2,
     },
     errorText: {
         color: '#FF0000',
         fontSize: 12,
         textAlign: 'right',
-        marginTop: -5,
-        marginBottom: 5,
-        minHeight: 16,
-        lineHeight: 16,
+        marginTop: -2,
+        marginBottom: 2,
+        minHeight: 14,
+        lineHeight: 14,
         paddingRight: 10,
     },
-    profilePicker: {
+    rowBetween: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-    },
-    messageInput: {
-        height: 80,
-        marginBottom: 2,
     },
 
-    // ========== RECURRENCE (main form) ==========
-    recurrenceRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginTop: 10,
-        marginBottom: 6,
-    },
-    recurrenceSummaryRow: {
+    // ========== SCHEDULING SUMMARY ROW ==========
+    summaryRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         backgroundColor: '#EEF4FC',
-        borderRadius: 12,
+        borderRadius: 14,
         paddingHorizontal: 14,
-        paddingVertical: 10,
-        marginBottom: 8,
+        paddingVertical: 12,
     },
-    recurrenceSummaryLeft: {
+    summaryLeft: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
+        flex: 1,
     },
-    recurrenceSummaryText: {
+    summaryText: {
         fontSize: 14,
         color: '#4A90E2',
         fontWeight: '500',
+        flex: 1,
     },
 
-    // ========== RECURRENCE MODAL ==========
+    // ========== MODAL ==========
     modalContainer: {
         flex: 1,
         backgroundColor: '#FFFFFF',
@@ -703,16 +703,34 @@ const styles = StyleSheet.create({
     modalContent: {
         flex: 1,
         paddingHorizontal: 20,
-        paddingTop: 20,
+        paddingTop: 16,
     },
     modalFooter: {
         paddingHorizontal: 20,
         paddingTop: 12,
     },
-    recurrenceTypeRow: {
+
+    // ========== PICKERS ==========
+    pickerButton: {
+        backgroundColor: '#F5F5F5',
+        padding: 14,
+        borderRadius: 20,
+        marginBottom: 8,
+        width: '100%',
+    },
+
+    // ========== RECURRENCE ==========
+    recurrenceRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: 8,
+        marginBottom: 4,
+    },
+    typeRow: {
         flexDirection: 'row',
         gap: 8,
-        marginBottom: 20,
+        marginBottom: 16,
     },
     typeChip: {
         flex: 1,
@@ -735,7 +753,7 @@ const styles = StyleSheet.create({
     daysRow: {
         flexDirection: 'row',
         gap: 6,
-        marginBottom: 20,
+        marginBottom: 16,
     },
     dayChip: {
         flex: 1,
@@ -757,35 +775,13 @@ const styles = StyleSheet.create({
     },
     clearEndDate: {
         alignSelf: 'flex-end',
-        marginTop: -8,
+        marginTop: -4,
         marginBottom: 8,
         paddingRight: 4,
     },
     clearEndDateText: {
         fontSize: 12,
         color: '#FF3B30',
-    },
-
-    // ========== PICKERS ==========
-    pickerContainer: {
-        flexDirection: 'row',
-        width: '100%',
-    },
-    pickerColumn: {
-        flex: 1,
-        marginRight: 10,
-    },
-    pickerRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-    },
-    pickerButton: {
-        backgroundColor: '#F5F5F5',
-        padding: 18,
-        borderRadius: 20,
-        marginBottom: 15,
-        width: '100%',
     },
 });
 
