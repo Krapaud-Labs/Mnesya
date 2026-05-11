@@ -107,6 +107,7 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
         if (recurrenceType === 'WEEKLY') {
             if (recurrenceDays.length === 0) return '…';
             return recurrenceDays
+                .slice()
                 .sort((a, b) => a - b)
                 .map((d) => t(`CreateReminder.recurrence.day_short.${d}`))
                 .join(', ');
@@ -135,6 +136,7 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
         if (recurrenceType === 'WEEKLY') {
             if (recurrenceDays.length === 0) return '';
             const days = recurrenceDays
+                .slice()
                 .sort((a, b) => a - b)
                 .map((d) => t(`CreateReminder.recurrence.day_short.${d}`))
                 .join(', ');
