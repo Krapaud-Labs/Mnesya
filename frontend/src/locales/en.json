@@ -228,6 +228,7 @@
         },
         "recurrence": {
             "toggle": "Recurring reminder",
+            "hint": "Enable the toggle to set up automatic repetition.",
             "types": {
                 "DAILY": "Daily",
                 "WEEKLY": "Weekly",
@@ -246,6 +247,15 @@
                 "4": "Fr",
                 "5": "Sa",
                 "6": "Su"
+            },
+            "day_full": {
+                "0": "Monday",
+                "1": "Tuesday",
+                "2": "Wednesday",
+                "3": "Thursday",
+                "4": "Friday",
+                "5": "Saturday",
+                "6": "Sunday"
             },
             "description": {
                 "DAILY": "Every day at {{time}}{{end}}",

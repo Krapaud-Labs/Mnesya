@@ -228,6 +228,7 @@
         },
         "recurrence": {
             "toggle": "Rappel récurrent",
+            "hint": "Activez le bouton pour configurer une répétition automatique.",
             "types": {
                 "DAILY": "Quotidien",
                 "WEEKLY": "Hebdo",
@@ -246,6 +247,15 @@
                 "4": "Ve",
                 "5": "Sa",
                 "6": "Di"
+            },
+            "day_full": {
+                "0": "Lundi",
+                "1": "Mardi",
+                "2": "Mercredi",
+                "3": "Jeudi",
+                "4": "Vendredi",
+                "5": "Samedi",
+                "6": "Dimanche"
             },
             "description": {
                 "DAILY": "Tous les jours à {{time}}{{end}}",
