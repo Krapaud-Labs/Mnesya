@@ -405,7 +405,12 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
                         <Text style={styles.modalTitle}>
                             {t('CreateReminder.fields.scheduling') || 'Programmation'}
                         </Text>
-                        <TouchableOpacity onPress={() => setShowSchedulingModal(false)}>
+                        <TouchableOpacity onPress={() => {
+                            if (isRecurring && recurrenceType === 'WEEKLY' && recurrenceDays.length === 0) {
+                                setIsRecurring(false);
+                            }
+                            setShowSchedulingModal(false);
+                        }}>
                             <Ionicons name="close" size={24} color="#333333" />
                         </TouchableOpacity>
                     </View>
@@ -517,11 +522,9 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
                                         <Text style={styles.modalLabel}>
                                             {t('CreateReminder.recurrence.days_label')}
                                         </Text>
-                                        {recurrenceDays.length === 0 && (
-                                            <Text style={styles.errorText}>
-                                                {t('CreateReminder.recurrence.days_required')}
-                                            </Text>
-                                        )}
+                                        <Text style={[styles.errorText, { opacity: recurrenceDays.length === 0 ? 1 : 0 }]}>
+                                            {t('CreateReminder.recurrence.days_required')}
+                                        </Text>
                                         <View style={styles.daysRow}>
                                             {[0, 1, 2, 3, 4, 5, 6].map((day) => {
                                                 const selected = recurrenceDays.includes(day);
@@ -606,6 +609,10 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
                         <TouchableOpacity
                             style={commonStyles.primaryButton}
                             onPress={() => {
+                                if (isRecurring && recurrenceType === 'WEEKLY' && recurrenceDays.length === 0) {
+                                    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+                                    return;
+                                }
                                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                                 setShowSchedulingModal(false);
                             }}
