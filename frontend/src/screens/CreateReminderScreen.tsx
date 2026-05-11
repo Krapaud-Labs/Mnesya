@@ -386,7 +386,7 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
 
                     <ScrollView style={styles.modalContent} keyboardShouldPersistTaps="handled">
                         {/* Date */}
-                        <Text style={styles.label}>Date</Text>
+                        <Text style={styles.modalLabel}>Date</Text>
                         <TouchableOpacity
                             style={styles.pickerButton}
                             onPress={() => {
@@ -402,7 +402,7 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
                         </TouchableOpacity>
 
                         {/* Time */}
-                        <Text style={styles.label}>{t('CreateReminder.fields.Time')}</Text>
+                        <Text style={styles.modalLabel}>{t('CreateReminder.fields.Time')}</Text>
                         <TouchableOpacity
                             style={styles.pickerButton}
                             onPress={() => {
@@ -419,20 +419,28 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
 
                         {/* Recurrence toggle */}
                         <View style={styles.recurrenceRow}>
-                            <Text style={styles.label}>
+                            <Text style={styles.modalLabel}>
                                 {t('CreateReminder.recurrence.toggle')}
                             </Text>
-                            <Switch
-                                value={isRecurring}
-                                onValueChange={(val) => {
-                                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                    setIsRecurring(val);
-                                    if (!val) setRecurrenceDays([]);
-                                }}
-                                trackColor={{ false: '#F5F5F5', true: '#4A90E2' }}
-                                thumbColor="#FFFFFF"
-                            />
+                            <View style={styles.switchWrapper}>
+                                <Switch
+                                    value={isRecurring}
+                                    onValueChange={(val) => {
+                                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                        setIsRecurring(val);
+                                        if (!val) setRecurrenceDays([]);
+                                    }}
+                                    trackColor={{ false: '#DDDDDD', true: '#4A90E2' }}
+                                    thumbColor="#FFFFFF"
+                                />
+                            </View>
                         </View>
+
+                        {!isRecurring && (
+                            <Text style={styles.recurrenceHint}>
+                                {t('CreateReminder.recurrence.hint')}
+                            </Text>
+                        )}
 
                         {isRecurring && (
                             <>
@@ -480,7 +488,7 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
                                 {/* Day picker (WEEKLY only) */}
                                 {recurrenceType === 'WEEKLY' && (
                                     <>
-                                        <Text style={styles.label}>
+                                        <Text style={styles.modalLabel}>
                                             {t('CreateReminder.recurrence.days_label')}
                                         </Text>
                                         {recurrenceDays.length === 0 && (
@@ -527,7 +535,7 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
                                 )}
 
                                 {/* End date */}
-                                <Text style={styles.label}>
+                                <Text style={styles.modalLabel}>
                                     {t('CreateReminder.recurrence.end_date_label')}
                                 </Text>
                                 <TouchableOpacity
@@ -732,13 +740,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 20,
         paddingTop: 20,
-        paddingBottom: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: '#F0F0F0',
+        paddingBottom: 12,
     },
     modalTitle: {
-        fontSize: 18,
-        fontWeight: '600',
+        fontSize: 22,
+        fontWeight: 'bold',
         color: '#333333',
     },
     modalContent: {
@@ -749,6 +755,13 @@ const styles = StyleSheet.create({
     modalFooter: {
         paddingHorizontal: 20,
         paddingTop: 12,
+    },
+    modalLabel: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#333333',
+        marginBottom: 6,
+        marginTop: 2,
     },
 
     // ========== PICKERS ==========
@@ -767,6 +780,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginTop: 8,
         marginBottom: 4,
+    },
+    switchWrapper: {
+        backgroundColor: '#F5F5F5',
+        borderRadius: 20,
+        padding: 2,
     },
     typeRow: {
         flexDirection: 'row',
@@ -791,6 +809,14 @@ const styles = StyleSheet.create({
     },
     typeChipTextActive: {
         color: '#FFFFFF',
+    },
+    recurrenceHint: {
+        fontSize: 12,
+        color: '#999999',
+        fontStyle: 'italic',
+        marginTop: 4,
+        marginBottom: 8,
+        paddingHorizontal: 4,
     },
     recurrenceDescription: {
         fontSize: 13,
