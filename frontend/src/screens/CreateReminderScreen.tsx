@@ -342,12 +342,7 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
                                     setShowSchedulingModal(true);
                                 }}
                             >
-                                <ScrollView
-                                    style={styles.summaryCardContent}
-                                    scrollEnabled={true}
-                                    showsVerticalScrollIndicator={false}
-                                    nestedScrollEnabled={true}
-                                >
+                                <View style={styles.summaryCardContent}>
                                     {/* Date + time */}
                                     <View style={styles.summaryCardRow}>
                                         <Ionicons name="calendar-outline" size={16} color="#4A90E2" />
@@ -356,36 +351,26 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
                                         </Text>
                                     </View>
 
-                                    {/* Recurrence lines */}
-                                    {isRecurring && recurrenceType === 'DAILY' && (
-                                        <View style={[styles.summaryCardRow, { marginTop: 8 }]}>
+                                    {/* Recurrence */}
+                                    {isRecurring && (
+                                        <View style={[styles.summaryCardRow, { marginTop: 8, flexWrap: 'wrap' }]}>
                                             <Ionicons name="repeat-outline" size={14} color="#4A90E2" />
-                                            <Text style={styles.summaryDayText}>
-                                                {t('CreateReminder.recurrence.types.DAILY')}
+                                            <Text style={[styles.summaryDayText, { flex: 1 }]}>
+                                                {recurrenceType === 'DAILY' && t('CreateReminder.recurrence.types.DAILY')}
+                                                {recurrenceType === 'MONTHLY' && t('CreateReminder.recurrence.types.MONTHLY')}
+                                                {recurrenceType === 'WEEKLY' && (
+                                                    recurrenceDays.length === 0
+                                                        ? '…'
+                                                        : recurrenceDays
+                                                              .slice()
+                                                              .sort((a, b) => a - b)
+                                                              .map((d) => t(`CreateReminder.recurrence.day_full.${d}`))
+                                                              .join(' · ')
+                                                )}
                                             </Text>
                                         </View>
                                     )}
-                                    {isRecurring && recurrenceType === 'MONTHLY' && (
-                                        <View style={[styles.summaryCardRow, { marginTop: 8 }]}>
-                                            <Ionicons name="repeat-outline" size={14} color="#4A90E2" />
-                                            <Text style={styles.summaryDayText}>
-                                                {t('CreateReminder.recurrence.types.MONTHLY')}
-                                            </Text>
-                                        </View>
-                                    )}
-                                    {isRecurring && recurrenceType === 'WEEKLY' &&
-                                        recurrenceDays
-                                            .slice()
-                                            .sort((a, b) => a - b)
-                                            .map((d, i) => (
-                                                <View key={d} style={[styles.summaryCardRow, { marginTop: i === 0 ? 8 : 6 }]}>
-                                                    <Ionicons name="repeat-outline" size={14} color="#4A90E2" />
-                                                    <Text style={styles.summaryDayText}>
-                                                        {t(`CreateReminder.recurrence.day_full.${d}`)}
-                                                    </Text>
-                                                </View>
-                                            ))}
-                                </ScrollView>
+                                </View>
                                 <Ionicons name="chevron-forward" size={16} color="#4A90E2" style={{ marginTop: 2 }} />
                             </TouchableOpacity>
                         </View>
@@ -394,7 +379,7 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
             </View>
 
             {/* Save button */}
-            <View style={[styles.buttonsContainer, { paddingBottom: insets.bottom + 20 }]}>
+            <View style={[styles.buttonsContainer, { paddingBottom: insets.bottom }]}>
                 {!showProfilePicker && (
                     <TouchableOpacity
                         style={commonStyles.primaryButton}
@@ -617,7 +602,7 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
                     </ScrollView>
 
                     {/* Validate */}
-                    <View style={[styles.modalFooter, { paddingBottom: insets.bottom + 16 }]}>
+                    <View style={[styles.modalFooter, { paddingBottom: insets.bottom }]}>
                         <TouchableOpacity
                             style={commonStyles.primaryButton}
                             onPress={() => {
@@ -748,11 +733,8 @@ const styles = StyleSheet.create({
     },
 
     // ========== SCHEDULING SUMMARY CARD ==========
-    schedulingSection: {
-        flex: 1,
-    },
+    schedulingSection: {},
     summaryCard: {
-        flex: 1,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'flex-start',
