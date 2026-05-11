@@ -280,7 +280,7 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
                 </Text>
 
                 {!showProfilePicker && (
-                    <>
+                    <View style={{ flex: 1 }}>
                         {/* Title */}
                         <Text style={styles.label}>
                             {t('CreateReminder.fields.Reminder Title')}
@@ -333,56 +333,58 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
                         </Animated.Text>
 
                         {/* Scheduling card */}
-                        <Text style={styles.label}>{t('CreateReminder.fields.scheduling') || 'Programmation'}</Text>
-                        <TouchableOpacity
-                            style={styles.summaryCard}
-                            onPress={() => {
-                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                setShowSchedulingModal(true);
-                            }}
-                        >
-                            <View style={styles.summaryCardContent}>
-                                {/* Date + time */}
-                                <View style={styles.summaryCardRow}>
-                                    <Ionicons name="calendar-outline" size={16} color="#4A90E2" />
-                                    <Text style={styles.summaryDateText}>
-                                        {formatDate(reminderDate)} à {formatTime(reminderDate)}
-                                    </Text>
-                                </View>
+                        <View style={styles.schedulingSection}>
+                            <Text style={styles.label}>{t('CreateReminder.fields.scheduling') || 'Programmation'}</Text>
+                            <TouchableOpacity
+                                style={styles.summaryCard}
+                                onPress={() => {
+                                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                    setShowSchedulingModal(true);
+                                }}
+                            >
+                                <View style={styles.summaryCardContent}>
+                                    {/* Date + time */}
+                                    <View style={styles.summaryCardRow}>
+                                        <Ionicons name="calendar-outline" size={16} color="#4A90E2" />
+                                        <Text style={styles.summaryDateText}>
+                                            {formatDate(reminderDate)} à {formatTime(reminderDate)}
+                                        </Text>
+                                    </View>
 
-                                {/* Recurrence lines */}
-                                {isRecurring && recurrenceType === 'DAILY' && (
-                                    <View style={styles.summaryCardRow}>
-                                        <Ionicons name="repeat-outline" size={14} color="#4A90E2" />
-                                        <Text style={styles.summaryDayText}>
-                                            {t('CreateReminder.recurrence.types.DAILY')}
-                                        </Text>
-                                    </View>
-                                )}
-                                {isRecurring && recurrenceType === 'MONTHLY' && (
-                                    <View style={styles.summaryCardRow}>
-                                        <Ionicons name="repeat-outline" size={14} color="#4A90E2" />
-                                        <Text style={styles.summaryDayText}>
-                                            {t('CreateReminder.recurrence.types.MONTHLY')}
-                                        </Text>
-                                    </View>
-                                )}
-                                {isRecurring && recurrenceType === 'WEEKLY' &&
-                                    recurrenceDays
-                                        .slice()
-                                        .sort((a, b) => a - b)
-                                        .map((d) => (
-                                            <View key={d} style={styles.summaryCardRow}>
-                                                <Ionicons name="repeat-outline" size={14} color="#4A90E2" />
-                                                <Text style={styles.summaryDayText}>
-                                                    {t(`CreateReminder.recurrence.day_full.${d}`)}
-                                                </Text>
-                                            </View>
-                                        ))}
-                            </View>
-                            <Ionicons name="chevron-forward" size={16} color="#4A90E2" />
-                        </TouchableOpacity>
-                    </>
+                                    {/* Recurrence lines */}
+                                    {isRecurring && recurrenceType === 'DAILY' && (
+                                        <View style={styles.summaryCardRow}>
+                                            <Ionicons name="repeat-outline" size={14} color="#4A90E2" />
+                                            <Text style={styles.summaryDayText}>
+                                                {t('CreateReminder.recurrence.types.DAILY')}
+                                            </Text>
+                                        </View>
+                                    )}
+                                    {isRecurring && recurrenceType === 'MONTHLY' && (
+                                        <View style={styles.summaryCardRow}>
+                                            <Ionicons name="repeat-outline" size={14} color="#4A90E2" />
+                                            <Text style={styles.summaryDayText}>
+                                                {t('CreateReminder.recurrence.types.MONTHLY')}
+                                            </Text>
+                                        </View>
+                                    )}
+                                    {isRecurring && recurrenceType === 'WEEKLY' &&
+                                        recurrenceDays
+                                            .slice()
+                                            .sort((a, b) => a - b)
+                                            .map((d) => (
+                                                <View key={d} style={styles.summaryCardRow}>
+                                                    <Ionicons name="repeat-outline" size={14} color="#4A90E2" />
+                                                    <Text style={styles.summaryDayText}>
+                                                        {t(`CreateReminder.recurrence.day_full.${d}`)}
+                                                    </Text>
+                                                </View>
+                                            ))}
+                                </View>
+                                <Ionicons name="chevron-forward" size={16} color="#4A90E2" />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
                 )}
             </View>
 
@@ -741,6 +743,9 @@ const styles = StyleSheet.create({
     },
 
     // ========== SCHEDULING SUMMARY CARD ==========
+    schedulingSection: {
+        flex: 1,
+    },
     summaryCard: {
         flex: 1,
         flexDirection: 'row',
@@ -750,6 +755,7 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         paddingHorizontal: 16,
         paddingVertical: 14,
+        overflow: 'hidden',
     },
     summaryCardContent: {
         flex: 1,
