@@ -180,8 +180,8 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
                             navigation.navigate('CreateReminder', {});
                         }}
                     >
-                        <Ionicons name="alarm-outline" size={18} color="#FFFFFF" />
                         <Text style={styles.reminderButtonPlus}>+</Text>
+                        <Ionicons name="alarm-outline" size={22} color="#FFFFFF" />
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.actionButton}
@@ -331,14 +331,14 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         flexDirection: 'row',
-        paddingHorizontal: 12,
-        gap: 4,
+        paddingHorizontal: 6,
+        gap: 0,
     },
     reminderButtonPlus: {
         color: '#FFFFFF',
-        fontSize: 20,
+        fontSize: 13,
         fontWeight: '700',
-        lineHeight: 22,
+        lineHeight: 14,
     },
     scrollContainer: {
         flex: 1,
