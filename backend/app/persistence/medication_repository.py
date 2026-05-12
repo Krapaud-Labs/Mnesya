@@ -1,5 +1,6 @@
 from typing import List
 from uuid import UUID
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from app.models.medication import MedicationModel
 from app.models.reminder import ReminderModel
@@ -35,7 +36,7 @@ class MedicationRepository(BaseRepository[MedicationModel]):
             .filter(
                 self.model._user_id == user_id,
                 self.model._start_date <= on_date,
-                (self.model._end_date.is_(None)) | (self.model._end_date >= on_date),
+                or_(self.model._end_date.is_(None), self.model._end_date >= on_date),
             )
             .all()
         )

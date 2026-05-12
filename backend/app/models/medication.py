@@ -1,3 +1,4 @@
+import re
 import uuid
 from datetime import datetime, timezone, date
 from typing import List, Optional
@@ -86,7 +87,6 @@ class MedicationModel(database):
     def times(self, value: List[str]) -> None:
         if not value:
             raise ValueError("times must not be empty")
-        import re
         for t in value:
             if not re.match(r'^\d{2}:\d{2}$', t):
                 raise ValueError(f"Invalid time format: {t}. Expected HH:MM")

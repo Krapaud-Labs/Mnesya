@@ -93,6 +93,8 @@ class MedicationFacade:
 
         self.medication_repo.update(medication_id, data)
         medication = self.medication_repo.get(medication_id)
+        if not medication:
+            return None
 
         if schedule_changed:
             self._delete_reminders(medication)

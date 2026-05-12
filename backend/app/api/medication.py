@@ -1,5 +1,5 @@
 from datetime import date, timedelta
-from typing import List
+from typing import List, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, Depends, status
@@ -13,6 +13,7 @@ from app.schemas.medication_schema import (
     MedicationResponse,
     WeekResponse,
 )
+from app.models.medication import MedicationModel
 from app.services.medication_facade import MedicationFacade
 
 router = APIRouter(prefix="/api/medication", tags=["Medication"])
@@ -122,7 +123,7 @@ def delete_medication(
     ),
 )
 def get_week(
-    date_param: str = None,
+    date_param: Optional[str] = None,
     token: dict = Depends(verify_token),
     facade: MedicationFacade = Depends(get_medication_facade),
 ):
@@ -143,7 +144,7 @@ def get_week(
 
 # ==================== HELPER ====================
 
-def _build_response(medication) -> MedicationResponse:
+def _build_response(medication: MedicationModel) -> MedicationResponse:
     return MedicationResponse(
         id=medication.id,
         caregiver_id=medication.caregiver_id,
