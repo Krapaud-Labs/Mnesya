@@ -203,24 +203,24 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
             {/* Form content */}
             <View style={styles.formContainer}>
                 {/* Profile */}
-                <Text style={styles.label}>{t('CreateReminder.fields.For Profile')}</Text>
                 {profilesError && <Text style={styles.errorText}>{profilesError}</Text>}
                 <TouchableOpacity
-                    style={[styles.input, showProfileError && commonStyles.inputError]}
+                    style={[styles.profileSelector, showProfileError && commonStyles.inputError]}
                     onPress={() => setShowProfilePicker(true)}
                 >
-                    <View style={styles.rowBetween}>
-                        <Text>
+                    <View style={styles.profileSelectorContent}>
+                        <Ionicons name="person-outline" size={18} color="#4A90E2" />
+                        <Text style={styles.profileSelectorText}>
                             {selectedProfileData
                                 ? `${selectedProfileData.first_name} ${selectedProfileData.last_name}`
                                 : t('common.pickersText.Select a profile')}
                         </Text>
-                        {loadingProfiles ? (
-                            <ActivityIndicator size="small" color="#999999" />
-                        ) : (
-                            <Ionicons name="chevron-down" size={20} color="#999999" />
-                        )}
                     </View>
+                    {loadingProfiles ? (
+                        <ActivityIndicator size="small" color="#999999" />
+                    ) : (
+                        <Ionicons name="chevron-down" size={18} color="#999999" />
+                    )}
                 </TouchableOpacity>
                 <Text style={[styles.errorText, { opacity: showProfileError ? 1 : 0 }]}>
                     {profileError || t('CreateReminder.errors.Please select a profile')}
@@ -660,6 +660,26 @@ const styles = StyleSheet.create({
     },
 
     // ========== FORM ELEMENTS ==========
+    profileSelector: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        backgroundColor: '#F5F5F5',
+        borderRadius: 16,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        marginBottom: 4,
+    },
+    profileSelectorContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        flex: 1,
+    },
+    profileSelectorText: {
+        fontSize: 15,
+        color: '#333333',
+    },
     input: {
         backgroundColor: '#F5F5F5',
         padding: 12,
