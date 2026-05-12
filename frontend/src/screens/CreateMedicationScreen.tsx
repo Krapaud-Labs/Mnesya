@@ -382,29 +382,29 @@ const styles = StyleSheet.create({
     titleSection: {
         width: '100%',
         paddingLeft: 10,
-        marginTop: 10,
-        marginBottom: 10,
+        marginTop: 6,
+        marginBottom: 6,
     },
 
     // TYPOGRAPHY
     pageTitle: {
-        fontSize: 28,
+        fontSize: 24,
         fontWeight: 'bold',
         color: '#333333',
-        marginBottom: 6,
+        marginBottom: 4,
     },
     label: {
-        fontSize: 16,
+        fontSize: 15,
         fontWeight: '600',
         color: '#333333',
-        marginBottom: 6,
-        marginTop: 12,
+        marginBottom: 4,
+        marginTop: 10,
     },
     input: {
         backgroundColor: '#F5F5F5',
         borderRadius: 14,
         paddingHorizontal: 14,
-        paddingVertical: 12,
+        paddingVertical: 10,
     },
     errorText: {
         color: '#FF3B30',
@@ -418,7 +418,7 @@ const styles = StyleSheet.create({
     },
     chip: {
         flex: 1,
-        paddingVertical: 12,
+        paddingVertical: 10,
         borderRadius: 14,
         backgroundColor: '#F0F0F0',
         alignItems: 'center',
@@ -440,7 +440,7 @@ const styles = StyleSheet.create({
     },
     dayChip: {
         flex: 1,
-        paddingVertical: 12,
+        paddingVertical: 8,
         borderRadius: 12,
         backgroundColor: '#F0F0F0',
         alignItems: 'center',
@@ -460,14 +460,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginTop: 12,
-        marginBottom: 6,
+        marginTop: 10,
+        marginBottom: 4,
     },
     timeRow: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
-        marginBottom: 8,
+        marginBottom: 6,
     },
     timePicker: {
         flex: 1,
@@ -477,7 +477,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#F5F5F5',
         borderRadius: 14,
         paddingHorizontal: 14,
-        paddingVertical: 12,
+        paddingVertical: 10,
     },
     timeText: {
         fontSize: 16,
@@ -494,7 +494,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#F5F5F5',
         borderRadius: 14,
         paddingHorizontal: 14,
-        paddingVertical: 12,
+        paddingVertical: 10,
     },
     dateText: {
         fontSize: 15,
