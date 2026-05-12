@@ -36,7 +36,10 @@ class ReminderRepository(BaseRepository[ReminderModel]):
         results = (
             self.db.query(self.model, UserModel._first_name, UserModel._last_name)
             .join(UserModel, self.model._user_id == UserModel._id)
-            .filter(self.model._caregiver_id == caregiver_id)
+            .filter(
+                self.model._caregiver_id == caregiver_id,
+                self.model._medication_id.is_(None),
+            )
             .order_by(self.model._scheduled_at.desc())
             .all()
         )
@@ -57,7 +60,10 @@ class ReminderRepository(BaseRepository[ReminderModel]):
         results = (
             self.db.query(self.model, UserModel._first_name, UserModel._last_name)
             .join(UserModel, self.model._user_id == UserModel._id)
-            .filter(self.model._user_id == user_id)
+            .filter(
+                self.model._user_id == user_id,
+                self.model._medication_id.is_(None),
+            )
             .order_by(self.model._scheduled_at.desc())
             .all()
         )
