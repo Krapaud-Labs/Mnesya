@@ -47,6 +47,14 @@ services:
         condition: service_healthy
     networks:
       - mnesya-network
+      - dokploy-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mnesya-backend.rule=Host(`api.mnesya.app`)"
+      - "traefik.http.routers.mnesya-backend.entrypoints=websecure"
+      - "traefik.http.routers.mnesya-backend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.mnesya-backend.loadbalancer.server.port=8000"
+      - "traefik.docker.network=dokploy-network"
     command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
 
   worker:
@@ -74,3 +82,5 @@ volumes:
 networks:
   mnesya-network:
     driver: bridge
+  dokploy-network:
+    external: true
