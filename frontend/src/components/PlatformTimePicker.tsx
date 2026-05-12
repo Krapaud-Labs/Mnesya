@@ -23,6 +23,8 @@ interface PlatformTimePickerProps {
     visible: boolean;
     /** Callback triggered when picker closes */
     onClose: () => void;
+    /** When true, disables the past-time check (use for recurring schedules) */
+    allowPastTime?: boolean;
 }
 
 // ─── Helper ──────────────────────────────────────────────────────────────────
@@ -40,6 +42,7 @@ const PlatformTimePicker: React.FC<PlatformTimePickerProps> = ({
     onChange,
     visible,
     onClose,
+    allowPastTime = false,
 }) => {
     const { t } = useTranslation();
     const [selectedHour, setSelectedHour] = useState(value.getHours());
@@ -118,15 +121,13 @@ const PlatformTimePicker: React.FC<PlatformTimePickerProps> = ({
     };
 
     const isPastTime = (hour: number, minute: number): boolean => {
-        // If not today, all times are valid
+        if (allowPastTime) return false;
         if (!isToday()) return false;
 
-        // Get current time
         const now = new Date();
         const currentHour = now.getHours();
         const currentMinute = now.getMinutes();
 
-        // Compare: time is past if hour is less, or same hour but minute is less
         if (hour < currentHour) return true;
         if (hour === currentHour && minute < currentMinute) return true;
 

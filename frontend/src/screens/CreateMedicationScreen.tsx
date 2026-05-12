@@ -173,7 +173,9 @@ const CreateMedicationScreen: React.FC<Props> = ({ navigation, route }) => {
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
             >
-                <Text style={styles.pageTitle}>{t('medication.createTitle')}</Text>
+                <View style={styles.titleSection}>
+                    <Text style={styles.pageTitle}>{t('medication.createTitle')}</Text>
+                </View>
 
                 {/* Nom */}
                 <Text style={styles.label}>{t('medication.fields.name')}</Text>
@@ -353,6 +355,7 @@ const CreateMedicationScreen: React.FC<Props> = ({ navigation, route }) => {
                     }
                     visible={activeTimePicker === index}
                     onClose={() => setActiveTimePicker(null)}
+                    allowPastTime
                 />
             ))}
 
@@ -375,12 +378,20 @@ const CreateMedicationScreen: React.FC<Props> = ({ navigation, route }) => {
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
+    // LAYOUT
+    titleSection: {
+        width: '100%',
+        paddingLeft: 10,
+        marginTop: 10,
+        marginBottom: 10,
+    },
+
+    // TYPOGRAPHY
     pageTitle: {
-        fontSize: 26,
+        fontSize: 28,
         fontWeight: 'bold',
         color: '#333333',
-        marginBottom: 20,
-        paddingLeft: 4,
+        marginBottom: 6,
     },
     label: {
         fontSize: 16,

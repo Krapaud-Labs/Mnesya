@@ -14,6 +14,7 @@ interface UseWeekScheduleResult {
     loading: boolean;
     error: string | null;
     reload: () => Promise<void>;
+    silentReload: () => Promise<void>;
     goToPrevWeek: () => void;
     goToNextWeek: () => void;
     weekStart: string;
@@ -49,9 +50,9 @@ export const useWeekSchedule = (onAuthError?: () => void): UseWeekScheduleResult
     const [error, setError] = useState<string | null>(null);
 
     const load = useCallback(
-        async (dateParam: string) => {
+        async (dateParam: string, silent = false) => {
             try {
-                setLoading(true);
+                if (!silent) setLoading(true);
                 setError(null);
                 const data = await getWeekSchedule(dateParam);
                 setWeekData(data);
@@ -61,7 +62,7 @@ export const useWeekSchedule = (onAuthError?: () => void): UseWeekScheduleResult
                     onAuthError?.();
                 }
             } finally {
-                setLoading(false);
+                if (!silent) setLoading(false);
             }
         },
         [onAuthError]
@@ -72,8 +73,9 @@ export const useWeekSchedule = (onAuthError?: () => void): UseWeekScheduleResult
     }, [weekStart, load]);
 
     const reload = useCallback(() => load(weekStart), [weekStart, load]);
+    const silentReload = useCallback(() => load(weekStart, true), [weekStart, load]);
     const goToPrevWeek = useCallback(() => setWeekStart((w) => addDays(w, -7)), []);
     const goToNextWeek = useCallback(() => setWeekStart((w) => addDays(w, 7)), []);
 
-    return { weekData, loading, error, reload, goToPrevWeek, goToNextWeek, weekStart };
+    return { weekData, loading, error, reload, silentReload, goToPrevWeek, goToNextWeek, weekStart };
 };

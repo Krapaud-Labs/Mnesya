@@ -23,7 +23,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList, CaregiverTabsParamList } from '../types/index';
 import { commonStyles } from '../styles/commonStyles';
 import { deleteMedication } from '../services/medicationService';
-import { useMedications } from '../hooks';
+import { useMedications, useAutoRefresh } from '../hooks';
 import { useUserProfiles } from '../hooks';
 import FilterPickerModal from '../components/FilterPickerModal';
 import { ConfirmationModal } from '../components';
@@ -71,6 +71,8 @@ const CaregiverPillulierScreen: React.FC<Props> = ({ navigation }) => {
     const isFirstFocus = useRef(true);
 
     const { medications, loading, error, reload, silentReload } = useMedications(selectedUserId);
+
+    useAutoRefresh(silentReload, 20_000);
 
     useFocusEffect(
         useCallback(() => {
@@ -158,10 +160,11 @@ const CaregiverPillulierScreen: React.FC<Props> = ({ navigation }) => {
             ) : loading ? (
                 <View style={commonStyles.loadingContainer}>
                     <ActivityIndicator size="large" color="#4A90E2" />
+                    <Text style={commonStyles.loadingText}>{t('common.messages.loading')}</Text>
                 </View>
             ) : error ? (
                 <View style={commonStyles.errorContainer}>
-                    <Ionicons name="alert-circle-outline" size={40} color="#FF3B30" />
+                    <Ionicons name="alert-circle-outline" size={48} color="#FF3B30" />
                     <Text style={commonStyles.errorText}>{t(error)}</Text>
                 </View>
             ) : (
@@ -282,17 +285,22 @@ const CaregiverPillulierScreen: React.FC<Props> = ({ navigation }) => {
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
+    // LAYOUT
     titleRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 12,
-        paddingLeft: 4,
+        paddingLeft: 10,
+        marginTop: 20,
+        marginBottom: 20,
     },
+
+    // TYPOGRAPHY
     title: {
-        fontSize: 26,
+        fontSize: 28,
         fontWeight: 'bold',
         color: '#333333',
+        marginBottom: 10,
     },
     addButton: {
         width: 40,

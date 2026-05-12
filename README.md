@@ -46,18 +46,20 @@ Mnesya is a mobile reminder application designed to help elderly people (Users) 
 
 ### MVP Scope - Current Implementation (May 12, 2026)
 
-- **12 screens implemented**:
+- **15 screens implemented**:
   - 1 Shared screen: WelcomeScreen
-  - 8 Caregiver screens: LoginScreen, RegisterScreen, DashboardScreen, CaregiverProfileScreen, CreateProfileScreen, CreateReminderScreen, RemindersListScreen, UserProfileDetailScreen
-  - 3 User screens: UserPairingScreen, UserHomeScreen, ReminderNotificationScreen
+  - 9 Caregiver screens: LoginScreen, RegisterScreen, DashboardScreen, CaregiverProfileScreen, CreateProfileScreen, CreateReminderScreen, RemindersListScreen, UserProfileDetailScreen, CaregiverPillulierScreen
+  - 2 Caregiver modal screens: CreateMedicationScreen
+  - 4 User screens: UserPairingScreen, UserHomeScreen, ReminderNotificationScreen, UserPillulierScreen
 - **Internationalization**: Full bilingual support (FR/EN) with i18next (months, week days, all pickers fully translated)
 - **Enhanced Notifications**: Backend scheduler with 3 jobs (T+0, T+5, T+10 min) + automatic caregiver alerts
 - **Activity Log**: Caregiver dashboard bell icon showing the last 48 h of user interactions (DONE/POSTPONED/UNABLE/MISSED) with unread badge
 - **Rate Limiting**: Register (3/min) and Login (5/min) with user-facing modal on HTTP 429
 - **Recurring Reminders**: DAILY / WEEKLY / MONTHLY recurrence with optional end date — full-stack feature (frontend modal UI + backend scheduler + Pydantic validation)
-- **API Integration**: Frontend fully connected to backend (auth, profiles, pairing, reminders, reminder status, activity log)
+- **Medication Management (Pillulier)**: Full-stack medication feature — CRUD + automatic reminder generation + 7-day semainier for users
+- **API Integration**: Frontend fully connected to backend (auth, profiles, pairing, reminders, reminder status, activity log, medication)
 - **Code Quality**: ESLint v9 configured (0 errors, 0 warnings across all frontend files)
-- **Current status**: Frontend 100% connected, Backend 100% (auth, profiles, pairing, reminders, reminder status, activity log all live)
+- **Current status**: Frontend 100% connected, Backend 100% (auth, profiles, pairing, reminders, reminder status, activity log, medication all live)
 - **Detailed User Stories**: See [Technical Documentation \_ Mnesya.pdf](docs/Technical%20Documentation%20_%20Mnesya.pdf) (MoSCoW method, US-001 to US-027)
 
 ## Features
@@ -92,6 +94,15 @@ Mnesya is a mobile reminder application designed to help elderly people (Users) 
   - Recurrence summary card on the main form (no scroll required)
   - Backend: `calculate_next_occurrence` + `schedule_next_occurrence` (APScheduler)
   - Pydantic validation: recurrence type required when `is_recurring`, days required for WEEKLY
+
+### Medication Management / Pillulier (v1.3.0)
+
+- ✅ Medication creation (name, dosage, DAILY/WEEKLY frequency, multiple times per day, start/end dates) — Fully integrated
+- ✅ Automatic reminder generation — one `ReminderModel` per time slot, linked via `medication_id`
+- ✅ Caregiver pillulier screen — profile selector, medication list with time badges, delete with confirmation
+- ✅ User semainier — 7-day week view (Mon→Sun) with per-day status dots (DONE/MISSED/PENDING/POSTPONED), week navigation, "Aujourd'hui" badge
+- ✅ Backend: `MedicationFacade`, `MedicationRepository`, Alembic migration 007 (table `medication` + FK on `reminder`)
+- ✅ 44 backend unit tests + 33 frontend tests (medicationService, useMedications, useWeekSchedule)
 
 ### User Interface (Elderly Person)
 
@@ -166,29 +177,31 @@ Mnesya is a mobile reminder application designed to help elderly people (Users) 
 
 - **Framework** : Python 3.9+ with FastAPI 0.104.1
 - **Database** : PostgreSQL 13+ with psycopg2-binary
-- **ORM** : SQLAlchemy 2.0.23 with Alembic 1.12.1 (2 migrations)
+- **ORM** : SQLAlchemy 2.0.23 with Alembic 1.12.1 (7 migrations)
 - **Authentication** : JWT with python-jose — implemented
 - **Async Tasks** : APScheduler 3.10.4 (3 background jobs every 60s)
   - **Push Notifications** : Expo Push Service (fully integrated)
 - **Current Implementation Status**:
-  - ✅ SQLAlchemy Models (Caregiver, User, Reminder, ReminderStatus, PushToken, PairingCode)
-  - ✅ Persistence Repositories (BaseRepository + 6 domain-specific)
-  - ✅ Service Facades (caregiver, user, reminder, reminder_status, notification)
-  - ✅ Pydantic Schemas (caregiver, user, reminder, reminder_status, push_token, authentication, pairing_code)
+  - ✅ SQLAlchemy Models (Caregiver, User, Reminder, ReminderStatus, PushToken, PairingCode, Medication)
+  - ✅ Persistence Repositories (BaseRepository + 7 domain-specific, incl. MedicationRepository)
+  - ✅ Service Facades (caregiver, user, reminder, reminder_status, notification, medication)
+  - ✅ Pydantic Schemas (caregiver, user, reminder, reminder_status, push_token, authentication, pairing_code, medication)
   - ✅ FastAPI app with health endpoint
   - ✅ JWT Authentication (`/api/auth/register`, `/api/auth/login`)
   - ✅ User profile CRUD (`/api/users`)
   - ✅ Caregiver profile management (`/api/caregivers`)
   - ✅ Pairing code generate + verify (`/api/pairing`)
-  - ✅ Alembic migrations configured and applied (3 migrations)
+  - ✅ Alembic migrations configured and applied (7 migrations)
   - ✅ Docker Compose full setup (PostgreSQL + Backend + Worker)
-  - ✅ pytest test suite (authentication, pairing, user, caregiver, reminder, reminder_status, push_notification)
+  - ✅ pytest test suite (authentication, pairing, user, caregiver, reminder, reminder_status, push_notification, medication)
   - ✅ Reminder API endpoints (`/api/reminders`) — full CRUD
   - ✅ Reminder status update endpoint (`/api/reminder-status/{id}`)
   - ✅ Push token registration (`/api/push-tokens`) — register, unregister, list
   - ✅ APScheduler Worker — 3 jobs: T+0 user notification, T+5 retry, T+10 caregiver escalation
   - ✅ Rate limiting — Register: 3/min, Login: 5/min (SlowAPI)
   - ✅ Activity log endpoint (`GET /api/reminder-status/caregiver/recent`) — last 48 h, DONE/POSTPONED/UNABLE/MISSED
+  - ✅ Medication CRUD + auto-generation of reminders (`/api/medication`) — create, list by user, get, update, delete
+  - ✅ Medication semainier endpoint (`GET /api/medication/week`) — 7-day schedule with per-entry status
 
 ### Infrastructure
 
@@ -293,7 +306,8 @@ mnesya/
 │   │   │   ├── pairing.py             # /api/pairing (generate + verify)
 │   │   │   ├── reminder.py            # /api/reminders (full CRUD)
 │   │   │   ├── reminder_status_api.py # /api/reminders/{id}/status
-│   │   │   └── push_notification.py   # /api/push-tokens (register, unregister, list)
+│   │   │   ├── push_notification.py   # /api/push-tokens (register, unregister, list)
+│   │   │   └── medication.py          # /api/medication (CRUD + semainier)
 │   │   ├── models/            # SQLAlchemy ORM models
 │   │   │   ├── caregiver.py
 │   │   │   ├── user.py
@@ -301,7 +315,8 @@ mnesya/
 │   │   │   ├── reminder_status.py
 │   │   │   ├── reminder_status_enum.py
 │   │   │   ├── push_token.py
-│   │   │   └── pairing_code.py
+│   │   │   ├── pairing_code.py
+│   │   │   └── medication.py
 │   │   ├── persistence/       # Repository pattern (data access layer)
 │   │   │   ├── base_repository.py
 │   │   │   ├── caregiver_repository.py
@@ -315,7 +330,8 @@ mnesya/
 │   │   │   ├── user_facade.py
 │   │   │   ├── reminder_facade.py
 │   │   │   ├── reminder_status_facade.py
-│   │   │   └── notification_services.py  # Expo Push SDK integration
+│   │   │   ├── notification_services.py  # Expo Push SDK integration
+│   │   │   └── medication_facade.py      # Medication CRUD + reminder generation
 │   │   ├── schemas/           # Pydantic validation schemas
 │   │   │   ├── authentication_schema.py
 │   │   │   ├── caregiver_schema.py
@@ -332,7 +348,8 @@ mnesya/
 │   │       ├── test_reminder_api.py
 │   │       ├── test_reminder_status_api.py
 │   │       ├── test_push_notification_api.py
-│   │       └── test_recurrence.py          # Recurrence unit tests (24 tests, no DB required)
+│   │       ├── test_recurrence.py          # Recurrence unit tests (24 tests, no DB required)
+│   │       └── test_medication.py          # Medication unit tests (44 tests, no DB required)
 │   ├── worker/                # APScheduler background jobs
 │   │   └── scheduler.py       # 3 jobs: T+0 notify, T+5 retry, T+10 escalate
 │   ├── alembic/               # Database migrations
@@ -504,6 +521,17 @@ mnesya/
 | `/api/push-tokens/unregister` | DELETE | Remove device push token   | Yes (Caregiver or User) |
 | `/api/push-tokens/my-tokens`  | GET    | List my registered tokens  | Yes (Caregiver or User) |
 
+### Medication (Pillulier)
+
+| Endpoint                        | Method | Description                                      | Auth            |
+| ------------------------------- | ------ | ------------------------------------------------ | --------------- |
+| `/api/medication`               | POST   | Create medication + auto-generate reminders      | Yes (Caregiver) |
+| `/api/medication/week`          | GET    | 7-day semainier for authenticated user           | Yes (User)      |
+| `/api/medication/user/{id}`     | GET    | List medications for a user                      | Yes (Caregiver) |
+| `/api/medication/{id}`          | GET    | Get a medication by ID                           | Yes             |
+| `/api/medication/{id}`          | PUT    | Update medication (regenerates reminders)        | Yes (Caregiver) |
+| `/api/medication/{id}`          | DELETE | Delete medication and linked reminders           | Yes (Caregiver) |
+
 ### Request Examples
 
 #### Caregiver Registration
@@ -617,7 +645,7 @@ docs: update README
 
 **📋 Complete Test Documentation**: [backend/app/test/README.md](backend/app/test/README.md)
 
-**Test Suite**: 320 tests (166 API integration tests + 154 unit tests)  
+**Test Suite**: 364 tests (166 API integration tests + 198 unit tests)  
 **Status**: ✅ All tests passing
 
 ```bash
@@ -652,6 +680,10 @@ PYTHONPATH=. venv/bin/pytest app/test/test_recurrence.py -v --noconftest
   - `calculate_next_occurrence`: DAILY, WEEKLY, MONTHLY, end date cutoff, edge cases
   - `schedule_next_occurrence`: DB interaction, returns True/False
   - `ReminderCreate` schema: recurrence validation rules (all 9 cases)
+- `test_medication.py` — Medication unit tests (44 tests, no database required)
+  - `MedicationFacade.create_medication`: DAILY/WEEKLY, multiple times, reminder auto-generation
+  - `MedicationFacade.get_week`: semainier 7 days, status resolution, past/present/future
+  - `MedicationCreate` schema: WEEKLY/recurrence_days cross-validation, HH:MM format
 
 **Tool**: pytest + SQLAlchemy test database
 
@@ -659,7 +691,7 @@ PYTHONPATH=. venv/bin/pytest app/test/test_recurrence.py -v --noconftest
 
 **📋 Complete Test Documentation**: [frontend/README-tests.md](frontend/README-tests.md)
 
-**Test Suite**: 250 tests (17 test suites)  
+**Test Suite**: 283 tests (20 test suites)  
 **Status**: ✅ All tests passing
 
 ```bash
@@ -672,7 +704,7 @@ npm test
 npm test -- --coverage
 ```
 
-#### Frontend Test Files (250 tests across 17 suites)
+#### Frontend Test Files (283 tests across 20 suites)
 
 - `__tests__/hooks/useFormValidation.test.ts` — Form validation hook (18 tests)
 - `__tests__/utils/validation.test.ts` — Validation utility functions (42 tests)
@@ -696,6 +728,9 @@ npm test -- --coverage
   - `getRecurrenceDescription`: all types, end date suffix, empty WEEKLY
   - `getSchedulingSummary`: with and without recurrence
   - `isRecurrenceValid`: WEEKLY/no days → false, all other cases → true
+- `services/__tests__/medicationService.test.ts` — Medication CRUD + week schedule API calls (15 tests)
+- `hooks/__tests__/useMedications.test.ts` — Loading, null userId guard, reload/silentReload (9 tests)
+- `hooks/__tests__/useWeekSchedule.test.ts` — Week navigation, reload, auth error handling (9 tests)
 - **Tools**: Jest + React Native Testing Library + ESLint v9
 
 ### Manual Tests
@@ -775,7 +810,7 @@ A detailed log of identified bugs, their root cause, and applied fixes is mainta
 
 This project is licensed under the MIT License.
 
-```
+```text
 MIT License
 
 Copyright (c) 2026 Mickael MUR, Jordann MISO

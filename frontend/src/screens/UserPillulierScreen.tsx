@@ -3,7 +3,7 @@
  *
  * @module UserPillulierScreen
  */
-import React from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import {
     View,
     Text,
@@ -17,8 +17,9 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useTranslation } from 'react-i18next';
+import { useFocusEffect } from '@react-navigation/native';
 import { commonStyles } from '../styles/commonStyles';
-import { useWeekSchedule } from '../hooks';
+import { useWeekSchedule, useAutoRefresh } from '../hooks';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -60,9 +61,43 @@ function formatWeekRange(weekStart: string): string {
 
 const UserPillulierScreen: React.FC = () => {
     const { t } = useTranslation();
-    const { weekData, loading, error, reload, goToPrevWeek, goToNextWeek, weekStart } =
+    const { weekData, loading, error, reload, silentReload, goToPrevWeek, goToNextWeek, weekStart } =
         useWeekSchedule();
-    const [refreshing, setRefreshing] = React.useState(false);
+    const [refreshing, setRefreshing] = useState(false);
+    const isFirstFocus = useRef(true);
+
+    useAutoRefresh(silentReload, 20_000);
+
+    useFocusEffect(
+        useCallback(() => {
+            if (isFirstFocus.current) {
+                isFirstFocus.current = false;
+                return;
+            }
+            silentReload();
+        }, [silentReload])
+    );
+
+    /** Controls the bottom fade indicator — hidden when scrolled to the end. */
+    const [showScrollFade, setShowScrollFade] = useState(true);
+    const [isScrollable, setIsScrollable] = useState(false);
+    const scrollContainerHeight = useRef(0);
+
+    const handleContentSizeChange = (_: number, contentHeight: number) => {
+        setIsScrollable(contentHeight > scrollContainerHeight.current);
+    };
+
+    const handleScroll = (event: {
+        nativeEvent: {
+            contentOffset: { y: number };
+            layoutMeasurement: { height: number };
+            contentSize: { height: number };
+        };
+    }) => {
+        const { contentOffset, layoutMeasurement, contentSize } = event.nativeEvent;
+        const isAtBottom = contentOffset.y + layoutMeasurement.height >= contentSize.height - 10;
+        setShowScrollFade(!isAtBottom);
+    };
 
     const handleRefresh = async () => {
         setRefreshing(true);
@@ -117,16 +152,23 @@ const UserPillulierScreen: React.FC = () => {
                 </View>
             ) : error ? (
                 <View style={commonStyles.errorContainer}>
-                    <Ionicons name="alert-circle-outline" size={40} color="#FF3B30" />
+                    <Ionicons name="alert-circle-outline" size={48} color="#FF3B30" />
                     <Text style={commonStyles.errorText}>{t(error)}</Text>
                 </View>
             ) : (
+                <View style={styles.listWrapper}>
                 <ScrollView
                     style={{ flex: 1 }}
                     refreshControl={
                         <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
                     }
                     showsVerticalScrollIndicator={false}
+                    onScroll={handleScroll}
+                    scrollEventThrottle={16}
+                    onLayout={(e) => {
+                        scrollContainerHeight.current = e.nativeEvent.layout.height;
+                    }}
+                    onContentSizeChange={handleContentSizeChange}
                 >
                     {weekData?.days.map((day) => {
                         const { day: dayLabel, date: dateLabel } = formatDayHeader(day.date);
@@ -213,6 +255,13 @@ const UserPillulierScreen: React.FC = () => {
 
                     <View style={{ height: 20 }} />
                 </ScrollView>
+                {/* Bottom fade — signals more content below */}
+                {showScrollFade && isScrollable && (
+                    <View style={styles.scrollFade} pointerEvents="none">
+                        <Ionicons name="chevron-down" size={24} color="#4A90E2" />
+                    </View>
+                )}
+                </View>
             )}
         </View>
     );
@@ -221,15 +270,35 @@ const UserPillulierScreen: React.FC = () => {
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
+    // LAYOUT
     titleSection: {
-        marginBottom: 12,
+        width: '100%',
+        paddingLeft: 10,
+        marginTop: 20,
+        marginBottom: 20,
         gap: 8,
     },
+    listWrapper: {
+        flex: 1,
+        position: 'relative',
+    },
+    scrollFade: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: 40,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(255,255,255,0.85)',
+    },
+
+    // TYPOGRAPHY
     title: {
-        fontSize: 24,
+        fontSize: 28,
         fontWeight: 'bold',
         color: '#333333',
-        paddingLeft: 4,
+        marginBottom: 10,
     },
     weekNav: {
         flexDirection: 'row',
