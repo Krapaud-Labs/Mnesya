@@ -39,7 +39,8 @@ test-results/
 web-build/
 
 # IDE
-.vscode/
+.vscode/*
+!.vscode/settings.json
 .idea/
 *.swp
 *.swo
@@ -77,10 +78,5 @@ logs/
 firebase-credentials.json
 GoogleService-Info.plist
 
-# Test Coverage
-coverage/
-.nyc_output/
-junit.xml
-*.lcov
-.cache/
-test-results/
+# Python venv local (type-checking uniquement, pas utilisé en prod)
+backend/venv/
