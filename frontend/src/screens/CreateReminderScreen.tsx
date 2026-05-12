@@ -375,7 +375,7 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
                         >
                             <View style={styles.rowBetween}>
                                 <Text>{formatDate(reminderDate)}</Text>
-                                <Ionicons name="calendar-outline" size={20} color="#999999" />
+                                <Ionicons name="calendar-outline" size={20} color="#4A90E2" />
                             </View>
                         </TouchableOpacity>
 
@@ -391,7 +391,7 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
                         >
                             <View style={styles.rowBetween}>
                                 <Text>{formatTime(reminderDate)}</Text>
-                                <Ionicons name="time-outline" size={20} color="#999999" />
+                                <Ionicons name="time-outline" size={20} color="#4A90E2" />
                             </View>
                         </TouchableOpacity>
 
