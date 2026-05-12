@@ -26,9 +26,10 @@ class MedicationModel(database):
     _start_date: Mapped[date] = mapped_column('start_date', Date())
     _end_date: Mapped[Optional[date]] = mapped_column('end_date', Date(), nullable=True)
     _created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+        'created_at', DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
     _updated_at: Mapped[datetime] = mapped_column(
+        'updated_at',
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
