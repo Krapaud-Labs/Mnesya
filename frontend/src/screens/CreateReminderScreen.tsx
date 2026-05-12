@@ -34,6 +34,13 @@ import {
 import { useUserProfiles } from '../hooks';
 import { createReminder } from '../services/reminderService';
 import { createPulseAnimation, getPulseScale } from '../utils/animations';
+import {
+    formatDate,
+    formatTime,
+    getRecurrenceSummary,
+    getRecurrenceDescription,
+    isRecurrenceValid,
+} from '../utils/recurrenceUtils';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -87,70 +94,9 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
         createPulseAnimation(pulseAnim).start();
     }, [pulseAnim]);
 
-    const formatDate = (date: Date): string => {
-        const day = date.getDate().toString().padStart(2, '0');
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const year = date.getFullYear();
-        return `${day}/${month}/${year}`;
-    };
-
-    const formatTime = (date: Date): string => {
-        const hour = date.getHours().toString().padStart(2, '0');
-        const minute = date.getMinutes().toString().padStart(2, '0');
-        return `${hour}:${minute}`;
-    };
-
-    const getRecurrenceSummary = (): string | null => {
-        if (!isRecurring) return null;
-        if (recurrenceType === 'DAILY') return t('CreateReminder.recurrence.types.DAILY');
-        if (recurrenceType === 'MONTHLY') return t('CreateReminder.recurrence.types.MONTHLY');
-        if (recurrenceType === 'WEEKLY') {
-            if (recurrenceDays.length === 0) return '…';
-            return recurrenceDays
-                .slice()
-                .sort((a, b) => a - b)
-                .map((d) => t(`CreateReminder.recurrence.day_short.${d}`))
-                .join(', ');
-        }
-        return null;
-    };
-
-    /** Descriptive sentence shown below the type chips in the modal */
-    const getRecurrenceDescription = (): string => {
-        const time = formatTime(reminderDate);
-        const endSuffix = recurrenceEndDate
-            ? t('CreateReminder.recurrence.description.end_suffix', {
-                  date: formatDate(recurrenceEndDate),
-              })
-            : '';
-        if (recurrenceType === 'DAILY') {
-            return t('CreateReminder.recurrence.description.DAILY', { time, end: endSuffix });
-        }
-        if (recurrenceType === 'MONTHLY') {
-            return t('CreateReminder.recurrence.description.MONTHLY', {
-                day: reminderDate.getDate(),
-                time,
-                end: endSuffix,
-            });
-        }
-        if (recurrenceType === 'WEEKLY') {
-            if (recurrenceDays.length === 0) return '';
-            const days = recurrenceDays
-                .slice()
-                .sort((a, b) => a - b)
-                .map((d) => t(`CreateReminder.recurrence.day_short.${d}`))
-                .join(', ');
-            return t('CreateReminder.recurrence.description.WEEKLY', { days, time, end: endSuffix });
-        }
-        return '';
-    };
-
-    /** One-line summary shown in the main form row */
-    const getSchedulingSummary = (): string => {
-        const base = `${formatDate(reminderDate)} à ${formatTime(reminderDate)}`;
-        const rec = getRecurrenceSummary();
-        return rec ? `${base} · ${rec}` : base;
-    };
+    const recurrenceSummary = getRecurrenceSummary(isRecurring, recurrenceType, recurrenceDays, t);
+    const recurrenceDesc = getRecurrenceDescription(recurrenceType, recurrenceDays, reminderDate, recurrenceEndDate, t);
+    const schedulingSummary = `${formatDate(reminderDate)} à ${formatTime(reminderDate)}${recurrenceSummary ? ` · ${recurrenceSummary}` : ''}`;
 
     const handleSaveReminder = () => {
         setShowProfileError(false);
@@ -177,7 +123,7 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
             hasError = true;
         }
 
-        if (isRecurring && recurrenceType === 'WEEKLY' && recurrenceDays.length === 0) {
+        if (!isRecurrenceValid(isRecurring, recurrenceType, recurrenceDays)) {
             hasError = true;
         }
 
@@ -408,7 +354,7 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
                             {t('CreateReminder.fields.scheduling') || 'Programmation'}
                         </Text>
                         <TouchableOpacity onPress={() => {
-                            if (isRecurring && recurrenceType === 'WEEKLY' && recurrenceDays.length === 0) {
+                            if (!isRecurrenceValid(isRecurring, recurrenceType, recurrenceDays)) {
                                 setIsRecurring(false);
                             }
                             setShowSchedulingModal(false);
@@ -515,7 +461,7 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
 
                                 {/* Dynamic description */}
                                 <Text style={styles.recurrenceDescription}>
-                                    {getRecurrenceDescription()}
+                                    {recurrenceDesc}
                                 </Text>
 
                                 {/* Day picker (WEEKLY only) */}
@@ -611,7 +557,7 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
                         <TouchableOpacity
                             style={commonStyles.primaryButton}
                             onPress={() => {
-                                if (isRecurring && recurrenceType === 'WEEKLY' && recurrenceDays.length === 0) {
+                                if (!isRecurrenceValid(isRecurring, recurrenceType, recurrenceDays)) {
                                     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
                                     return;
                                 }
