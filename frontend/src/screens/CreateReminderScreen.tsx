@@ -12,7 +12,6 @@ import {
     TextInput,
     Image,
     Modal,
-    SafeAreaView,
     ScrollView,
     ActivityIndicator,
     Animated,
@@ -21,7 +20,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useTranslation } from 'react-i18next';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../types/index';
 import { commonStyles } from '../styles/commonStyles';
@@ -583,6 +582,7 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
                         onChange={setReminderDate}
                         visible={showTimePicker}
                         onClose={() => setShowTimePicker(false)}
+                        allowPastTime={isRecurring}
                     />
                     <PlatformDatePicker
                         value={recurrenceEndDate ?? new Date()}

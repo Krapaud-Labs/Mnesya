@@ -404,10 +404,66 @@
             "defaultUser": "L'utilisateur"
         }
     },
+    "medication": {
+        "title": "Pillulier",
+        "createTitle": "Ajouter un médicament",
+        "weekTitle": "Mon semainier",
+        "selectProfile": "Sélectionner un profil",
+        "selectProfileHint": "Sélectionnez un profil pour voir son pillulier",
+        "empty": "Aucun médicament pour ce profil",
+        "addFirst": "Ajouter un médicament",
+        "today": "Aujourd'hui",
+        "noMeds": "Aucun médicament",
+        "noEndDate": "Sans date de fin",
+        "clearEndDate": "Supprimer la date de fin",
+        "from": "Du",
+        "fields": {
+            "name": "Nom du médicament",
+            "dosage": "Dosage (optionnel)",
+            "frequency": "Fréquence",
+            "days": "Jours de prise",
+            "times": "Horaires",
+            "startDate": "Date de début",
+            "endDate": "Date de fin (optionnel)"
+        },
+        "placeholders": {
+            "name": "Ex : Doliprane",
+            "dosage": "Ex : 500mg"
+        },
+        "frequency": {
+            "DAILY": "Quotidien",
+            "WEEKLY": "Hebdomadaire"
+        },
+        "status": {
+            "DONE": "Pris",
+            "MISSED": "Manqué",
+            "PENDING": "En attente",
+            "POSTPONED": "Reporté"
+        },
+        "buttons": {
+            "save": "Enregistrer"
+        },
+        "errors": {
+            "failedToLoad": "Impossible de charger les médicaments",
+            "nameRequired": "Le nom du médicament est requis",
+            "timesRequired": "Ajoutez au moins un horaire",
+            "daysRequired": "Sélectionnez au moins un jour"
+        },
+        "deleteModal": {
+            "title": "Supprimer le médicament",
+            "message": "Cette action supprimera également tous les rappels associés. Elle est irréversible.",
+            "confirm": "Supprimer"
+        },
+        "confirmModal": {
+            "title": "Confirmer l'ajout",
+            "message": "Les rappels seront automatiquement créés selon le planning défini."
+        }
+    },
     "tabs": {
         "Home": "Accueil",
         "Profile": "Profil",
         "Reminders": "Rappels",
+        "Pillulier": "Pillulier",
         "Refresh": "Actualiser",
         "Emergency": "Urgences"
     },

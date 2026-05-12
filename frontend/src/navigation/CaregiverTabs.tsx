@@ -14,6 +14,7 @@ import type { CaregiverTabsParamList } from '../types/index';
 
 import DashboardScreen from '../screens/DashboardScreen';
 import RemindersListScreen from '../screens/RemindersListScreen';
+import CaregiverPillulierScreen from '../screens/CaregiverPillulierScreen';
 import CaregiverProfileScreen from '../screens/CaregiverProfileScreen';
 
 const Tab = createBottomTabNavigator<CaregiverTabsParamList>();
@@ -54,6 +55,18 @@ const CaregiverTabs: React.FC = () => {
                     tabBarLabel: t('tabs.Reminders'),
                     tabBarIcon: ({ color, size }) => (
                         <Ionicons name="notifications" size={size} color={color} />
+                    ),
+                }}
+            />
+
+            {/* Pillulier tab */}
+            <Tab.Screen
+                name="Pillulier"
+                component={CaregiverPillulierScreen}
+                options={{
+                    tabBarLabel: t('tabs.Pillulier'),
+                    tabBarIcon: ({ color, size }) => (
+                        <Ionicons name="medical" size={size} color={color} />
                     ),
                 }}
             />

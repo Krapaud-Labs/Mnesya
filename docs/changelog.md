@@ -215,3 +215,44 @@ Format : `emoji vX.Y.Z — Titre` · Auteur · Date
 
 - Correction `.sort()` → `.slice().sort()` pour éviter la mutation du state React (causait l'absence de description pour WEEKLY)
 - Padding bas des boutons corrigé : `insets.bottom + 20` → `insets.bottom` sur WelcomeScreen, LoginScreen, RegisterScreen, CreateProfileScreen
+
+---
+
+### 💊 v1.3.0 — Pillulier (Medication Management)
+
+#### Backend — Modèle & API
+
+- Nouvelle entité `MedicationModel` (SQLAlchemy 2.x `Mapped`/`mapped_column`) : nom, dosage, horaires (`times[]`), fréquence (DAILY/WEEKLY), jours de récurrence, dates début/fin
+- Migration Alembic `007` : table `medication` + colonne `medication_id` (FK nullable) sur `reminder`
+- `MedicationFacade` : `create_medication` génère automatiquement les `ReminderModel` récurrents (un par horaire) via `_first_occurrence()`
+- `MedicationFacade.update_medication` : supprime et recrée les reminders si le planning change
+- `MedicationFacade.get_week` : semainier 7 jours (lundi → dimanche) avec résolution de statut par jour (terminal pour le passé, dernier statut pour le présent/futur)
+- `MedicationRepository.get_active_by_user` : filtre `start_date ≤ date ≤ end_date` avec `end_date IS NULL` toléré
+- Endpoint `GET /api/medication/week` placé avant `/{medication_id}` pour éviter le shadowing de route
+- Schemas Pydantic : `MedicationCreate` (validation cross-champs WEEKLY/recurrence_days, format HH:MM), `MedicationUpdate`, `MedicationResponse`, `WeekResponse`
+- 44 tests unitaires backend (`test_medication.py`) — aucune base de données requise
+
+#### Frontend — Écrans & Navigation
+
+- `CaregiverPillulierScreen` : sélecteur de profil, liste des médicaments (nom, dosage, horaires, fréquence), suppression avec confirmation
+- `CreateMedicationScreen` : formulaire complet — nom, dosage, fréquence (chips DAILY/WEEKLY), jours (hebdo), horaires multiples (jusqu'à 6), dates début/fin
+- `UserPillulierScreen` : semainier 7 jours avec navigation prev/next, dots colorés par statut (DONE/MISSED/PENDING/POSTPONED), badge "Aujourd'hui"
+- Onglet **Pillulier** ajouté dans `CaregiverTabs` (4ème onglet) et `UserTabs` (3ème onglet)
+- Route `CreateMedication` enregistrée dans `AppNavigator`
+- Harmonisation des conventions d'écrans : `useAutoRefresh`, `isFirstFocus` + `useFocusEffect`, scroll fade, `titleSection` `fontSize: 28` sur les 3 nouveaux écrans
+
+#### Frontend — Services & Hooks
+
+- `medicationService` : `createMedication`, `getMedicationsForUser`, `getMedication`, `deleteMedication`, `getWeekSchedule`
+- `useMedications(userId)` : chargement différé quand `userId` est null, `reload` / `silentReload`
+- `useWeekSchedule` : navigation prev/next semaine (`addDays ±7`), calcul automatique du lundi courant, `silentReload` ajouté
+
+#### Frontend — Composants
+
+- `PlatformTimePicker` : nouvelle prop `allowPastTime` — désactive la restriction d'heure passée pour les plannings récurrents (utilisée dans `CreateMedicationScreen` et `CreateReminderScreen` quand `isRecurring`)
+- Correction `SafeAreaView` : import migré de `react-native` vers `react-native-safe-area-context` dans `CreateReminderScreen` et `PairingCodeModal`
+
+#### Frontend — Tests & Traductions
+
+- 33 nouveaux tests Jest : `medicationService.test.ts` (15), `useMedications.test.ts` (9), `useWeekSchedule.test.ts` (9) — total frontend 283/283 ✅
+- Traductions FR/EN : section `medication` complète + `tabs.Pillulier`

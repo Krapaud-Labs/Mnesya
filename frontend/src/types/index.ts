@@ -15,6 +15,7 @@ export type RootStackParamList = {
     UserPairing: undefined;
     Dashboard: NavigatorScreenParams<CaregiverTabsParamList> | undefined;
     CreateReminder: { profileId?: string };
+    CreateMedication: { userId: string };
     UserProfileDetails: { profileId: string };
     UserDashboard: undefined;
     ReminderNotification: {
@@ -28,10 +29,12 @@ export type RootStackParamList = {
 export type CaregiverTabsParamList = {
     Home: undefined;
     Reminders: undefined;
+    Pillulier: undefined;
     Profile: undefined;
 };
 
 export type UserTabsParamList = {
     Emergency: undefined;
+    Pillulier: undefined;
     Refresh: undefined;
 };

@@ -404,10 +404,66 @@
             "defaultUser": "User"
         }
     },
+    "medication": {
+        "title": "Pill Organizer",
+        "createTitle": "Add a medication",
+        "weekTitle": "My weekly schedule",
+        "selectProfile": "Select a profile",
+        "selectProfileHint": "Select a profile to view their medications",
+        "empty": "No medications for this profile",
+        "addFirst": "Add a medication",
+        "today": "Today",
+        "noMeds": "No medications",
+        "noEndDate": "No end date",
+        "clearEndDate": "Remove end date",
+        "from": "From",
+        "fields": {
+            "name": "Medication name",
+            "dosage": "Dosage (optional)",
+            "frequency": "Frequency",
+            "days": "Days of intake",
+            "times": "Times",
+            "startDate": "Start date",
+            "endDate": "End date (optional)"
+        },
+        "placeholders": {
+            "name": "E.g.: Paracetamol",
+            "dosage": "E.g.: 500mg"
+        },
+        "frequency": {
+            "DAILY": "Daily",
+            "WEEKLY": "Weekly"
+        },
+        "status": {
+            "DONE": "Taken",
+            "MISSED": "Missed",
+            "PENDING": "Pending",
+            "POSTPONED": "Postponed"
+        },
+        "buttons": {
+            "save": "Save"
+        },
+        "errors": {
+            "failedToLoad": "Failed to load medications",
+            "nameRequired": "Medication name is required",
+            "timesRequired": "Add at least one time",
+            "daysRequired": "Select at least one day"
+        },
+        "deleteModal": {
+            "title": "Delete medication",
+            "message": "This will also delete all associated reminders. This action cannot be undone.",
+            "confirm": "Delete"
+        },
+        "confirmModal": {
+            "title": "Confirm",
+            "message": "Reminders will be automatically created according to the defined schedule."
+        }
+    },
     "tabs": {
         "Home": "Home",
         "Profile": "Profile",
         "Reminders": "Reminders",
+        "Pillulier": "Meds",
         "Refresh": "Refresh",
         "Emergency": "Emergency"
     },

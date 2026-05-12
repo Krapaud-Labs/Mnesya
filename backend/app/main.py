@@ -15,6 +15,7 @@ from app.api import (
     reminder,
     reminder_status_api,
     push_notification,
+    medication,
 )
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
@@ -36,6 +37,7 @@ app.include_router(pairing.router)
 app.include_router(reminder.router)
 app.include_router(reminder_status_api.router)
 app.include_router(push_notification.router)
+app.include_router(medication.router)
 
 # Register rate limiter
 app.state.limiter = limiter
