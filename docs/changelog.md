@@ -5,7 +5,7 @@ Format : `emoji vX.Y.Z — Titre` · Auteur · Date
 
 ---
 
-## Mickael M. — 06/03/2026
+## 06/03/2026
 
 ### 🏗️ v0.1 — Initialisation du projet
 
@@ -130,7 +130,7 @@ Format : `emoji vX.Y.Z — Titre` · Auteur · Date
 
 ---
 
-## Mickael M. — 18/03/2026
+## 18/03/2026
 
 ### 🐛 v1.1.2 — Correction de navigation post-notification
 
@@ -172,7 +172,7 @@ Format : `emoji vX.Y.Z — Titre` · Auteur · Date
 
 ---
 
-## Mickael M. — 19/03/2026
+## 19/03/2026
 
 ### ⚡ v1.1.8 — Performance auto-refresh
 
@@ -182,7 +182,7 @@ Format : `emoji vX.Y.Z — Titre` · Auteur · Date
 
 ---
 
-## Mickael M. — 05/05/2026
+## 05/05/2026
 
 ### 🔐 v1.1.9 — Corrections sécurité (Pentests)
 
@@ -192,7 +192,7 @@ Format : `emoji vX.Y.Z — Titre` · Auteur · Date
 
 ---
 
-## Mickael M. — 12/05/2026
+## 12/05/2026
 
 ### ✨ v1.2.0 — Rappels récurrents (DAILY / WEEKLY / MONTHLY)
 
