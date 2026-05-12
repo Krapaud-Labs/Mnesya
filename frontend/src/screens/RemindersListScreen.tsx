@@ -195,22 +195,18 @@ const RemindersListScreen: React.FC<Props> = ({ navigation }) => {
                 <View style={commonStyles.headerSpacer} />
             </View>
             {/* Page title */}
-            <View style={styles.titleSection}>
+            <View style={styles.titleRow}>
                 <Text style={styles.title}>{t('reminders.Title')}</Text>
+                <TouchableOpacity
+                    style={styles.addButton}
+                    onPress={() => {
+                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                        navigation.navigate('CreateReminder', {});
+                    }}
+                >
+                    <Ionicons name="add" size={24} color="#FFFFFF" />
+                </TouchableOpacity>
             </View>
-
-            {/* Action button */}
-            <TouchableOpacity
-                style={commonStyles.primaryButton}
-                onPress={() => {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                    navigation.navigate('CreateReminder', {});
-                }}
-            >
-                <Text style={commonStyles.primaryButtonText}>
-                    {t('reminders.buttons.New Reminder')}
-                </Text>
-            </TouchableOpacity>
 
             {/* Filters section */}
             <View style={styles.filtersSection}>
@@ -387,18 +383,27 @@ const RemindersListScreen: React.FC<Props> = ({ navigation }) => {
 
 const styles = StyleSheet.create({
     // LAYOUT
-    titleSection: {
-        width: '100%',
+    titleRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         paddingLeft: 10,
         marginTop: 20,
         marginBottom: 20,
+    },
+    addButton: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: '#4A90E2',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
 
     // TYPOGRAPHY
     title: {
         fontSize: 28,
         fontWeight: 'bold',
-        marginBottom: 10,
     },
 
     // FILTER COMPONENTS
