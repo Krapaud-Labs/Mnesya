@@ -211,68 +211,56 @@ const RemindersListScreen: React.FC<Props> = ({ navigation }) => {
             {/* Filters section */}
             <View style={styles.filtersSection}>
                 <View style={styles.filterRow}>
-                    <View style={styles.filterItem}>
-                        <Text style={styles.filterLabel}>
-                            {t('reminders.pickersTitle.Profile')}:
-                        </Text>
-                        <TouchableOpacity
-                            style={styles.filterDropdown}
-                            onPress={() => {
-                                setShowProfilePicker(!showProfilePicker);
-                                setShowDatePicker(false);
-                            }}
-                        >
-                            <Text style={styles.filterDropdownText}>
+                    <TouchableOpacity
+                        style={styles.filterSelector}
+                        onPress={() => {
+                            setShowProfilePicker(!showProfilePicker);
+                            setShowDatePicker(false);
+                        }}
+                    >
+                        <View style={styles.filterSelectorContent}>
+                            <Ionicons name="person-outline" size={16} color="#4A90E2" />
+                            <Text style={styles.filterSelectorText} numberOfLines={1}>
                                 {selectedProfileName || t('common.pickersText.All Profiles')}
                             </Text>
-                            <Ionicons name="chevron-down" size={20} color="#666666" />
-                        </TouchableOpacity>
-                    </View>
+                        </View>
+                        <Ionicons name="chevron-down" size={16} color="#999999" />
+                    </TouchableOpacity>
 
-                    <View style={styles.filterItem}>
-                        <Text style={styles.filterLabel}>{t('reminders.labels.Date:')}</Text>
-                        <TouchableOpacity
-                            style={styles.filterDropdown}
-                            onPress={() => {
-                                setShowDatePicker(!showDatePicker);
-                                setShowProfilePicker(false);
-                            }}
-                        >
-                            <Text style={styles.filterDropdownText}>
+                    <TouchableOpacity
+                        style={styles.filterSelector}
+                        onPress={() => {
+                            setShowDatePicker(!showDatePicker);
+                            setShowProfilePicker(false);
+                        }}
+                    >
+                        <View style={styles.filterSelectorContent}>
+                            <Ionicons name="calendar-outline" size={16} color="#4A90E2" />
+                            <Text style={styles.filterSelectorText} numberOfLines={1}>
                                 {selectedDate
                                     ? formatDate(selectedDate)
                                     : t('common.pickersText.All Dates')}
                             </Text>
-                            <Ionicons name="chevron-down" size={20} color="#666666" />
-                        </TouchableOpacity>
-                    </View>
+                        </View>
+                        <Ionicons name="chevron-down" size={16} color="#999999" />
+                    </TouchableOpacity>
                 </View>
 
                 {/* Reset filters button */}
-                <TouchableOpacity
-                    style={styles.resetButton}
-                    onPress={() => {
-                        if (selectedProfile || selectedDate) {
+                {(selectedProfile || selectedDate) ? (
+                    <TouchableOpacity
+                        style={styles.resetButton}
+                        onPress={() => {
                             setSelectedProfile('');
                             setSelectedDate('');
-                        }
-                    }}
-                    disabled={!selectedProfile && !selectedDate}
-                >
-                    <Ionicons
-                        name="close-circle"
-                        size={16}
-                        color={selectedProfile || selectedDate ? '#4A90E2' : '#CCCCCC'}
-                    />
-                    <Text
-                        style={[
-                            styles.resetButtonText,
-                            !(selectedProfile || selectedDate) && styles.resetButtonTextDisabled,
-                        ]}
+                        }}
                     >
-                        {t('reminders.buttons.Reset Filters')}
-                    </Text>
-                </TouchableOpacity>
+                        <Ionicons name="close-circle" size={14} color="#4A90E2" />
+                        <Text style={styles.resetButtonText}>
+                            {t('reminders.buttons.Reset Filters')}
+                        </Text>
+                    </TouchableOpacity>
+                ) : null}
             </View>
 
             {/* Reminder delete confirmation */}
@@ -408,52 +396,46 @@ const styles = StyleSheet.create({
 
     // FILTER COMPONENTS
     filtersSection: {
-        marginTop: 10,
         marginBottom: 10,
+        gap: 6,
     },
     filterRow: {
         flexDirection: 'row',
-        gap: 10,
-        marginBottom: 10,
+        gap: 8,
     },
-    filterItem: {
+    filterSelector: {
         flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        backgroundColor: '#F5F5F5',
+        borderRadius: 16,
+        paddingHorizontal: 12,
+        paddingVertical: 10,
     },
-    filterLabel: {
-        fontSize: 16,
-        fontWeight: '600',
-        marginBottom: 5,
-        color: '#333333',
-    },
-    filterDropdown: {
+    filterSelectorContent: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
-        backgroundColor: '#F5F5F5',
-        padding: 12,
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: '#E0E0E0',
-        minHeight: 44,
+        gap: 6,
+        flex: 1,
+        overflow: 'hidden',
     },
-    filterDropdownText: {
-        fontSize: 16,
+    filterSelectorText: {
+        fontSize: 13,
         color: '#333333',
+        flex: 1,
     },
     resetButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 1,
-        gap: 6,
+        gap: 4,
+        paddingVertical: 2,
     },
     resetButtonText: {
-        fontSize: 16,
+        fontSize: 13,
         color: '#4A90E2',
         fontWeight: '600',
-    },
-    resetButtonTextDisabled: {
-        color: '#CCCCCC',
     },
     remindersList: {
         flex: 1,
