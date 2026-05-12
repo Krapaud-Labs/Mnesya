@@ -11,7 +11,6 @@ import {
     TouchableOpacity,
     TextInput,
     Image,
-    SafeAreaView,
     ScrollView,
     ActivityIndicator,
 } from 'react-native';
