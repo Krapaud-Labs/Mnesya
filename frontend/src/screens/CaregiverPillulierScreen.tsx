@@ -113,9 +113,9 @@ const CaregiverPillulierScreen: React.FC<Props> = ({ navigation }) => {
 
     const handleRefresh = useCallback(async () => {
         setIsRefreshing(true);
-        await reload();
+        await silentReload();
         setIsRefreshing(false);
-    }, [reload]);
+    }, [silentReload]);
 
     const selectedProfile = userData?.find((u) => u.id === selectedUserId);
 
