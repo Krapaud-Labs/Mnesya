@@ -168,3 +168,51 @@ export interface ActivityLogEntry {
     user_last_name: string;
     occurred_at: string;
 }
+
+/** Full medication data returned by the backend. */
+export interface MedicationData {
+    id: string;
+    caregiver_id: string;
+    user_id: string;
+    name: string;
+    dosage?: string;
+    times: string[];
+    frequency: 'DAILY' | 'WEEKLY';
+    recurrence_days?: number[];
+    start_date: string;
+    end_date?: string;
+}
+
+/** Payload for creating a new medication. */
+export interface CreateMedication {
+    user_id: string;
+    name: string;
+    dosage?: string;
+    times: string[];
+    frequency: 'DAILY' | 'WEEKLY';
+    recurrence_days?: number[];
+    start_date: string;
+    end_date?: string;
+}
+
+/** Single medication entry in the semainier (week view). */
+export interface WeekEntry {
+    medication_id: string;
+    name: string;
+    dosage?: string;
+    time: string;
+    reminder_id: string;
+    status?: string;
+}
+
+/** One day in the semainier. */
+export interface WeekDay {
+    date: string;
+    entries: WeekEntry[];
+}
+
+/** Full semainier response (7 days). */
+export interface WeekResponse {
+    week_start: string;
+    days: WeekDay[];
+}

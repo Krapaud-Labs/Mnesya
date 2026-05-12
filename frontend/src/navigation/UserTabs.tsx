@@ -15,6 +15,7 @@ import type { UserTabsParamList } from '../types/index';
 // ─── Navigator ──────────────────────────────────────────────────────────────
 
 import UserHomeScreen from '../screens/UserHomeScreen';
+import UserPillulierScreen from '../screens/UserPillulierScreen';
 import { RefreshProvider, useRefresh } from '../contexts/RefreshContext';
 import EmergencyModal from '../components/EmergencyModal';
 
@@ -56,6 +57,20 @@ const UserTabsContent: React.FC = () => {
                         ),
                         tabBarLabel: () => (
                             <Text style={styles.emergencyLabel}>{t('tabs.Emergency')}</Text>
+                        ),
+                    }}
+                />
+
+                {/* Pillulier tab - Week schedule */}
+                <Tab.Screen
+                    name="Pillulier"
+                    component={UserPillulierScreen}
+                    options={{
+                        tabBarIcon: ({ color, size }) => (
+                            <Ionicons name="medical" size={size} color={color} />
+                        ),
+                        tabBarLabel: () => (
+                            <Text style={styles.tabBarLabel}>{t('tabs.Pillulier')}</Text>
                         ),
                     }}
                 />

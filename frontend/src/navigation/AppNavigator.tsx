@@ -21,6 +21,7 @@ import UserTabs from './UserTabs';
 import UserPairingScreen from '../screens/UserPairingScreen';
 import CreateProfileScreen from '../screens/CreateProfileScreen';
 import CreateReminderScreen from '../screens/CreateReminderScreen';
+import CreateMedicationScreen from '../screens/CreateMedicationScreen';
 import UserProfileDetailScreen from '../screens/UserProfileDetailScreen';
 import ReminderNotificationScreen from '../screens/ReminderNotificationScreen';
 
@@ -110,6 +111,11 @@ const AppNavigator: React.FC = () => {
                     <Stack.Screen
                         name="CreateReminder"
                         component={CreateReminderScreen}
+                        options={{ headerShown: false }}
+                    />
+                    <Stack.Screen
+                        name="CreateMedication"
+                        component={CreateMedicationScreen}
                         options={{ headerShown: false }}
                     />
 
