@@ -47,7 +47,7 @@ const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
              * Two large, clearly labeled buttons for User and Caregiver flows
              * Includes haptic feedback for better user experience
              */}
-            <View style={[styles.contentContainer, { paddingBottom: insets.bottom + 20 }]}>
+            <View style={[styles.contentContainer, { paddingBottom: insets.bottom }]}>
                 {/* User profile button - navigates to pairing screen */}
                 <TouchableOpacity
                     style={styles.userButton}

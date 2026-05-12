@@ -44,7 +44,7 @@ Mnesya is a mobile reminder application designed to help elderly people (Users) 
 - Maximum 3 buttons per screen
 - Linear journey without complex navigation
 
-### MVP Scope - Current Implementation (Mar 4, 2026)
+### MVP Scope - Current Implementation (May 12, 2026)
 
 - **12 screens implemented**:
   - 1 Shared screen: WelcomeScreen
@@ -54,6 +54,7 @@ Mnesya is a mobile reminder application designed to help elderly people (Users) 
 - **Enhanced Notifications**: Backend scheduler with 3 jobs (T+0, T+5, T+10 min) + automatic caregiver alerts
 - **Activity Log**: Caregiver dashboard bell icon showing the last 48 h of user interactions (DONE/POSTPONED/UNABLE/MISSED) with unread badge
 - **Rate Limiting**: Register (3/min) and Login (5/min) with user-facing modal on HTTP 429
+- **Recurring Reminders**: DAILY / WEEKLY / MONTHLY recurrence with optional end date — full-stack feature (frontend modal UI + backend scheduler + Pydantic validation)
 - **API Integration**: Frontend fully connected to backend (auth, profiles, pairing, reminders, reminder status, activity log)
 - **Code Quality**: ESLint v9 configured (0 errors, 0 warnings across all frontend files)
 - **Current status**: Frontend 100% connected, Backend 100% (auth, profiles, pairing, reminders, reminder status, activity log all live)
@@ -85,6 +86,12 @@ Mnesya is a mobile reminder application designed to help elderly people (Users) 
 - ✅ Tab navigation (Home | Reminders | Profile) - Implemented
 - ✅ **Activity log**: Bell icon in caregiver dashboard header — displays the last 48 h of user interactions (DONE / POSTPONED / UNABLE / MISSED), with a red unread badge when new entries are detected and auto-reload on screen focus
 - ✅ **Rate limiting feedback**: HTTP 429 from Register (3/min) or Login (5/min) triggers a dedicated `RateLimitModal` instead of a generic error
+- ✅ **Recurring reminders**: DAILY / WEEKLY / MONTHLY recurrence with optional end date
+  - Dedicated scheduling modal (`pageSheet`) for date, time and recurrence config
+  - Day selector for WEEKLY (Monday → Sunday), inline display with `·` separator
+  - Recurrence summary card on the main form (no scroll required)
+  - Backend: `calculate_next_occurrence` + `schedule_next_occurrence` (APScheduler)
+  - Pydantic validation: recurrence type required when `is_recurring`, days required for WEEKLY
 
 ### User Interface (Elderly Person)
 
@@ -324,7 +331,8 @@ mnesya/
 │   │       ├── test_user_api.py
 │   │       ├── test_reminder_api.py
 │   │       ├── test_reminder_status_api.py
-│   │       └── test_push_notification_api.py
+│   │       ├── test_push_notification_api.py
+│   │       └── test_recurrence.py          # Recurrence unit tests (24 tests, no DB required)
 │   ├── worker/                # APScheduler background jobs
 │   │   └── scheduler.py       # 3 jobs: T+0 notify, T+5 retry, T+10 escalate
 │   ├── alembic/               # Database migrations
@@ -400,6 +408,7 @@ mnesya/
 │   │   │   ├── animations.ts       # Bell swing + pulse animations
 │   │   │   ├── dateUtils.ts        # Age calculation from birthday
 │   │   │   ├── notifications.ts    # Expo Notifications setup + repetitions
+│   │   │   ├── recurrenceUtils.ts  # Recurrence display helpers (formatDate, getRecurrenceDescription…)
 │   │   │   └── validation.ts       # Form field validation functions
 │   │   └── data/
 │   │       └── fakeData.ts         # Mock data for local testing
@@ -608,17 +617,17 @@ docs: update README
 
 **📋 Complete Test Documentation**: [backend/app/test/README.md](backend/app/test/README.md)
 
-**Test Suite**: 296 tests (166 API integration tests + 130 unit tests)  
+**Test Suite**: 320 tests (166 API integration tests + 154 unit tests)  
 **Status**: ✅ All tests passing
 
 ```bash
 cd backend
 
-# Run all tests
-pytest app/test/
+# Run all tests (requires Docker — see docker/docker-compose.test.yml)
+docker-compose -f docker/docker-compose.test.yml up --build --abort-on-container-exit
 
-# With coverage
-pytest app/test/ --cov=app
+# Run recurrence unit tests locally (no database required)
+PYTHONPATH=. venv/bin/pytest app/test/test_recurrence.py -v --noconftest
 ```
 
 #### Backend Test Files
@@ -633,12 +642,16 @@ pytest app/test/ --cov=app
 - `test_reminder_status_api.py` — Reminder status update endpoint (32 tests)
 - `test_push_notification_api.py` — Push token register, unregister, list (20 tests)
 
-**Unit Tests (130 tests)**:
+**Unit Tests (154 tests)**:
 
 - `test.py` — Models validation, schemas validation, business logic, entity relationships
   - Model tests (65): User, Caregiver, Reminder, ReminderStatus
   - Schema tests (49): Create/Update validation
   - Integration tests (16): Edge cases and model interactions
+- `test_recurrence.py` — Recurrence logic unit tests (24 tests)
+  - `calculate_next_occurrence`: DAILY, WEEKLY, MONTHLY, end date cutoff, edge cases
+  - `schedule_next_occurrence`: DB interaction, returns True/False
+  - `ReminderCreate` schema: recurrence validation rules (all 9 cases)
 
 **Tool**: pytest + SQLAlchemy test database
 
@@ -646,7 +659,7 @@ pytest app/test/ --cov=app
 
 **📋 Complete Test Documentation**: [frontend/README-tests.md](frontend/README-tests.md)
 
-**Test Suite**: 220 tests (16 test suites)  
+**Test Suite**: 250 tests (17 test suites)  
 **Status**: ✅ All tests passing
 
 ```bash
@@ -659,13 +672,13 @@ npm test
 npm test -- --coverage
 ```
 
-#### Frontend Test Files (220 tests across 16 suites)
+#### Frontend Test Files (250 tests across 17 suites)
 
 - `__tests__/hooks/useFormValidation.test.ts` — Form validation hook (18 tests)
 - `__tests__/utils/validation.test.ts` — Validation utility functions (42 tests)
 - `services/__tests__/authService.test.ts` — register, login API calls (24 tests)
 - `services/__tests__/tokenService.test.ts` — JWT storage and retrieval (11 tests)
-- `services/__tests__/reminderService.test.ts` — Reminder CRUD API calls (16 tests)
+- `services/__tests__/reminderService.test.ts` — Reminder CRUD + recurring payloads (19 tests)
 - `services/__tests__/pairingService.test.ts` — Pairing code generate and verify (7 tests)
 - `services/__tests__/profileService.test.ts` — User profile CRUD API calls (11 tests)
 - `hooks/__tests__/useCaregiverProfile.test.ts` — Hook loading/error/reload behaviour (9 tests)
@@ -677,6 +690,12 @@ npm test -- --coverage
 - `components/__tests__/UpdateUserProfileModal.test.tsx` — Modal rendering and validation (21 tests)
 - `components/__tests__/UpdateCaregiverProfileModal.test.tsx` — Modal rendering and validation (16 tests)
 - `utils/__tests__/validation.test.ts` — Form validation utility functions (42 tests)
+- `utils/__tests__/recurrenceUtils.test.ts` — Recurrence display and validation helpers (35 tests)
+  - `formatDate` / `formatTime`: padding, format DD/MM/YYYY and HH:MM
+  - `getRecurrenceSummary`: DAILY / WEEKLY / MONTHLY / off state / no days / mutation guard
+  - `getRecurrenceDescription`: all types, end date suffix, empty WEEKLY
+  - `getSchedulingSummary`: with and without recurrence
+  - `isRecurrenceValid`: WEEKLY/no days → false, all other cases → true
 - **Tools**: Jest + React Native Testing Library + ESLint v9
 
 ### Manual Tests
@@ -690,6 +709,8 @@ Acceptance criteria checklist to verify before each Production deployment:
 - [x] A caregiver can generate a 24h valid pairing code
 - [x] A user can pair with the code and receive a JWT
 - [x] A caregiver can create a one-shot reminder
+- [x] A caregiver can create a recurring reminder (DAILY / WEEKLY / MONTHLY) with optional end date
+- [x] A recurring reminder automatically reschedules after each completion
 - [x] A user receives a full-screen notification at reminder time
 - [x] A user can respond Done/Remind Later/Unable
 - [x] "Remind later" triggers a new local notification
@@ -722,7 +743,7 @@ Acceptance criteria checklist to verify before each Production deployment:
 
 Features **not included** in v1.0 (postponed post-MVP):
 
-- ❌ Recurring reminders (daily, weekly, monthly)
+- ✅ ~~Recurring reminders (daily, weekly, monthly)~~ — **Implemented in v1.2.0**
 - ❌ Graphical calendar view
 - ❌ Statistics and graphs
 - ❌ Voice messages in reminders

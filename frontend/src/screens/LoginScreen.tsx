@@ -178,7 +178,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
             </View>
 
             {/* Buttons section - fixed at bottom */}
-            <View style={[styles.buttonsContainer, { paddingBottom: insets.bottom + 20 }]}>
+            <View style={[styles.buttonsContainer, { paddingBottom: insets.bottom }]}>
                 <TouchableOpacity
                     style={[commonStyles.primaryButton, loading && styles.buttonDisabled]}
                     onPress={handleLogin}
