@@ -52,6 +52,10 @@ class ReminderModel(database):
         'recurrence_days', ARRAY(Integer()), nullable=True
     )
     _recurrence_end_date: Optional[date] = Column('recurrence_end_date', Date(), nullable=True)
+    _medication_id: Optional[uuid.UUID] = Column(  # type: ignore[assignment]
+        'medication_id', UUID(as_uuid=True),
+        ForeignKey('medication.id', ondelete='SET NULL'), nullable=True
+    )
     _created_at: datetime = Column(
         DateTime(
             timezone=True), default=lambda: datetime.now(
@@ -223,6 +227,14 @@ class ReminderModel(database):
     @recurrence_end_date.setter
     def recurrence_end_date(self, value: Optional[date]) -> None:
         self._recurrence_end_date = value
+
+    @property
+    def medication_id(self) -> Optional[uuid.UUID]:
+        return self._medication_id
+
+    @medication_id.setter
+    def medication_id(self, value: Optional[uuid.UUID]) -> None:
+        self._medication_id = value
 
     @property
     def created_at(self) -> datetime:
