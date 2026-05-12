@@ -27,6 +27,38 @@ def get_caregiver_id(token: dict = Depends(require_caregiver_role)) -> str:
     return token.get("sub")
 
 
+# ==================== USER ENDPOINT ====================
+
+@router.get(
+    "/week",
+    response_model=WeekResponse,
+    summary="Get 7-day semainier for the authenticated user",
+    description=(
+        "Returns the current week (Mon→Sun) with each medication scheduled per day "
+        "and its status (PENDING / DONE / MISSED / etc.). "
+        "Pass `date` (YYYY-MM-DD) to navigate to another week."
+    ),
+)
+def get_week(
+    date_param: Optional[str] = None,
+    token: dict = Depends(verify_token),
+    facade: MedicationFacade = Depends(get_medication_facade),
+):
+    user_id = UUID(token.get("sub"))
+
+    if date_param:
+        try:
+            ref_date = date.fromisoformat(date_param)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid date format. Expected YYYY-MM-DD")
+    else:
+        ref_date = date.today()
+
+    # Always start on Monday
+    week_start = ref_date - timedelta(days=ref_date.weekday())
+    return facade.get_week(user_id, week_start)
+
+
 # ==================== CAREGIVER ENDPOINTS ====================
 
 @router.post(
@@ -108,38 +140,6 @@ def delete_medication(
 ):
     if not facade.delete_medication(medication_id):
         raise HTTPException(status_code=404, detail="Medication not found")
-
-
-# ==================== USER ENDPOINT ====================
-
-@router.get(
-    "/week",
-    response_model=WeekResponse,
-    summary="Get 7-day semainier for the authenticated user",
-    description=(
-        "Returns the current week (Mon→Sun) with each medication scheduled per day "
-        "and its status (PENDING / DONE / MISSED / etc.). "
-        "Pass `date` (YYYY-MM-DD) to navigate to another week."
-    ),
-)
-def get_week(
-    date_param: Optional[str] = None,
-    token: dict = Depends(verify_token),
-    facade: MedicationFacade = Depends(get_medication_facade),
-):
-    user_id = UUID(token.get("sub"))
-
-    if date_param:
-        try:
-            ref_date = date.fromisoformat(date_param)
-        except ValueError:
-            raise HTTPException(status_code=400, detail="Invalid date format. Expected YYYY-MM-DD")
-    else:
-        ref_date = date.today()
-
-    # Always start on Monday
-    week_start = ref_date - timedelta(days=ref_date.weekday())
-    return facade.get_week(user_id, week_start)
 
 
 # ==================== HELPER ====================
