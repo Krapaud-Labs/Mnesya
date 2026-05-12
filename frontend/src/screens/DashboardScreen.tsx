@@ -180,7 +180,10 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
                             navigation.navigate('CreateReminder', {});
                         }}
                     >
-                        <Ionicons name="alarm-outline" size={22} color="#FFFFFF" />
+                        <Ionicons name="alarm-outline" size={18} color="#FFFFFF" />
+                        <View style={styles.actionButtonBadge}>
+                            <Text style={styles.actionButtonBadgeText}>+</Text>
+                        </View>
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.actionButton}
@@ -322,6 +325,23 @@ const styles = StyleSheet.create({
         backgroundColor: '#4A90E2',
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    actionButtonBadge: {
+        position: 'absolute',
+        top: 5,
+        right: 5,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 6,
+        width: 12,
+        height: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    actionButtonBadgeText: {
+        fontSize: 10,
+        fontWeight: '800',
+        color: '#4A90E2',
+        lineHeight: 12,
     },
     scrollContainer: {
         flex: 1,
