@@ -37,6 +37,13 @@ type Props = CompositeScreenProps<
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
+const FR_MONTHS = ['jan', 'fév', 'mar', 'avr', 'mai', 'juin', 'juil', 'aoû', 'sep', 'oct', 'nov', 'déc'];
+
+function formatDateFR(dateStr: string): string {
+    const d = new Date(dateStr + 'T12:00:00');
+    return `${d.getDate()} ${FR_MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+}
+
 const DAY_LABELS: Record<number, string> = {
     0: 'Lun', 1: 'Mar', 2: 'Mer', 3: 'Jeu', 4: 'Ven', 5: 'Sam', 6: 'Dim',
 };
@@ -69,6 +76,26 @@ const CaregiverPillulierScreen: React.FC<Props> = ({ navigation }) => {
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
     const isFirstFocus = useRef(true);
+
+    const [showScrollFade, setShowScrollFade] = useState(true);
+    const [isScrollable, setIsScrollable] = useState(false);
+    const scrollContainerHeight = useRef(0);
+
+    const handleContentSizeChange = (_: number, contentHeight: number) => {
+        setIsScrollable(contentHeight > scrollContainerHeight.current);
+    };
+
+    const handleScroll = (event: {
+        nativeEvent: {
+            contentOffset: { y: number };
+            layoutMeasurement: { height: number };
+            contentSize: { height: number };
+        };
+    }) => {
+        const { contentOffset, layoutMeasurement, contentSize } = event.nativeEvent;
+        const isAtBottom = contentOffset.y + layoutMeasurement.height >= contentSize.height - 10;
+        setShowScrollFade(!isAtBottom);
+    };
 
     const { medications, loading, error, reload, silentReload } = useMedications(selectedUserId);
 
@@ -168,11 +195,19 @@ const CaregiverPillulierScreen: React.FC<Props> = ({ navigation }) => {
                     <Text style={commonStyles.errorText}>{t(error)}</Text>
                 </View>
             ) : (
+                <View style={styles.listWrapper}>
                 <ScrollView
-                    style={styles.list}
+                    style={{ flex: 1 }}
                     refreshControl={
                         <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
                     }
+                    showsVerticalScrollIndicator={false}
+                    onScroll={handleScroll}
+                    scrollEventThrottle={16}
+                    onLayout={(e) => {
+                        scrollContainerHeight.current = e.nativeEvent.layout.height;
+                    }}
+                    onContentSizeChange={handleContentSizeChange}
                 >
                     {medications && medications.length === 0 ? (
                         <View style={styles.emptyContainer}>
@@ -237,8 +272,8 @@ const CaregiverPillulierScreen: React.FC<Props> = ({ navigation }) => {
                                     </View>
 
                                     <Text style={styles.cardDates}>
-                                        {t('medication.from')} {med.start_date}
-                                        {med.end_date ? ` → ${med.end_date}` : ''}
+                                        {t('medication.from')} {formatDateFR(med.start_date)}
+                                        {med.end_date ? ` → ${formatDateFR(med.end_date)}` : ''}
                                     </Text>
                                 </View>
                             </View>
@@ -246,6 +281,12 @@ const CaregiverPillulierScreen: React.FC<Props> = ({ navigation }) => {
                     )}
                     <View style={{ height: 20 }} />
                 </ScrollView>
+                {showScrollFade && isScrollable && (
+                    <View style={styles.scrollFade} pointerEvents="none">
+                        <Ionicons name="chevron-down" size={24} color="#4A90E2" />
+                    </View>
+                )}
+                </View>
             )}
 
             {/* Profile picker */}
@@ -286,6 +327,20 @@ const CaregiverPillulierScreen: React.FC<Props> = ({ navigation }) => {
 
 const styles = StyleSheet.create({
     // LAYOUT
+    listWrapper: {
+        flex: 1,
+        position: 'relative',
+    },
+    scrollFade: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: 40,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(255,255,255,0.85)',
+    },
     titleRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -334,9 +389,6 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#999999',
         textAlign: 'center',
-    },
-    list: {
-        flex: 1,
     },
     emptyContainer: {
         alignItems: 'center',
