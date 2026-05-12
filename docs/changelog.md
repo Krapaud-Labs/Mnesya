@@ -112,8 +112,6 @@ Format : `emoji vX.Y.Z — Titre` · Auteur · Date
 
 ---
 
-## Mickael M. — 06/03/2026
-
 ### 🐛 v1.1.1 — Corrections scheduleur & notifications push
 
 #### Backend — Scheduler
