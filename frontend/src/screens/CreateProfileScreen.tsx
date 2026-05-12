@@ -176,7 +176,7 @@ const CreateProfileScreen: React.FC<Props> = ({ navigation }) => {
             </ScrollView>
 
             {/* Buttons section - fixed at bottom */}
-            <View style={[styles.buttonsContainer, { paddingBottom: insets.bottom + 20 }]}>
+            <View style={[styles.buttonsContainer, { paddingBottom: insets.bottom }]}>
                 {/* Create button - creates profile and navigates to Dashboard */}
                 {!showDatePicker && (
                     <TouchableOpacity

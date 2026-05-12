@@ -70,6 +70,74 @@ describe('reminderService', () => {
                 createReminder({ title: 'X', scheduled_at: '2026-01-01T00:00:00Z', user_id: 'u-1' })
             ).rejects.toThrow('Server error');
         });
+
+        it('should send DAILY recurrence fields in the payload', async () => {
+            const payload: CreateReminder = {
+                title: 'Morning walk',
+                scheduled_at: '2026-03-01T08:00:00Z',
+                user_id: 'user-1',
+                is_recurring: true,
+                recurrence_type: 'DAILY',
+            };
+            const mockRecurring: ReminderData = {
+                ...mockReminder,
+                is_recurring: true,
+                recurrence_type: 'DAILY',
+            };
+            (apiClient.post as jest.Mock).mockResolvedValue({ data: mockRecurring });
+
+            const result = await createReminder(payload);
+
+            expect(apiClient.post).toHaveBeenCalledWith('/api/reminder', payload);
+            expect(result.is_recurring).toBe(true);
+            expect(result.recurrence_type).toBe('DAILY');
+        });
+
+        it('should send WEEKLY recurrence fields with days in the payload', async () => {
+            const payload: CreateReminder = {
+                title: 'Gym',
+                scheduled_at: '2026-03-02T07:00:00Z',
+                user_id: 'user-1',
+                is_recurring: true,
+                recurrence_type: 'WEEKLY',
+                recurrence_days: [0, 2, 4],
+            };
+            const mockRecurring: ReminderData = {
+                ...mockReminder,
+                is_recurring: true,
+                recurrence_type: 'WEEKLY',
+                recurrence_days: [0, 2, 4],
+            };
+            (apiClient.post as jest.Mock).mockResolvedValue({ data: mockRecurring });
+
+            const result = await createReminder(payload);
+
+            expect(apiClient.post).toHaveBeenCalledWith('/api/reminder', payload);
+            expect(result.recurrence_days).toEqual([0, 2, 4]);
+        });
+
+        it('should send MONTHLY recurrence fields with end date in the payload', async () => {
+            const payload: CreateReminder = {
+                title: 'Monthly review',
+                scheduled_at: '2026-03-15T10:00:00Z',
+                user_id: 'user-1',
+                is_recurring: true,
+                recurrence_type: 'MONTHLY',
+                recurrence_end_date: '2026-12-31',
+            };
+            const mockRecurring: ReminderData = {
+                ...mockReminder,
+                is_recurring: true,
+                recurrence_type: 'MONTHLY',
+                recurrence_end_date: '2026-12-31',
+            };
+            (apiClient.post as jest.Mock).mockResolvedValue({ data: mockRecurring });
+
+            const result = await createReminder(payload);
+
+            expect(apiClient.post).toHaveBeenCalledWith('/api/reminder', payload);
+            expect(result.recurrence_end_date).toBe('2026-12-31');
+        });
     });
 
     describe('getReminder', () => {
