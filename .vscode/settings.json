@@ -1,0 +1,5 @@
+{
+    "python.linting.pycodestyleEnabled": false,
+    "python.linting.flake8Enabled": false,
+    "python.defaultInterpreterPath": "${workspaceFolder}/backend/venv/bin/python3.12"
+}
