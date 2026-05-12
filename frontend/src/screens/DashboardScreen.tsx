@@ -169,36 +169,32 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
                 </TouchableOpacity>
             </View>
 
-            {/* Page title */}
-            <View style={styles.titleSection}>
+            {/* Page title + action buttons */}
+            <View style={styles.titleRow}>
                 <Text style={styles.title}>{t('dashboard.title')}</Text>
+                <View style={styles.titleActions}>
+                    <TouchableOpacity
+                        style={styles.actionButton}
+                        onPress={() => {
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                            navigation.navigate('CreateReminder', {});
+                        }}
+                    >
+                        <Ionicons name="alarm-outline" size={22} color="#FFFFFF" />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.actionButton}
+                        onPress={() => {
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                            navigation.navigate('CreateProfile');
+                        }}
+                    >
+                        <Ionicons name="person-add-outline" size={22} color="#FFFFFF" />
+                    </TouchableOpacity>
+                </View>
             </View>
 
             <View style={styles.scrollContainer}>
-                {/* Action buttons */}
-                <TouchableOpacity
-                    style={commonStyles.primaryButton}
-                    onPress={() => {
-                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                        navigation.navigate('CreateProfile');
-                    }}
-                >
-                    <Text style={[commonStyles.primaryButtonText, { fontSize: 20 }]}>
-                        {t('dashboard.buttons.New profile')}
-                    </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={commonStyles.primaryButton}
-                    onPress={() => {
-                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                        navigation.navigate('CreateReminder', {});
-                    }}
-                >
-                    <Text style={[commonStyles.primaryButtonText, { fontSize: 20 }]}>
-                        {t('common.buttons.New reminder')}
-                    </Text>
-                </TouchableOpacity>
-
                 <Text style={styles.sectionTitle}>{t('dashboard.profilesListTitle')}</Text>
 
                 {/*
@@ -307,11 +303,25 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
 
 const styles = StyleSheet.create({
     // LAYOUT
-    titleSection: {
-        width: '100%',
+    titleRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         paddingLeft: 10,
         marginTop: 20,
         marginBottom: 20,
+    },
+    titleActions: {
+        flexDirection: 'row',
+        gap: 8,
+    },
+    actionButton: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: '#4A90E2',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     scrollContainer: {
         flex: 1,
@@ -323,7 +333,6 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 28,
         fontWeight: 'bold',
-        marginBottom: 10,
     },
     sectionTitle: {
         fontSize: 20,
