@@ -52,7 +52,7 @@ class ReminderModel(database):
         'recurrence_days', ARRAY(Integer()), nullable=True
     )
     _recurrence_end_date: Optional[date] = Column('recurrence_end_date', Date(), nullable=True)
-    _medication_id: Optional[uuid.UUID] = Column(
+    _medication_id: Optional[uuid.UUID] = Column(  # type: ignore[assignment]
         'medication_id', UUID(as_uuid=True),
         ForeignKey('medication.id', ondelete='SET NULL'), nullable=True
     )

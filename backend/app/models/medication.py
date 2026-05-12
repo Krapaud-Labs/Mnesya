@@ -1,37 +1,37 @@
 import re
 import uuid
 from datetime import datetime, timezone, date
-from typing import List, Optional
-from sqlalchemy import Column, String, DateTime, Date, ForeignKey, Integer
+from typing import Any, List, Optional
+from sqlalchemy import String, DateTime, Date, ForeignKey, Integer
 from sqlalchemy.dialects.postgresql import UUID, ARRAY
+from sqlalchemy.orm import Mapped, mapped_column
 from app import database
 
 
 class MedicationModel(database):
     __tablename__ = 'medication'
 
-    _id: uuid.UUID = Column('id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    _caregiver_id: uuid.UUID = Column(
-        'caregiver_id', UUID(as_uuid=True), ForeignKey('caregiver.id', ondelete='CASCADE'), nullable=False
+    _id: Mapped[uuid.UUID] = mapped_column('id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    _caregiver_id: Mapped[uuid.UUID] = mapped_column(
+        'caregiver_id', UUID(as_uuid=True), ForeignKey('caregiver.id', ondelete='CASCADE')
     )
-    _user_id: uuid.UUID = Column(
-        'user_id', UUID(as_uuid=True), ForeignKey('user.id', ondelete='CASCADE'), nullable=False
+    _user_id: Mapped[uuid.UUID] = mapped_column(
+        'user_id', UUID(as_uuid=True), ForeignKey('user.id', ondelete='CASCADE')
     )
-    _name: str = Column('name', String(200), nullable=False)
-    _dosage: Optional[str] = Column('dosage', String(200), nullable=True)
-    _times: List[str] = Column('times', ARRAY(String(5)), nullable=False)
-    _frequency: str = Column('frequency', String(10), nullable=False)
-    _recurrence_days: Optional[List[int]] = Column('recurrence_days', ARRAY(Integer()), nullable=True)
-    _start_date: date = Column('start_date', Date(), nullable=False)
-    _end_date: Optional[date] = Column('end_date', Date(), nullable=True)
-    _created_at: datetime = Column(
-        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False
+    _name: Mapped[str] = mapped_column('name', String(200))
+    _dosage: Mapped[Optional[str]] = mapped_column('dosage', String(200), nullable=True)
+    _times: Mapped[Any] = mapped_column('times', ARRAY(String(5)))
+    _frequency: Mapped[str] = mapped_column('frequency', String(10))
+    _recurrence_days: Mapped[Any] = mapped_column('recurrence_days', ARRAY(Integer()), nullable=True)
+    _start_date: Mapped[date] = mapped_column('start_date', Date())
+    _end_date: Mapped[Optional[date]] = mapped_column('end_date', Date(), nullable=True)
+    _created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
-    _updated_at: datetime = Column(
+    _updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
-        nullable=False,
     )
 
     # ==================== Properties ====================
