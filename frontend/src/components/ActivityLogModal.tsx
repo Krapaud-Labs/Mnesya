@@ -78,22 +78,17 @@ interface LogEntryProps {
 const LogEntryRow: React.FC<LogEntryProps> = ({ entry }) => {
     const { t } = useTranslation();
     const config = STATUS_CONFIG[entry.status as StatusKey] ?? STATUS_CONFIG['MISSED'];
+    const accentColor = entry.is_medication ? '#9C27B0' : '#4A90E2';
 
     return (
-        <View style={styles.entryRow}>
-            <Ionicons name={config.icon} size={24} color={config.color} style={styles.entryIcon} />
+        <View style={[styles.entryRow, { borderLeftColor: accentColor }]}>
+            <Ionicons name={config.icon} size={20} color={config.color} style={styles.entryIcon} />
             <View style={styles.entryContent}>
                 <View style={styles.entryTitleRow}>
                     <Text style={styles.entryTitle} numberOfLines={1}>
                         {entry.reminder_title}
                     </Text>
-                    <View style={[styles.typeTag, entry.is_medication ? styles.typeTagMed : styles.typeTagReminder]}>
-                        <Ionicons
-                            name={entry.is_medication ? 'medkit-outline' : 'alarm-outline'}
-                            size={10}
-                            color={entry.is_medication ? '#9C27B0' : '#4A90E2'}
-                        />
-                    </View>
+                    <Text style={styles.entryTime}>{getTime(entry.occurred_at)}</Text>
                 </View>
                 <Text style={styles.entryMeta}>
                     {entry.user_first_name} {entry.user_last_name}
@@ -103,7 +98,6 @@ const LogEntryRow: React.FC<LogEntryProps> = ({ entry }) => {
                     </Text>
                 </Text>
             </View>
-            <Text style={styles.entryTime}>{getTime(entry.occurred_at)}</Text>
         </View>
     );
 };
@@ -213,10 +207,10 @@ const ActivityLogModal: React.FC<ActivityLogModalProps> = ({
 
     const renderFilters = () => (
         <View style={styles.filtersContainer}>
-            {/* Type filter */}
-            <View style={styles.typeFilterRow}>
+            {/* Type filter — segmented control */}
+            <View style={styles.segmented}>
                 {([
-                    { type: 'ALL',        icon: 'layers-outline',  color: '#888888' },
+                    { type: 'ALL',        icon: 'layers-outline',  color: '#666666' },
                     { type: 'REMINDER',   icon: 'alarm-outline',   color: '#4A90E2' },
                     { type: 'MEDICATION', icon: 'medkit-outline',  color: '#9C27B0' },
                 ] as { type: EntryType; icon: keyof typeof Ionicons.glyphMap; color: string }[]).map(({ type, icon, color }) => {
@@ -224,11 +218,11 @@ const ActivityLogModal: React.FC<ActivityLogModalProps> = ({
                     return (
                         <TouchableOpacity
                             key={type}
-                            style={[styles.typeIconBtn, isActive && { backgroundColor: color, borderColor: color }]}
+                            style={[styles.segment, isActive && { backgroundColor: color }]}
                             onPress={() => setActiveType(type)}
-                            activeOpacity={0.7}
+                            activeOpacity={0.8}
                         >
-                            <Ionicons name={icon} size={18} color={isActive ? '#FFFFFF' : color} />
+                            <Ionicons name={icon} size={16} color={isActive ? '#FFFFFF' : '#AAAAAA'} />
                         </TouchableOpacity>
                     );
                 })}
@@ -399,8 +393,8 @@ const ActivityLogModal: React.FC<ActivityLogModalProps> = ({
 const styles = StyleSheet.create({
     modalContent: {
         backgroundColor: '#FFFFFF',
-        borderRadius: 15,
-        padding: 24,
+        borderRadius: 20,
+        padding: 22,
         width: '92%',
         maxHeight: '85%',
         alignItems: 'center',
@@ -409,41 +403,46 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
-        marginBottom: 4,
+        marginBottom: 2,
     },
     modalTitle: {
         fontSize: 20,
-        fontWeight: 'bold',
-        color: '#333333',
+        fontWeight: '700',
+        color: '#1A1A2E',
     },
     subtitle: {
-        fontSize: 13,
-        color: '#888888',
-        marginBottom: 12,
+        fontSize: 12,
+        color: '#AAAAAA',
+        marginBottom: 14,
         textAlign: 'center',
+        letterSpacing: 0.2,
     },
 
     // ── Filters ──
     filtersContainer: {
         width: '100%',
-        marginBottom: 12,
+        marginBottom: 10,
         gap: 8,
     },
-    typeFilterRow: {
+
+    // Segmented control
+    segmented: {
         flexDirection: 'row',
-        gap: 8,
-        justifyContent: 'center',
+        backgroundColor: '#F0F2F5',
+        borderRadius: 12,
+        padding: 3,
+        gap: 3,
+        alignSelf: 'center',
     },
-    typeIconBtn: {
-        width: 36,
-        height: 36,
-        borderRadius: 18,
+    segment: {
+        width: 44,
+        height: 34,
         alignItems: 'center',
         justifyContent: 'center',
-        borderWidth: 1.5,
-        borderColor: '#DDDDDD',
-        backgroundColor: 'transparent',
+        borderRadius: 9,
     },
+
+    // Status chips
     statusFilterRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -455,19 +454,21 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         gap: 4,
-        paddingVertical: 6,
-        borderRadius: 20,
+        paddingVertical: 7,
+        borderRadius: 10,
         borderWidth: 1.5,
         backgroundColor: 'transparent',
     },
     statusChipDimmed: {
-        borderColor: '#DDDDDD',
+        borderColor: '#E8E8E8',
         backgroundColor: 'transparent',
     },
     statusChipText: {
-        fontSize: 13,
+        fontSize: 12,
         fontWeight: '700',
     },
+
+    // User filter
     userFilterRow: {
         maxHeight: 36,
     },
@@ -476,20 +477,18 @@ const styles = StyleSheet.create({
         gap: 6,
     },
     userChip: {
-        paddingHorizontal: 12,
-        paddingVertical: 5,
-        borderRadius: 14,
-        borderWidth: 1,
-        borderColor: '#DDDDDD',
-        backgroundColor: 'transparent',
+        paddingHorizontal: 14,
+        paddingVertical: 6,
+        borderRadius: 18,
+        backgroundColor: '#F0F2F5',
     },
     userChipActive: {
-        borderColor: '#4A90E2',
         backgroundColor: '#4A90E2',
     },
     userChipText: {
-        fontSize: 13,
+        fontSize: 12,
         color: '#666666',
+        fontWeight: '500',
     },
     userChipTextActive: {
         color: '#FFFFFF',
@@ -499,8 +498,7 @@ const styles = StyleSheet.create({
     // ── Content ──
     contentArea: {
         width: '100%',
-        minHeight: 80,
-        maxHeight: 340,
+        height: 340,
     },
     centeredState: {
         alignItems: 'center',
@@ -509,8 +507,8 @@ const styles = StyleSheet.create({
         gap: 12,
     },
     emptyText: {
-        fontSize: 15,
-        color: '#9E9E9E',
+        fontSize: 14,
+        color: '#BBBBBB',
         textAlign: 'center',
     },
     listWrapper: {
@@ -531,37 +529,39 @@ const styles = StyleSheet.create({
         height: 40,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: 'rgba(255,255,255,0.85)',
+        backgroundColor: 'rgba(255,255,255,0.9)',
     },
 
     // ── Day sections ──
     dayHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop: 12,
+        marginTop: 14,
         marginBottom: 4,
         gap: 8,
     },
     dayHeaderLine: {
         flex: 1,
         height: 1,
-        backgroundColor: '#EEEEEE',
+        backgroundColor: '#F0F0F0',
     },
     dayHeaderText: {
-        fontSize: 12,
-        fontWeight: '600',
-        color: '#AAAAAA',
+        fontSize: 10,
+        fontWeight: '700',
+        color: '#BBBBBB',
         textTransform: 'uppercase',
-        letterSpacing: 0.5,
+        letterSpacing: 1,
     },
 
     // ── Entry row ──
     entryRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 9,
+        paddingVertical: 10,
+        paddingLeft: 10,
         borderBottomWidth: 1,
-        borderBottomColor: '#F0F0F0',
+        borderBottomColor: '#F5F5F5',
+        borderLeftWidth: 3,
         gap: 10,
     },
     entryIcon: {
@@ -573,54 +573,43 @@ const styles = StyleSheet.create({
     entryTitleRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 5,
+        justifyContent: 'space-between',
+        gap: 6,
     },
     entryTitle: {
-        fontSize: 14,
+        fontSize: 13,
         fontWeight: '600',
-        color: '#333333',
-        flexShrink: 1,
-    },
-    typeTag: {
-        width: 18,
-        height: 18,
-        borderRadius: 9,
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexShrink: 0,
-    },
-    typeTagMed: {
-        backgroundColor: '#F3E5F5',
-    },
-    typeTagReminder: {
-        backgroundColor: '#E3F2FD',
+        color: '#222222',
+        flex: 1,
     },
     entryMeta: {
-        fontSize: 12,
-        color: '#666666',
-        marginTop: 1,
+        fontSize: 11,
+        color: '#999999',
+        marginTop: 2,
     },
     entryStatus: {
         fontWeight: '600',
     },
     entryTime: {
-        fontSize: 12,
-        color: '#AAAAAA',
+        fontSize: 11,
+        color: '#BBBBBB',
         flexShrink: 0,
     },
 
     // ── Close button ──
     closeButton: {
-        marginTop: 18,
+        marginTop: 16,
         backgroundColor: '#4A90E2',
-        borderRadius: 10,
-        paddingVertical: 12,
-        paddingHorizontal: 40,
+        borderRadius: 12,
+        paddingVertical: 13,
+        width: '100%',
+        alignItems: 'center',
     },
     closeButtonText: {
         color: '#FFFFFF',
-        fontWeight: 'bold',
-        fontSize: 16,
+        fontWeight: '700',
+        fontSize: 15,
+        letterSpacing: 0.3,
     },
 });
 
