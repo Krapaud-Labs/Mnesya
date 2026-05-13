@@ -520,7 +520,7 @@ async def get_caregiver_activity_log(
     """
     try:
         caregiver_id = token_payload.get("sub")
-        entries = facade.get_recent_activity(caregiver_id)
+        entries = facade.get_recent_activity(caregiver_id, hours=168)
 
         return [
             ActivityLogEntry(
@@ -531,6 +531,7 @@ async def get_caregiver_activity_log(
                 user_first_name=e.user_first_name,
                 user_last_name=e.user_last_name,
                 occurred_at=e.created_at,
+                is_medication=getattr(e, 'is_medication', False),
             )
             for e in entries
         ]
