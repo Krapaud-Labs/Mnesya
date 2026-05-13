@@ -21,6 +21,7 @@ from app.persistence.escalation_log_repository import EscalationLogRepository
 from app.services.notification_services import NotificationService
 from app.persistence.revoked_token_repository import RevokedTokenRepository
 from app.services.reminder_facade import schedule_next_occurrence
+from app.services.medication_facade import TIME_TO_MOMENT
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +50,9 @@ def send_user_notifications() -> None:
         )
 
         for reminder in reminders:
+            # Medication reminders are handled via direct UI interaction — no push notification
+            if reminder.medication_id is not None:
+                continue
             tokens = [
                 t.token
                 for t in push_token_repo.get_active_tokens_by_user(reminder.user_id)
@@ -90,6 +94,9 @@ def send_user_retry(offset_minutes: int) -> None:
         reminders = reminder_repo.get_reminders_at_offset(offset_minutes=offset_minutes)
 
         for reminder in reminders:
+            # Medication reminders are handled via direct UI interaction — no push notification
+            if reminder.medication_id is not None:
+                continue
             tokens = [
                 t.token
                 for t in push_token_repo.get_active_tokens_by_user(reminder.user_id)
@@ -105,6 +112,98 @@ def send_user_retry(offset_minutes: int) -> None:
             )
     except Exception as e:
         logger.error(f"[Scheduler] Error in send_user_retry: {e}")
+    finally:
+        db.close()
+
+
+def _build_meal_message(moment: str, med_names: list, locale: str) -> tuple:
+    """Return (title, body) for a meal-moment medication reminder."""
+    MESSAGES_FR = {
+        "BEFORE_BREAKFAST": ("🌅 Petit-déjeuner", "Pensez à prendre {meds} avant de petit-déjeuner"),
+        "AFTER_BREAKFAST":  ("🌅 Après le petit-déjeuner", "N'oubliez pas {meds} après le petit-déjeuner"),
+        "BEFORE_LUNCH":     ("🍽️ Bientôt l'heure du midi", "Pensez à prendre {meds} avant le déjeuner"),
+        "AFTER_LUNCH":      ("🍽️ Après le déjeuner", "N'oubliez pas {meds} après le déjeuner"),
+        "BEFORE_DINNER":    ("🌆 Repas du soir", "Pensez à prendre {meds} avant le dîner"),
+        "AFTER_DINNER":     ("🌆 Après le dîner", "N'oubliez pas {meds} après le dîner"),
+        "BEDTIME":          ("🌙 Avant de dormir", "N'oubliez pas {meds} avant de vous coucher"),
+    }
+    MESSAGES_EN = {
+        "BEFORE_BREAKFAST": ("🌅 Breakfast soon", "Remember to take {meds} before breakfast"),
+        "AFTER_BREAKFAST":  ("🌅 After breakfast", "Don't forget {meds} after breakfast"),
+        "BEFORE_LUNCH":     ("🍽️ Lunchtime soon", "Remember to take {meds} before lunch"),
+        "AFTER_LUNCH":      ("🍽️ After lunch", "Don't forget {meds} after lunch"),
+        "BEFORE_DINNER":    ("🌆 Dinner soon", "Remember to take {meds} before dinner"),
+        "AFTER_DINNER":     ("🌆 After dinner", "Don't forget {meds} after dinner"),
+        "BEDTIME":          ("🌙 Bedtime soon", "Don't forget {meds} before bed"),
+    }
+    messages = MESSAGES_FR if locale == "fr" else MESSAGES_EN
+    title, body_tpl = messages.get(moment, ("💊 Traitement", "Pensez à prendre {meds}"))
+
+    if len(med_names) == 1:
+        meds_str = med_names[0]
+    elif len(med_names) == 2:
+        sep = " et " if locale == "fr" else " and "
+        meds_str = sep.join(med_names)
+    else:
+        others = f" et {len(med_names) - 2} autre(s)" if locale == "fr" else f" and {len(med_names) - 2} more"
+        meds_str = f"{med_names[0]}, {med_names[1]}{others}"
+
+    return title, body_tpl.format(meds=meds_str)
+
+
+def send_medication_moment_notifications() -> None:
+    """Send meal-context notifications for medication reminders due now (T+0).
+
+    Groups medication reminders by (user_id, moment) so each user receives
+    one contextual notification per meal slot, listing all relevant medications.
+    Only fires when at least one unresolved medication reminder exists for that slot.
+    """
+    from app import SessionLocal
+    from collections import defaultdict
+    from datetime import timezone
+
+    db: Session = SessionLocal()
+    try:
+        reminder_repo = ReminderRepository(db)
+        push_token_repo = PushTokenRepository(db)
+        notification_service = NotificationService()
+
+        reminders = reminder_repo.get_reminders_due_now(window_seconds=55)
+        medication_reminders = [r for r in reminders if r.medication_id is not None]
+
+        if not medication_reminders:
+            return
+
+        logger.info(
+            f"[Scheduler] send_medication_moment_notifications: {len(medication_reminders)} med reminder(s)"
+        )
+
+        # Group by (user_id, moment key)
+        groups: dict = defaultdict(list)
+        for reminder in medication_reminders:
+            time_str = reminder.scheduled_at.astimezone(timezone.utc).strftime("%H:%M")
+            moment = TIME_TO_MOMENT.get(time_str)
+            if moment:
+                groups[(reminder.user_id, moment)].append(reminder.title)
+
+        for (user_id, moment), med_names in groups.items():
+            tokens = push_token_repo.get_active_tokens_by_user(user_id)
+            if not tokens:
+                continue
+            token_strings = [t.token for t in tokens]
+            locale = tokens[0].locale if tokens else "fr"
+            title, body = _build_meal_message(moment, med_names, locale)
+            notification_service.send_notification(
+                tokens=token_strings,
+                title=title,
+                body=body,
+                data={"type": "medication_moment", "moment": moment},
+            )
+            logger.info(
+                f"[Scheduler] Meal notification sent to user {user_id} for {moment} ({len(med_names)} med(s))"
+            )
+    except Exception as e:
+        logger.error(f"[Scheduler] Error in send_medication_moment_notifications: {e}")
     finally:
         db.close()
 
@@ -362,6 +461,12 @@ def start_scheduler():
         lambda: send_user_retry(5),
         CronTrigger(minute="*", second=0),
         id="send_user_retry_5min",
+    )
+
+    my_scheduler.add_job(
+        send_medication_moment_notifications,
+        CronTrigger(minute="*", second=0),
+        id="send_medication_moment_notifications",
     )
 
     my_scheduler.add_job(
