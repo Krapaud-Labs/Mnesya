@@ -124,6 +124,7 @@ class ReminderStatusRepository(BaseRepository[ReminderStatusModel]):
                 ReminderModel._title,
                 UserModel._first_name,
                 UserModel._last_name,
+                ReminderModel._medication_id,
             )
             .join(ReminderModel, self.model._reminder_id == ReminderModel._id)
             .join(UserModel, ReminderModel._user_id == UserModel._id)
@@ -136,9 +137,10 @@ class ReminderStatusRepository(BaseRepository[ReminderStatusModel]):
             .all()
         )
 
-        for status_entry, title, first_name, last_name in results:
+        for status_entry, title, first_name, last_name, medication_id in results:
             status_entry.reminder_title = title
             status_entry.user_first_name = first_name
             status_entry.user_last_name = last_name
+            status_entry.is_medication = medication_id is not None
 
-        return [s for s, _, _, _ in results]
+        return [s for s, _, _, _, _ in results]
