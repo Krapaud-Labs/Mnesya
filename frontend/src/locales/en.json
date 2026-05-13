@@ -205,11 +205,12 @@
         "fields": {
             "For Profile": "Recipient",
             "Reminder Title": "Reminder Title",
+            "Message": "Message",
             "Time": "Time",
             "scheduling": "Scheduling"
         },
         "placeholders": {
-            "Ex. : Take Medication": "Ex.: Take Medication",
+            "Ex. : Take Medication": "Ex.: Nap, call family...",
             "Enter the description about your reminder": "Enter the description about your reminder"
         },
         "buttons": {
@@ -426,9 +427,18 @@
             "dosage": "Dosage (optional)",
             "frequency": "Frequency",
             "days": "Days of intake",
-            "times": "Times",
+            "moments": "When to take",
             "startDate": "Start date",
             "endDate": "End date (optional)"
+        },
+        "moments": {
+            "BEFORE_BREAKFAST": "Before breakfast",
+            "AFTER_BREAKFAST": "After breakfast",
+            "BEFORE_LUNCH": "Before lunch",
+            "AFTER_LUNCH": "After lunch",
+            "BEFORE_DINNER": "Before dinner",
+            "AFTER_DINNER": "After dinner",
+            "BEDTIME": "At bedtime"
         },
         "placeholders": {
             "name": "E.g.: Paracetamol",
@@ -450,7 +460,7 @@
         "errors": {
             "failedToLoad": "Failed to load medications",
             "nameRequired": "Medication name is required",
-            "timesRequired": "Add at least one time",
+            "momentsRequired": "Select at least one moment",
             "daysRequired": "Select at least one day"
         },
         "deleteModal": {

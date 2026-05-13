@@ -247,7 +247,7 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
                         </Text>
 
                         {/* Message */}
-                        <Text style={styles.label}>Message</Text>
+                        <Text style={styles.label}>{t('CreateReminder.fields.Message')}</Text>
                         <View
                             style={[
                                 styles.input,

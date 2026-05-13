@@ -1,4 +1,3 @@
-import re
 import uuid
 from datetime import datetime, timezone, date
 from typing import Any, List, Optional
@@ -20,7 +19,7 @@ class MedicationModel(database):
     )
     _name: Mapped[str] = mapped_column('name', String(200))
     _dosage: Mapped[Optional[str]] = mapped_column('dosage', String(200), nullable=True)
-    _times: Mapped[Any] = mapped_column('times', ARRAY(String(5)))
+    _moments: Mapped[Any] = mapped_column('moments', ARRAY(String(20)))
     _frequency: Mapped[str] = mapped_column('frequency', String(10))
     _recurrence_days: Mapped[Any] = mapped_column('recurrence_days', ARRAY(Integer()), nullable=True)
     _start_date: Mapped[date] = mapped_column('start_date', Date())
@@ -80,18 +79,25 @@ class MedicationModel(database):
                 raise ValueError("dosage must be <= 200 chars")
         self._dosage = value
 
-    @property
-    def times(self) -> List[str]:
-        return self._times
+    VALID_MOMENTS = {
+        "BEFORE_BREAKFAST", "AFTER_BREAKFAST",
+        "BEFORE_LUNCH", "AFTER_LUNCH",
+        "BEFORE_DINNER", "AFTER_DINNER",
+        "BEDTIME",
+    }
 
-    @times.setter
-    def times(self, value: List[str]) -> None:
+    @property
+    def moments(self) -> List[str]:
+        return self._moments
+
+    @moments.setter
+    def moments(self, value: List[str]) -> None:
         if not value:
-            raise ValueError("times must not be empty")
-        for t in value:
-            if not re.match(r'^\d{2}:\d{2}$', t):
-                raise ValueError(f"Invalid time format: {t}. Expected HH:MM")
-        self._times = value
+            raise ValueError("moments must not be empty")
+        for m in value:
+            if m not in self.VALID_MOMENTS:
+                raise ValueError(f"Invalid moment: {m}. Must be one of {self.VALID_MOMENTS}")
+        self._moments = value
 
     @property
     def frequency(self) -> str:
