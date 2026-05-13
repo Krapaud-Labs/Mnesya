@@ -141,35 +141,52 @@ def send_caregiver_escalations():
             groups[(reminder.caregiver_id, reminder.user_id)].append(reminder)
 
         for (caregiver_id, user_id), group_reminders in groups.items():
+            # Snapshot reminder IDs and attributes before any commit expires the session objects
+            reminder_snapshots = [
+                {
+                    "id": r.id,
+                    "title": r.title,
+                    "is_recurring": r.is_recurring,
+                    "reminder_obj": r,
+                    "user_first_name": getattr(r, "user_first_name", ""),
+                    "user_last_name": getattr(r, "user_last_name", ""),
+                }
+                for r in group_reminders
+            ]
+
             token_objects = push_token_repo.get_active_tokens_by_caregiver(caregiver_id)
 
-            in_cooldown = escalation_log_repo.was_recently_escalated(
-                caregiver_id, user_id, cooldown_minutes=30
-            )
+            try:
+                in_cooldown = escalation_log_repo.was_recently_escalated(
+                    caregiver_id, user_id, cooldown_minutes=30
+                )
+            except Exception as e:
+                logger.error(f"[Scheduler] Failed to check cooldown for user {user_id}: {e}")
+                in_cooldown = False
 
             if token_objects and not in_cooldown:
                 token_strings = [t.token for t in token_objects]
                 locale = token_objects[0].locale if token_objects else "fr"
                 user_name = (
-                    f"{getattr(group_reminders[0], 'user_first_name', '')} "
-                    f"{getattr(group_reminders[0], 'user_last_name', '')}"
+                    f"{reminder_snapshots[0]['user_first_name']} "
+                    f"{reminder_snapshots[0]['user_last_name']}"
                 ).strip()
-                count = len(group_reminders)
+                count = len(reminder_snapshots)
 
                 if locale == "fr":
                     title = "⚠️ Alerte Mnesya"
                     if count == 1:
-                        body = f"{user_name} n'a pas répondu à : {group_reminders[0].title}"
+                        body = f"{user_name} n'a pas répondu à : {reminder_snapshots[0]['title']}"
                     else:
-                        titles = ", ".join(r.title for r in group_reminders[:3])
+                        titles = ", ".join(s["title"] for s in reminder_snapshots[:3])
                         suffix = f" et {count - 3} autre(s)" if count > 3 else ""
                         body = f"{user_name} n'a pas répondu à {count} rappels : {titles}{suffix}"
                 else:
                     title = "⚠️ Mnesya Alert"
                     if count == 1:
-                        body = f"{user_name} has not responded to: {group_reminders[0].title}"
+                        body = f"{user_name} has not responded to: {reminder_snapshots[0]['title']}"
                     else:
-                        titles = ", ".join(r.title for r in group_reminders[:3])
+                        titles = ", ".join(s["title"] for s in reminder_snapshots[:3])
                         suffix = f" and {count - 3} other(s)" if count > 3 else ""
                         body = f"{user_name} has not responded to {count} reminders: {titles}{suffix}"
 
@@ -179,27 +196,46 @@ def send_caregiver_escalations():
                     body=body,
                     data={"type": "caregiver_alert", "profile_id": str(user_id)},
                 )
-                escalation_log_repo.log_escalation(caregiver_id, user_id, count)
                 logger.info(
                     f"[Scheduler] Escalation sent for user {user_id} ({count} reminder(s))"
                 )
+
+                # Log cooldown entry independently — must not block MISSED status saves
+                try:
+                    escalation_log_repo.log_escalation(caregiver_id, user_id, count)
+                except Exception as e:
+                    logger.error(f"[Scheduler] Failed to log escalation for user {user_id}: {e}")
+                    try:
+                        db.rollback()
+                    except Exception:
+                        pass
+
             elif in_cooldown:
                 logger.info(
                     f"[Scheduler] Cooldown active for user {user_id}, skipping notification"
                 )
 
-            # Always mark all reminders as MISSED
-            for reminder in group_reminders:
-                missed_status = ReminderStatusModel()
-                missed_status.status = "MISSED"
-                missed_status.reminder_id = reminder.id
-                logger.info(f"[Scheduler] Creating MISSED status for reminder {reminder.id}")
-                result = reminder_status_repo.add(missed_status)
-                logger.info(f"[Scheduler] MISSED status created: {result.id}")
+            # Always mark all reminders as MISSED — isolated per reminder
+            for snap in reminder_snapshots:
+                try:
+                    missed_status = ReminderStatusModel()
+                    missed_status._status = "MISSED"
+                    missed_status._reminder_id = snap["id"]
+                    db.add(missed_status)
+                    db.commit()
+                    logger.info(f"[Scheduler] MISSED status saved for reminder {snap['id']}")
 
-                if reminder.is_recurring:
-                    scheduled = schedule_next_occurrence(reminder, db)
-                    logger.info(f"[Scheduler] Next occurrence scheduled: {scheduled}")
+                    if snap["is_recurring"]:
+                        scheduled = schedule_next_occurrence(snap["reminder_obj"], db)
+                        logger.info(f"[Scheduler] Next occurrence scheduled: {scheduled}")
+                except Exception as e:
+                    logger.error(
+                        f"[Scheduler] Failed to mark reminder {snap['id']} as MISSED: {e}"
+                    )
+                    try:
+                        db.rollback()
+                    except Exception:
+                        pass
 
     except Exception as e:
         import traceback
