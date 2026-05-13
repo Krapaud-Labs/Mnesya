@@ -145,5 +145,6 @@ class ActivityLogEntry(BaseModel):
     user_first_name: str
     user_last_name: str
     occurred_at: datetime
+    is_medication: bool = False
 
     model_config = ConfigDict(from_attributes=True)
