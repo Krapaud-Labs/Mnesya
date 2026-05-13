@@ -246,6 +246,86 @@ def send_caregiver_escalations():
         db.close()
 
 
+def send_medication_daily_summary() -> None:
+    """Send a daily medication summary to caregivers at 20:00 UTC.
+
+    For each caregiver/user pair that has medication reminders today, sends
+    one notification listing each medication with its status icon:
+      ✓ taken  ✗ missed/unable  ↪ postponed  ⏳ pending
+    """
+    from app import SessionLocal
+    from collections import defaultdict
+
+    db: Session = SessionLocal()
+    try:
+        reminder_repo = ReminderRepository(db)
+        push_token_repo = PushTokenRepository(db)
+        notification_service = NotificationService()
+
+        reminders = reminder_repo.get_medication_reminders_today()
+        logger.info(f"[Scheduler] send_medication_daily_summary: {len(reminders)} med reminders today")
+
+        if not reminders:
+            return
+
+        # Group by (caregiver_id, user_id)
+        groups: dict = defaultdict(list)
+        for r in reminders:
+            groups[(r.caregiver_id, r.user_id)].append(r)
+
+        for (caregiver_id, user_id), group in groups.items():
+            token_objects = push_token_repo.get_active_tokens_by_caregiver(caregiver_id)
+            if not token_objects:
+                continue
+
+            token_strings = [t.token for t in token_objects]
+            locale = token_objects[0].locale if token_objects else "fr"
+            user_name = (
+                f"{getattr(group[0], 'user_first_name', '')} "
+                f"{getattr(group[0], 'user_last_name', '')}"
+            ).strip()
+
+            def status_icon(status: str | None) -> str:
+                if status in ("DONE",):
+                    return "✓"
+                if status in ("MISSED", "UNABLE"):
+                    return "✗"
+                if status == "POSTPONED":
+                    return "↪"
+                return "⏳"
+
+            lines = []
+            for r in group:
+                time_str = r.scheduled_at.astimezone(timezone.utc).strftime("%H:%M")
+                icon = status_icon(getattr(r, "current_status", None))
+                lines.append(f"{icon} {r.title} {time_str}")
+
+            if locale == "fr":
+                title = f"Bilan médicaments — {user_name}"
+                body = "  ·  ".join(lines)
+            else:
+                title = f"Medication summary — {user_name}"
+                body = "  ·  ".join(lines)
+
+            notification_service.send_notification(
+                tokens=token_strings,
+                title=title,
+                body=body,
+                data={"type": "medication_summary", "profile_id": str(user_id)},
+            )
+            logger.info(
+                f"[Scheduler] Medication summary sent for user {user_id} ({len(group)} med(s))"
+            )
+
+    except Exception as e:
+        import traceback
+        logger.error(
+            f"[Scheduler] Error in send_medication_daily_summary: {e}\n{traceback.format_exc()}"
+        )
+    finally:
+        db.close()
+
+
 def cleanup_revoked_tokens() -> None:
     """Delete revoked tokens older than 60 minutes (they are already expired)."""
     from app import SessionLocal
@@ -288,6 +368,12 @@ def start_scheduler():
         send_caregiver_escalations,
         CronTrigger(minute="*", second=0),
         id="send_caregiver_escalations",
+    )
+
+    my_scheduler.add_job(
+        send_medication_daily_summary,
+        CronTrigger(hour=20, minute=0),
+        id="send_medication_daily_summary",
     )
 
     my_scheduler.add_job(

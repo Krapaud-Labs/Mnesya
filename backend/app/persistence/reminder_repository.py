@@ -5,6 +5,7 @@ This module provides data access operations specific to Reminder entities.
 
 from typing import List
 from uuid import UUID
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from app.models.reminder import ReminderModel
 from app.models.reminder_status import ReminderStatusModel
@@ -213,13 +214,15 @@ class ReminderRepository(BaseRepository[ReminderModel]):
             ReminderStatusModel._status.in_(["DONE", "UNABLE", "MISSED"])
         )
 
-        # Return all unresolved reminders past the escalation threshold (within last 24h)
+        # Return all unresolved manual reminders past the escalation threshold (within last 24h)
+        # Medication reminders are excluded — they are handled by the daily summary job
         results = (
             self.db.query(self.model, UserModel._first_name, UserModel._last_name)
             .join(UserModel, self.model._user_id == UserModel._id)
             .filter(
                 self.model._scheduled_at <= escalate_after,
                 self.model._scheduled_at >= escalate_before,
+                self.model._medication_id.is_(None),
                 ~self.model._id.in_(resolved_ids),
             )
             .all()
@@ -228,3 +231,56 @@ class ReminderRepository(BaseRepository[ReminderModel]):
             reminder.user_first_name = first_name
             reminder.user_last_name = last_name
         return [r for r, _, _ in results]
+
+    def get_medication_reminders_today(self) -> List[ReminderModel]:
+        """Get all medication reminders scheduled today with their latest status.
+
+        Used by the daily summary job to build the caregiver notification.
+        Each returned object is enriched with user_first_name, user_last_name,
+        and current_status (latest status value, or None if no status yet).
+
+        Returns:
+            List[ReminderModel]: Today's medication reminders ordered by time.
+        """
+        now = datetime.now(timezone.utc)
+        today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        today_end = now.replace(hour=23, minute=59, second=59, microsecond=999999)
+
+        latest_sq = (
+            self.db.query(
+                ReminderStatusModel._reminder_id.label("rid"),
+                func.max(ReminderStatusModel._created_at).label("max_at"),
+            )
+            .group_by(ReminderStatusModel._reminder_id)
+            .subquery()
+        )
+
+        results = (
+            self.db.query(
+                self.model,
+                UserModel._first_name,
+                UserModel._last_name,
+                ReminderStatusModel._status,
+            )
+            .join(UserModel, self.model._user_id == UserModel._id)
+            .outerjoin(latest_sq, self.model._id == latest_sq.c.rid)
+            .outerjoin(
+                ReminderStatusModel,
+                (ReminderStatusModel._reminder_id == self.model._id)
+                & (ReminderStatusModel._created_at == latest_sq.c.max_at),
+            )
+            .filter(
+                self.model._medication_id.isnot(None),
+                self.model._scheduled_at >= today_start,
+                self.model._scheduled_at <= today_end,
+            )
+            .order_by(self.model._scheduled_at.asc())
+            .all()
+        )
+
+        for reminder, first_name, last_name, status in results:
+            reminder.user_first_name = first_name
+            reminder.user_last_name = last_name
+            reminder.current_status = status
+
+        return [r for r, _, _, _ in results]
