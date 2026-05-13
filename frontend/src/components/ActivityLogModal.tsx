@@ -215,32 +215,20 @@ const ActivityLogModal: React.FC<ActivityLogModalProps> = ({
         <View style={styles.filtersContainer}>
             {/* Type filter */}
             <View style={styles.typeFilterRow}>
-                {(['ALL', 'REMINDER', 'MEDICATION'] as EntryType[]).map(type => {
+                {([
+                    { type: 'ALL',        icon: 'layers-outline',  color: '#888888' },
+                    { type: 'REMINDER',   icon: 'alarm-outline',   color: '#4A90E2' },
+                    { type: 'MEDICATION', icon: 'medkit-outline',  color: '#9C27B0' },
+                ] as { type: EntryType; icon: keyof typeof Ionicons.glyphMap; color: string }[]).map(({ type, icon, color }) => {
                     const isActive = activeType === type;
-                    const icon = type === 'MEDICATION' ? 'medkit-outline' : type === 'REMINDER' ? 'alarm-outline' : null;
-                    const labelKey = type === 'ALL'
-                        ? 'dashboard.activityLog.typeAll'
-                        : type === 'REMINDER'
-                        ? 'dashboard.activityLog.typeReminder'
-                        : 'dashboard.activityLog.typeMedication';
-                    const color = type === 'MEDICATION' ? '#9C27B0' : '#4A90E2';
                     return (
                         <TouchableOpacity
                             key={type}
-                            style={[styles.typeChip, isActive && { backgroundColor: color, borderColor: color }]}
+                            style={[styles.typeIconBtn, isActive && { backgroundColor: color, borderColor: color }]}
                             onPress={() => setActiveType(type)}
                             activeOpacity={0.7}
                         >
-                            {icon && (
-                                <Ionicons
-                                    name={icon}
-                                    size={13}
-                                    color={isActive ? '#FFFFFF' : color}
-                                />
-                            )}
-                            <Text style={[styles.typeChipText, { color: isActive ? '#FFFFFF' : color }]}>
-                                {t(labelKey)}
-                            </Text>
+                            <Ionicons name={icon} size={18} color={isActive ? '#FFFFFF' : color} />
                         </TouchableOpacity>
                     );
                 })}
@@ -443,23 +431,18 @@ const styles = StyleSheet.create({
     },
     typeFilterRow: {
         flexDirection: 'row',
-        gap: 6,
+        gap: 8,
+        justifyContent: 'center',
     },
-    typeChip: {
-        flex: 1,
-        flexDirection: 'row',
+    typeIconBtn: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 4,
-        paddingVertical: 6,
-        borderRadius: 20,
         borderWidth: 1.5,
         borderColor: '#DDDDDD',
         backgroundColor: 'transparent',
-    },
-    typeChipText: {
-        fontSize: 12,
-        fontWeight: '600',
     },
     statusFilterRow: {
         flexDirection: 'row',
