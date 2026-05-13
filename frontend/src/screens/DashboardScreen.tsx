@@ -181,7 +181,7 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
                         }}
                     >
                         <Text style={styles.reminderButtonPlus}>+</Text>
-                        <Ionicons name="alarm-outline" size={22} color="#FFFFFF" />
+                        <Ionicons name="alarm-outline" size={26} color="#FFFFFF" />
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.actionButton}
@@ -339,6 +339,7 @@ const styles = StyleSheet.create({
         fontSize: 13,
         fontWeight: '700',
         lineHeight: 14,
+        marginRight: -2,
     },
     scrollContainer: {
         flex: 1,
