@@ -17,6 +17,7 @@ from sqlalchemy.orm import Session
 from app.persistence.reminder_repository import ReminderRepository
 from app.persistence.push_token_repository import PushTokenRepository
 from app.persistence.reminder_status_repository import ReminderStatusRepository
+from app.persistence.escalation_log_repository import EscalationLogRepository
 from app.services.notification_services import NotificationService
 from app.persistence.revoked_token_repository import RevokedTokenRepository
 from app.services.reminder_facade import schedule_next_occurrence
@@ -111,17 +112,22 @@ def send_user_retry(offset_minutes: int) -> None:
 def send_caregiver_escalations():
     """Escalate unconfirmed reminders to the caregiver (T+10).
 
-    Queries reminders that are still pending 10 minutes after their scheduled
-    time and sends a localized alert to the caregiver's registered devices.
-    The notification language is determined by the caregiver's device locale.
+    Reminders are grouped by (caregiver_id, user_id) so the caregiver receives
+    one notification per user per tick instead of one per reminder.
+    A 30-minute cooldown per (caregiver_id, user_id) pair prevents spam across
+    successive scheduler ticks (e.g. retry cycles or multiple simultaneous reminders).
+    All reminders in the batch are always marked MISSED regardless of the cooldown.
     """
     from app import SessionLocal
+    from collections import defaultdict
+    from app.models.reminder_status import ReminderStatusModel
 
     db: Session = SessionLocal()
     try:
         reminder_repo = ReminderRepository(db)
         push_token_repo = PushTokenRepository(db)
         reminder_status_repo = ReminderStatusRepository(db)
+        escalation_log_repo = EscalationLogRepository(db)
         notification_service = NotificationService()
 
         reminders = reminder_repo.get_reminders_to_escalate()
@@ -129,49 +135,74 @@ def send_caregiver_escalations():
             f"[Scheduler] send_caregiver_escalations: {len(reminders)} reminders to escalate"
         )
 
+        # Group by (caregiver_id, user_id) — one notification per user per tick
+        groups: dict = defaultdict(list)
         for reminder in reminders:
-            token_objects = push_token_repo.get_active_tokens_by_caregiver(
-                reminder.caregiver_id
+            groups[(reminder.caregiver_id, reminder.user_id)].append(reminder)
+
+        for (caregiver_id, user_id), group_reminders in groups.items():
+            token_objects = push_token_repo.get_active_tokens_by_caregiver(caregiver_id)
+
+            in_cooldown = escalation_log_repo.was_recently_escalated(
+                caregiver_id, user_id, cooldown_minutes=30
             )
 
-            # Send notification to caregiver only if they have registered tokens
-            if token_objects:
+            if token_objects and not in_cooldown:
                 token_strings = [t.token for t in token_objects]
-                my_locale = token_objects[0].locale if token_objects else "fr"
+                locale = token_objects[0].locale if token_objects else "fr"
+                user_name = (
+                    f"{getattr(group_reminders[0], 'user_first_name', '')} "
+                    f"{getattr(group_reminders[0], 'user_last_name', '')}"
+                ).strip()
+                count = len(group_reminders)
 
-                user_name = f"{getattr(reminder, 'user_first_name', '')} {getattr(reminder, 'user_last_name', '')}".strip()
-                if my_locale == "fr":
-                    my_title = "⚠️ Alerte Mnesya"
-                    my_body = f"{user_name} n'a pas répondu à : {reminder.title}"
+                if locale == "fr":
+                    title = "⚠️ Alerte Mnesya"
+                    if count == 1:
+                        body = f"{user_name} n'a pas répondu à : {group_reminders[0].title}"
+                    else:
+                        titles = ", ".join(r.title for r in group_reminders[:3])
+                        suffix = f" et {count - 3} autre(s)" if count > 3 else ""
+                        body = f"{user_name} n'a pas répondu à {count} rappels : {titles}{suffix}"
                 else:
-                    my_title = "⚠️ Mnesya Alert"
-                    my_body = f"{user_name} has not responded to: {reminder.title}"
+                    title = "⚠️ Mnesya Alert"
+                    if count == 1:
+                        body = f"{user_name} has not responded to: {group_reminders[0].title}"
+                    else:
+                        titles = ", ".join(r.title for r in group_reminders[:3])
+                        suffix = f" and {count - 3} other(s)" if count > 3 else ""
+                        body = f"{user_name} has not responded to {count} reminders: {titles}{suffix}"
 
                 notification_service.send_notification(
                     tokens=token_strings,
-                    title=my_title,
-                    body=my_body,
-                    data={"type": "caregiver_alert", "reminder_id": str(reminder.id), "profile_id": str(reminder.user_id)},
+                    title=title,
+                    body=body,
+                    data={"type": "caregiver_alert", "profile_id": str(user_id)},
+                )
+                escalation_log_repo.log_escalation(caregiver_id, user_id, count)
+                logger.info(
+                    f"[Scheduler] Escalation sent for user {user_id} ({count} reminder(s))"
+                )
+            elif in_cooldown:
+                logger.info(
+                    f"[Scheduler] Cooldown active for user {user_id}, skipping notification"
                 )
 
-            # Always mark reminder as MISSED, even if no caregiver token exists
-            from app.models.reminder_status import ReminderStatusModel
+            # Always mark all reminders as MISSED
+            for reminder in group_reminders:
+                missed_status = ReminderStatusModel()
+                missed_status.status = "MISSED"
+                missed_status.reminder_id = reminder.id
+                logger.info(f"[Scheduler] Creating MISSED status for reminder {reminder.id}")
+                result = reminder_status_repo.add(missed_status)
+                logger.info(f"[Scheduler] MISSED status created: {result.id}")
 
-            missed_status = ReminderStatusModel()
-            missed_status.status = "MISSED"
-            missed_status.reminder_id = reminder.id
-            logger.info(
-                f"[Scheduler] Creating MISSED status for reminder {reminder.id}"
-            )
-            result = reminder_status_repo.add(missed_status)
-            logger.info(f"[Scheduler] MISSED status created: {result.id}")
+                if reminder.is_recurring:
+                    scheduled = schedule_next_occurrence(reminder, db)
+                    logger.info(f"[Scheduler] Next occurrence scheduled: {scheduled}")
 
-            if reminder.is_recurring:
-                scheduled = schedule_next_occurrence(reminder, db)
-                logger.info(f"[Scheduler] Next occurrence scheduled: {scheduled}")
     except Exception as e:
         import traceback
-
         logger.error(
             f"[Scheduler] Error in send_caregiver_escalations: {e}\n{traceback.format_exc()}"
         )
