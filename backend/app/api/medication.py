@@ -151,7 +151,7 @@ def _build_response(medication: MedicationModel) -> MedicationResponse:
         user_id=medication.user_id,
         name=medication.name,
         dosage=medication.dosage,
-        times=medication.times,
+        moments=medication.moments,
         frequency=medication.frequency,
         recurrence_days=medication.recurrence_days,
         start_date=medication.start_date,

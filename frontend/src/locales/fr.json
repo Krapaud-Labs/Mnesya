@@ -205,11 +205,12 @@
         "fields": {
             "For Profile": "Destinataire",
             "Reminder Title": "Titre du Rappel",
+            "Message": "Message",
             "Time": "Heure",
             "scheduling": "Programmation"
         },
         "placeholders": {
-            "Ex. : Take Medication": "Ex : Prendre les médicaments",
+            "Ex. : Take Medication": "Ex : Sieste, appel famille...",
             "Enter the description about your reminder": "Entrer la description à propos de votre rappel"
         },
         "buttons": {
@@ -426,9 +427,18 @@
             "dosage": "Dosage (optionnel)",
             "frequency": "Fréquence",
             "days": "Jours de prise",
-            "times": "Horaires",
+            "moments": "Moment de prise",
             "startDate": "Date de début",
             "endDate": "Date de fin (optionnel)"
+        },
+        "moments": {
+            "BEFORE_BREAKFAST": "Avant le petit-déj.",
+            "AFTER_BREAKFAST": "Après le petit-déj.",
+            "BEFORE_LUNCH": "Avant le déjeuner",
+            "AFTER_LUNCH": "Après le déjeuner",
+            "BEFORE_DINNER": "Avant le dîner",
+            "AFTER_DINNER": "Après le dîner",
+            "BEDTIME": "Au coucher"
         },
         "placeholders": {
             "name": "Ex : Doliprane",
@@ -450,7 +460,7 @@
         "errors": {
             "failedToLoad": "Impossible de charger les médicaments",
             "nameRequired": "Le nom du médicament est requis",
-            "timesRequired": "Ajoutez au moins un horaire",
+            "momentsRequired": "Sélectionnez au moins un moment de prise",
             "daysRequired": "Sélectionnez au moins un jour"
         },
         "deleteModal": {

@@ -259,14 +259,16 @@ const CaregiverPillulierScreen: React.FC<Props> = ({ navigation }) => {
                                     </View>
 
                                     <View style={styles.timesRow}>
-                                        {med.times.map((time) => (
-                                            <View key={time} style={styles.timeBadge}>
+                                        {med.moments.map((moment) => (
+                                            <View key={moment} style={styles.timeBadge}>
                                                 <Ionicons
-                                                    name="time-outline"
+                                                    name="restaurant-outline"
                                                     size={12}
                                                     color="#4A90E2"
                                                 />
-                                                <Text style={styles.timeBadgeText}>{time}</Text>
+                                                <Text style={styles.timeBadgeText}>
+                                                    {t(`medication.moments.${moment}`, { defaultValue: moment })}
+                                                </Text>
                                             </View>
                                         ))}
                                     </View>

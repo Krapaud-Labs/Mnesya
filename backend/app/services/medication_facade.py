@@ -3,6 +3,17 @@ from typing import List, Optional
 from uuid import UUID
 from sqlalchemy.orm import Session
 
+MOMENT_TO_TIME = {
+    "BEFORE_BREAKFAST": "07:30",
+    "AFTER_BREAKFAST":  "08:30",
+    "BEFORE_LUNCH":     "11:45",
+    "AFTER_LUNCH":      "13:00",
+    "BEFORE_DINNER":    "18:30",
+    "AFTER_DINNER":     "20:00",
+    "BEDTIME":          "21:30",
+}
+TIME_TO_MOMENT = {v: k for k, v in MOMENT_TO_TIME.items()}
+
 from app.models.medication import MedicationModel
 from app.models.reminder import ReminderModel
 from app.models.reminder_status import ReminderStatusModel
@@ -14,7 +25,7 @@ from app.schemas.medication_schema import WeekResponse, WeekDayResponse, WeekEnt
 
 
 def _first_occurrence(start_date: date, time_str: str, frequency: str,
-                      recurrence_days: Optional[List[int]]) -> datetime:
+                      recurrence_days: Optional[List[int]], tz=timezone.utc) -> datetime:
     """Compute the first scheduled_at for a medication occurrence on or after today."""
     hour, minute = map(int, time_str.split(':'))
     now = datetime.now(timezone.utc)
@@ -65,7 +76,7 @@ class MedicationFacade:
         medication.user_id = data['user_id']
         medication.name = data['name']
         medication.dosage = data.get('dosage')
-        medication.times = data['times']
+        medication.moments = data['moments']
         medication.frequency = data['frequency']
         medication.recurrence_days = data.get('recurrence_days')
         medication.start_date = data['start_date']
@@ -88,7 +99,7 @@ class MedicationFacade:
         if not medication:
             return None
 
-        schedule_fields = {'times', 'frequency', 'recurrence_days', 'start_date', 'end_date'}
+        schedule_fields = {'moments', 'frequency', 'recurrence_days', 'start_date', 'end_date'}
         schedule_changed = bool(schedule_fields & set(data.keys()))
 
         self.medication_repo.update(medication_id, data)
@@ -127,12 +138,13 @@ class MedicationFacade:
                 reminders = self.medication_repo.get_reminders_for_medication(med.id)
                 for reminder in reminders:
                     time_str = reminder.scheduled_at.astimezone(timezone.utc).strftime('%H:%M')
+                    moment = TIME_TO_MOMENT.get(time_str, time_str)
                     status = self._resolve_status(reminder, target)
                     entries.append(WeekEntryResponse(
                         medication_id=med.id,
                         name=med.name,
                         dosage=med.dosage,
-                        time=time_str,
+                        moment=moment,
                         reminder_id=reminder.id,
                         status=status,
                     ))
@@ -145,7 +157,8 @@ class MedicationFacade:
     # ==================== PRIVATE ====================
 
     def _generate_reminders(self, medication: MedicationModel) -> None:
-        for time_str in medication.times:
+        for moment in medication.moments:
+            time_str = MOMENT_TO_TIME[moment]
             scheduled_at = _first_occurrence(
                 medication.start_date, time_str,
                 medication.frequency, medication.recurrence_days

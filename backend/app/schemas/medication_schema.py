@@ -5,14 +5,20 @@ from uuid import UUID
 from typing import List, Optional
 
 _HTML_RE = re.compile(r"[<>\"'&]")
-_TIME_RE = re.compile(r'^\d{2}:\d{2}$')
+
+VALID_MOMENTS = {
+    "BEFORE_BREAKFAST", "AFTER_BREAKFAST",
+    "BEFORE_LUNCH", "AFTER_LUNCH",
+    "BEFORE_DINNER", "AFTER_DINNER",
+    "BEDTIME",
+}
 
 
 class MedicationCreate(BaseModel):
     user_id: UUID
     name: str = Field(..., min_length=1, max_length=200)
     dosage: Optional[str] = Field(None, max_length=200)
-    times: List[str] = Field(..., min_length=1)
+    moments: List[str] = Field(..., min_length=1)
     frequency: str
     recurrence_days: Optional[List[int]] = None
     start_date: date
@@ -38,14 +44,14 @@ class MedicationCreate(BaseModel):
             raise ValueError("dosage must not contain HTML characters")
         return value
 
-    @field_validator('times')
+    @field_validator('moments')
     @classmethod
-    def validate_times(cls, value: List[str]) -> List[str]:
+    def validate_moments(cls, value: List[str]) -> List[str]:
         if not value:
-            raise ValueError("times must not be empty")
-        for t in value:
-            if not _TIME_RE.match(t):
-                raise ValueError(f"Invalid time format: {t}. Expected HH:MM")
+            raise ValueError("moments must not be empty")
+        for m in value:
+            if m not in VALID_MOMENTS:
+                raise ValueError(f"Invalid moment: {m}")
         return value
 
     @field_validator('frequency')
@@ -77,7 +83,7 @@ class MedicationCreate(BaseModel):
 class MedicationUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=1, max_length=200)
     dosage: Optional[str] = Field(None, max_length=200)
-    times: Optional[List[str]] = None
+    moments: Optional[List[str]] = None
     frequency: Optional[str] = None
     recurrence_days: Optional[List[int]] = None
     start_date: Optional[date] = None
@@ -93,14 +99,14 @@ class MedicationUpdate(BaseModel):
             raise ValueError("name must not contain HTML characters")
         return value
 
-    @field_validator('times')
+    @field_validator('moments')
     @classmethod
-    def validate_times(cls, value: Optional[List[str]]) -> Optional[List[str]]:
+    def validate_moments(cls, value: Optional[List[str]]) -> Optional[List[str]]:
         if value is None:
             return None
-        for t in value:
-            if not _TIME_RE.match(t):
-                raise ValueError(f"Invalid time format: {t}. Expected HH:MM")
+        for m in value:
+            if m not in VALID_MOMENTS:
+                raise ValueError(f"Invalid moment: {m}")
         return value
 
     @field_validator('frequency')
@@ -117,7 +123,7 @@ class MedicationResponse(BaseModel):
     user_id: UUID
     name: str
     dosage: Optional[str]
-    times: List[str]
+    moments: List[str]
     frequency: str
     recurrence_days: Optional[List[int]]
     start_date: date
@@ -130,7 +136,7 @@ class WeekEntryResponse(BaseModel):
     medication_id: UUID
     name: str
     dosage: Optional[str]
-    time: str
+    moment: str
     reminder_id: Optional[UUID]
     status: Optional[str]
 

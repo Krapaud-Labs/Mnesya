@@ -21,7 +21,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../types/index';
 import { commonStyles } from '../styles/commonStyles';
-import { PlatformDatePicker, PlatformTimePicker, ConfirmationModal } from '../components';
+import { PlatformDatePicker, ConfirmationModal } from '../components';
 import { createMedication } from '../services/medicationService';
 import { formatDate } from '../utils/recurrenceUtils';
 
@@ -31,13 +31,15 @@ type Props = NativeStackScreenProps<RootStackParamList, 'CreateMedication'>;
 
 type Frequency = 'DAILY' | 'WEEKLY';
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-function toHHMM(date: Date): string {
-    const h = String(date.getHours()).padStart(2, '0');
-    const m = String(date.getMinutes()).padStart(2, '0');
-    return `${h}:${m}`;
-}
+const ALL_MOMENTS = [
+    'BEFORE_BREAKFAST',
+    'AFTER_BREAKFAST',
+    'BEFORE_LUNCH',
+    'AFTER_LUNCH',
+    'BEFORE_DINNER',
+    'AFTER_DINNER',
+    'BEDTIME',
+] as const;
 
 // ─── Screen ──────────────────────────────────────────────────────────────────
 
@@ -51,20 +53,19 @@ const CreateMedicationScreen: React.FC<Props> = ({ navigation, route }) => {
     const [dosage, setDosage] = useState('');
     const [frequency, setFrequency] = useState<Frequency>('DAILY');
     const [recurrenceDays, setRecurrenceDays] = useState<number[]>([]);
-    const [times, setTimes] = useState<Date[]>([new Date()]);
+    const [selectedMoments, setSelectedMoments] = useState<string[]>([]);
     const [startDate, setStartDate] = useState<Date>(new Date());
     const [endDate, setEndDate] = useState<Date | null>(null);
 
     // Picker visibility
     const [showStartDatePicker, setShowStartDatePicker] = useState(false);
     const [showEndDatePicker, setShowEndDatePicker] = useState(false);
-    const [activeTimePicker, setActiveTimePicker] = useState<number | null>(null);
 
     // UI state
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [nameError, setNameError] = useState('');
-    const [timesError, setTimesError] = useState('');
+    const [momentsError, setMomentsError] = useState('');
     const [daysError, setDaysError] = useState('');
 
     const DAY_SHORTS = ['L', 'M', 'Me', 'J', 'V', 'S', 'D'];
@@ -77,16 +78,12 @@ const CreateMedicationScreen: React.FC<Props> = ({ navigation, route }) => {
         );
     };
 
-    const addTime = () => {
-        if (times.length >= 6) return;
+    const toggleMoment = (moment: string) => {
+        setMomentsError('');
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        setTimes((prev) => [...prev, new Date()]);
-    };
-
-    const removeTime = (index: number) => {
-        if (times.length <= 1) return;
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        setTimes((prev) => prev.filter((_, i) => i !== index));
+        setSelectedMoments((prev) =>
+            prev.includes(moment) ? prev.filter((m) => m !== moment) : [...prev, moment]
+        );
     };
 
     const handleSave = () => {
@@ -99,11 +96,11 @@ const CreateMedicationScreen: React.FC<Props> = ({ navigation, route }) => {
             setNameError('');
         }
 
-        if (times.length === 0) {
-            setTimesError(t('medication.errors.timesRequired'));
+        if (selectedMoments.length === 0) {
+            setMomentsError(t('medication.errors.momentsRequired'));
             hasError = true;
         } else {
-            setTimesError('');
+            setMomentsError('');
         }
 
         if (frequency === 'WEEKLY' && recurrenceDays.length === 0) {
@@ -130,7 +127,7 @@ const CreateMedicationScreen: React.FC<Props> = ({ navigation, route }) => {
                 user_id: userId,
                 name: name.trim(),
                 dosage: dosage.trim() || undefined,
-                times: times.map(toHHMM),
+                moments: selectedMoments,
                 frequency,
                 recurrence_days: frequency === 'WEEKLY' ? recurrenceDays : undefined,
                 start_date: startDate.toISOString().split('T')[0],
@@ -249,37 +246,26 @@ const CreateMedicationScreen: React.FC<Props> = ({ navigation, route }) => {
                     </>
                 )}
 
-                {/* Horaires */}
-                <View style={styles.timesHeader}>
-                    <Text style={styles.label}>{t('medication.fields.times')}</Text>
-                    <TouchableOpacity onPress={addTime} disabled={times.length >= 6}>
-                        <Ionicons
-                            name="add-circle-outline"
-                            size={24}
-                            color={times.length >= 6 ? '#CCCCCC' : '#4A90E2'}
-                        />
-                    </TouchableOpacity>
-                </View>
-                {timesError ? <Text style={styles.errorText}>{timesError}</Text> : null}
-                {times.map((t_date, index) => (
-                    <View key={index} style={styles.timeRow}>
-                        <TouchableOpacity
-                            style={styles.timePicker}
-                            onPress={() => setActiveTimePicker(index)}
-                        >
-                            <Ionicons name="time-outline" size={18} color="#4A90E2" />
-                            <Text style={styles.timeText}>{toHHMM(t_date)}</Text>
-                        </TouchableOpacity>
-                        {times.length > 1 && (
+                {/* Moments de prise */}
+                <Text style={styles.label}>{t('medication.fields.moments')}</Text>
+                {momentsError ? <Text style={styles.errorText}>{momentsError}</Text> : null}
+                <View style={styles.momentsGrid}>
+                    {ALL_MOMENTS.map((moment) => {
+                        const active = selectedMoments.includes(moment);
+                        return (
                             <TouchableOpacity
-                                onPress={() => removeTime(index)}
-                                style={styles.removeTimeBtn}
+                                key={moment}
+                                style={[styles.momentChip, active && styles.momentChipActive]}
+                                onPress={() => toggleMoment(moment)}
+                                activeOpacity={0.7}
                             >
-                                <Ionicons name="close-circle-outline" size={22} color="#FF3B30" />
+                                <Text style={[styles.momentChipText, active && styles.momentChipTextActive]}>
+                                    {t(`medication.moments.${moment}`)}
+                                </Text>
                             </TouchableOpacity>
-                        )}
-                    </View>
-                ))}
+                        );
+                    })}
+                </View>
 
                 {/* Date de début */}
                 <Text style={styles.label}>{t('medication.fields.startDate')}</Text>
@@ -346,19 +332,6 @@ const CreateMedicationScreen: React.FC<Props> = ({ navigation, route }) => {
                 visible={showEndDatePicker}
                 onClose={() => setShowEndDatePicker(false)}
             />
-            {times.map((t_date, index) => (
-                <PlatformTimePicker
-                    key={index}
-                    value={t_date}
-                    onChange={(d) =>
-                        setTimes((prev) => prev.map((t, i) => (i === index ? d : t)))
-                    }
-                    visible={activeTimePicker === index}
-                    onClose={() => setActiveTimePicker(null)}
-                    allowPastTime
-                />
-            ))}
-
             {/* Confirmation */}
             <ConfirmationModal
                 visible={showConfirmModal}
@@ -456,36 +429,32 @@ const styles = StyleSheet.create({
     dayChipTextActive: {
         color: '#FFFFFF',
     },
-    timesHeader: {
+    momentsGrid: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginTop: 10,
-        marginBottom: 4,
-    },
-    timeRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexWrap: 'wrap',
         gap: 8,
-        marginBottom: 6,
+        marginTop: 4,
     },
-    timePicker: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
-        backgroundColor: '#F5F5F5',
-        borderRadius: 14,
+    momentChip: {
         paddingHorizontal: 14,
-        paddingVertical: 10,
+        paddingVertical: 9,
+        borderRadius: 20,
+        backgroundColor: '#F0F0F0',
+        borderWidth: 1.5,
+        borderColor: 'transparent',
     },
-    timeText: {
-        fontSize: 16,
+    momentChipActive: {
+        backgroundColor: '#EBF3FD',
+        borderColor: '#4A90E2',
+    },
+    momentChipText: {
+        fontSize: 13,
+        fontWeight: '500',
+        color: '#666666',
+    },
+    momentChipTextActive: {
+        color: '#4A90E2',
         fontWeight: '600',
-        color: '#333333',
-    },
-    removeTimeBtn: {
-        padding: 4,
     },
     datePicker: {
         flexDirection: 'row',

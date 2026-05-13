@@ -177,7 +177,7 @@ export interface MedicationData {
     user_id: string;
     name: string;
     dosage?: string;
-    times: string[];
+    moments: string[];
     frequency: 'DAILY' | 'WEEKLY';
     recurrence_days?: number[];
     start_date: string;
@@ -189,7 +189,7 @@ export interface CreateMedication {
     user_id: string;
     name: string;
     dosage?: string;
-    times: string[];
+    moments: string[];
     frequency: 'DAILY' | 'WEEKLY';
     recurrence_days?: number[];
     start_date: string;
@@ -201,7 +201,7 @@ export interface WeekEntry {
     medication_id: string;
     name: string;
     dosage?: string;
-    time: string;
+    moment: string;
     reminder_id: string;
     status?: string;
 }
