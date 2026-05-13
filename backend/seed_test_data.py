@@ -3,9 +3,9 @@
 Creates:
   - 1 caregiver   : marie@test.com / Test1234!
   - 1 user        : Jessica Martin (born 1945-03-12)
-  - 2 medications : Doliprane 500mg (daily 08:00) + Metformine 850mg (daily 12:00 & 20:00)
+  - 2 medications : Doliprane 500mg (AFTER_BREAKFAST) + Metformine 850mg (AFTER_LUNCH & AFTER_DINNER)
   - 3 manual reminders : Sieste, Appel famille, Promenade
-  - ~20 reminder_status spread over the last 7 days (DONE / POSTPONED / UNABLE / MISSED)
+  - ~9 reminder_status spread over the last 5 days (DONE / POSTPONED / UNABLE / MISSED)
 
 Usage (inside the Docker container):
     python /app/seed_test_data.py
@@ -106,7 +106,7 @@ def seed() -> None:
         doliprane._user_id = user._id
         doliprane._name = "Doliprane"
         doliprane._dosage = "500mg"
-        doliprane._times = ["08:00"]
+        doliprane._moments = ["AFTER_BREAKFAST"]
         doliprane._frequency = "DAILY"
         doliprane._recurrence_days = None
         doliprane._start_date = date.today() - timedelta(days=10)
@@ -118,7 +118,7 @@ def seed() -> None:
         metformine._user_id = user._id
         metformine._name = "Metformine"
         metformine._dosage = "850mg"
-        metformine._times = ["12:00", "20:00"]
+        metformine._moments = ["AFTER_LUNCH", "AFTER_DINNER"]
         metformine._frequency = "DAILY"
         metformine._recurrence_days = None
         metformine._start_date = date.today() - timedelta(days=10)
@@ -169,7 +169,7 @@ def seed() -> None:
     print("  Caregiver : marie@test.com / Test1234!")
     print("  User      : Jessica Martin")
     print("  Rappels   : Sieste, Appel famille, Promenade")
-    print("  Médicaments: Doliprane 500mg, Metformine 850mg")
+    print("  Médicaments: Doliprane 500mg (après petit-déj.), Metformine 850mg (après déj. & dîner)")
     print("  Statuts   : 9 entrées sur 5 jours différents")
 
 
