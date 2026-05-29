@@ -113,12 +113,12 @@ def verify_docs_credentials(
 
 def create_app():
     """Create and configure the FastAPI application.
-    
+
     Sets up the FastAPI application with:
     - CORS middleware for cross-origin requests
-    - Protected API documentation endpoints (Swagger and ReDoc)
+    - API documentation endpoints only in development (APP_ENV=development)
     - Application lifecycle management
-    
+
     Returns:
         FastAPI: Configured FastAPI application instance
     """
@@ -137,40 +137,25 @@ def create_app():
         allow_headers=["Content-Type", "Authorization"],
     )
 
-    @app.get("/openapi.json", include_in_schema=False)
-    async def protected_openapi(
-            credentials: HTTPBasicCredentials = Depends(security)):
-        verify_docs_credentials(credentials)
-        return app.openapi()
+    if os.environ.get("APP_ENV") == "development":
+        @app.get("/openapi.json", include_in_schema=False)
+        async def protected_openapi(
+                credentials: HTTPBasicCredentials = Depends(security)):
+            verify_docs_credentials(credentials)
+            return app.openapi()
 
-    @app.get("/docs", include_in_schema=False)
-    async def custom_swagger(
-            credentials: HTTPBasicCredentials = Depends(security)):
-        """Protected Swagger UI endpoint.
-        
-        Args:
-            credentials (HTTPBasicCredentials): HTTP Basic credentials
-            
-        Returns:
-            HTMLResponse: Swagger UI HTML page
-        """
-        verify_docs_credentials(credentials)
-        return get_swagger_ui_html(
-            openapi_url="/openapi.json", title="Mnesya API Docs")
+        @app.get("/docs", include_in_schema=False)
+        async def custom_swagger(
+                credentials: HTTPBasicCredentials = Depends(security)):
+            verify_docs_credentials(credentials)
+            return get_swagger_ui_html(
+                openapi_url="/openapi.json", title="Mnesya API Docs")
 
-    @app.get("/redoc", include_in_schema=False)
-    async def custom_redoc(
-            credentials: HTTPBasicCredentials = Depends(security)):
-        """Protected ReDoc endpoint.
-        
-        Args:
-            credentials (HTTPBasicCredentials): HTTP Basic credentials
-            
-        Returns:
-            HTMLResponse: ReDoc HTML page
-        """
-        verify_docs_credentials(credentials)
-        return get_redoc_html(openapi_url="/openapi.json",
-                              title="Mnesya API ReDoc")
+        @app.get("/redoc", include_in_schema=False)
+        async def custom_redoc(
+                credentials: HTTPBasicCredentials = Depends(security)):
+            verify_docs_credentials(credentials)
+            return get_redoc_html(openapi_url="/openapi.json",
+                                  title="Mnesya API ReDoc")
 
     return app
