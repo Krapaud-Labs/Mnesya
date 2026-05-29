@@ -122,11 +122,14 @@ def create_app():
     Returns:
         FastAPI: Configured FastAPI application instance
     """
+    is_dev = os.environ.get("APP_ENV") == "development"
     app = FastAPI(
         title="Mnesya app",
         lifespan=lifespan,
         docs_url=None,
-        redoc_url=None)
+        redoc_url=None,
+        openapi_url="/openapi.json" if is_dev else None,
+    )
 
     app.add_middleware(SecurityHeadersMiddleware)
     app.add_middleware(
