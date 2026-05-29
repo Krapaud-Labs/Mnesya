@@ -4,13 +4,16 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 
 MOMENT_TO_TIME = {
-    "BEFORE_BREAKFAST": "07:30",
-    "AFTER_BREAKFAST":  "08:30",
-    "BEFORE_LUNCH":     "11:45",
-    "AFTER_LUNCH":      "13:00",
-    "BEFORE_DINNER":    "18:30",
-    "AFTER_DINNER":     "20:00",
-    "BEDTIME":          "21:30",
+    "BEFORE_BREAKFAST":  "07:30",
+    "DURING_BREAKFAST":  "08:00",
+    "AFTER_BREAKFAST":   "08:30",
+    "BEFORE_LUNCH":      "11:45",
+    "DURING_LUNCH":      "12:15",
+    "AFTER_LUNCH":       "13:00",
+    "BEFORE_DINNER":     "18:30",
+    "DURING_DINNER":     "19:15",
+    "AFTER_DINNER":      "20:00",
+    "BEDTIME":           "21:30",
 }
 TIME_TO_MOMENT = {v: k for k, v in MOMENT_TO_TIME.items()}
 

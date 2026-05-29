@@ -433,10 +433,13 @@
         },
         "moments": {
             "BEFORE_BREAKFAST": "Before breakfast",
+            "DURING_BREAKFAST": "During breakfast",
             "AFTER_BREAKFAST": "After breakfast",
             "BEFORE_LUNCH": "Before lunch",
+            "DURING_LUNCH": "During lunch",
             "AFTER_LUNCH": "After lunch",
             "BEFORE_DINNER": "Before dinner",
+            "DURING_DINNER": "During dinner",
             "AFTER_DINNER": "After dinner",
             "BEDTIME": "At bedtime"
         },

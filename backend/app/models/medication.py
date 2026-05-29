@@ -80,9 +80,9 @@ class MedicationModel(database):
         self._dosage = value
 
     VALID_MOMENTS = {
-        "BEFORE_BREAKFAST", "AFTER_BREAKFAST",
-        "BEFORE_LUNCH", "AFTER_LUNCH",
-        "BEFORE_DINNER", "AFTER_DINNER",
+        "BEFORE_BREAKFAST", "DURING_BREAKFAST", "AFTER_BREAKFAST",
+        "BEFORE_LUNCH", "DURING_LUNCH", "AFTER_LUNCH",
+        "BEFORE_DINNER", "DURING_DINNER", "AFTER_DINNER",
         "BEDTIME",
     }
 

@@ -119,22 +119,28 @@ def send_user_retry(offset_minutes: int) -> None:
 def _build_meal_message(moment: str, med_names: list, locale: str) -> tuple:
     """Return (title, body) for a meal-moment medication reminder."""
     MESSAGES_FR = {
-        "BEFORE_BREAKFAST": ("🌅 Petit-déjeuner", "Pensez à prendre {meds} avant de petit-déjeuner"),
-        "AFTER_BREAKFAST":  ("🌅 Après le petit-déjeuner", "N'oubliez pas {meds} après le petit-déjeuner"),
-        "BEFORE_LUNCH":     ("🍽️ Bientôt l'heure du midi", "Pensez à prendre {meds} avant le déjeuner"),
-        "AFTER_LUNCH":      ("🍽️ Après le déjeuner", "N'oubliez pas {meds} après le déjeuner"),
-        "BEFORE_DINNER":    ("🌆 Repas du soir", "Pensez à prendre {meds} avant le dîner"),
-        "AFTER_DINNER":     ("🌆 Après le dîner", "N'oubliez pas {meds} après le dîner"),
-        "BEDTIME":          ("🌙 Avant de dormir", "N'oubliez pas {meds} avant de vous coucher"),
+        "BEFORE_BREAKFAST":  ("🌅 Petit-déjeuner", "Pensez à prendre {meds} avant de petit-déjeuner"),
+        "DURING_BREAKFAST":  ("🌅 Pendant le petit-déjeuner", "Pensez à prendre {meds} pendant le petit-déjeuner"),
+        "AFTER_BREAKFAST":   ("🌅 Après le petit-déjeuner", "N'oubliez pas {meds} après le petit-déjeuner"),
+        "BEFORE_LUNCH":      ("🍽️ Bientôt l'heure du midi", "Pensez à prendre {meds} avant le déjeuner"),
+        "DURING_LUNCH":      ("🍽️ Pendant le déjeuner", "Pensez à prendre {meds} pendant le déjeuner"),
+        "AFTER_LUNCH":       ("🍽️ Après le déjeuner", "N'oubliez pas {meds} après le déjeuner"),
+        "BEFORE_DINNER":     ("🌆 Repas du soir", "Pensez à prendre {meds} avant le dîner"),
+        "DURING_DINNER":     ("🌆 Pendant le dîner", "Pensez à prendre {meds} pendant le dîner"),
+        "AFTER_DINNER":      ("🌆 Après le dîner", "N'oubliez pas {meds} après le dîner"),
+        "BEDTIME":           ("🌙 Avant de dormir", "N'oubliez pas {meds} avant de vous coucher"),
     }
     MESSAGES_EN = {
-        "BEFORE_BREAKFAST": ("🌅 Breakfast soon", "Remember to take {meds} before breakfast"),
-        "AFTER_BREAKFAST":  ("🌅 After breakfast", "Don't forget {meds} after breakfast"),
-        "BEFORE_LUNCH":     ("🍽️ Lunchtime soon", "Remember to take {meds} before lunch"),
-        "AFTER_LUNCH":      ("🍽️ After lunch", "Don't forget {meds} after lunch"),
-        "BEFORE_DINNER":    ("🌆 Dinner soon", "Remember to take {meds} before dinner"),
-        "AFTER_DINNER":     ("🌆 After dinner", "Don't forget {meds} after dinner"),
-        "BEDTIME":          ("🌙 Bedtime soon", "Don't forget {meds} before bed"),
+        "BEFORE_BREAKFAST":  ("🌅 Breakfast soon", "Remember to take {meds} before breakfast"),
+        "DURING_BREAKFAST":  ("🌅 During breakfast", "Remember to take {meds} during breakfast"),
+        "AFTER_BREAKFAST":   ("🌅 After breakfast", "Don't forget {meds} after breakfast"),
+        "BEFORE_LUNCH":      ("🍽️ Lunchtime soon", "Remember to take {meds} before lunch"),
+        "DURING_LUNCH":      ("🍽️ During lunch", "Remember to take {meds} during lunch"),
+        "AFTER_LUNCH":       ("🍽️ After lunch", "Don't forget {meds} after lunch"),
+        "BEFORE_DINNER":     ("🌆 Dinner soon", "Remember to take {meds} before dinner"),
+        "DURING_DINNER":     ("🌆 During dinner", "Remember to take {meds} during dinner"),
+        "AFTER_DINNER":      ("🌆 After dinner", "Don't forget {meds} after dinner"),
+        "BEDTIME":           ("🌙 Bedtime soon", "Don't forget {meds} before bed"),
     }
     messages = MESSAGES_FR if locale == "fr" else MESSAGES_EN
     title, body_tpl = messages.get(moment, ("💊 Traitement", "Pensez à prendre {meds}"))
