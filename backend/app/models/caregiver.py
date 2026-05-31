@@ -11,7 +11,7 @@ from sqlalchemy import Column, String, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID, ARRAY
 from app import database
 import validators
-from passlib.hash import bcrypt
+import bcrypt as _bcrypt
 
 
 class CaregiverModel(database):
@@ -201,7 +201,7 @@ class CaregiverModel(database):
             raise ValueError("Password should have at least one special character")
 
         # Hash the plaintext password before storing
-        self._password = bcrypt.hash(value)
+        self._password = _bcrypt.hashpw(value.encode('utf-8'), _bcrypt.gensalt()).decode('utf-8')
 
     @property
     def user_ids(self) -> list:
@@ -292,7 +292,7 @@ class CaregiverModel(database):
             password (str): The plaintext password to hash
         """
         # Bypass the setter to avoid validation on the hash
-        self._password = bcrypt.hash(password)
+        self._password = _bcrypt.hashpw(password.encode('utf-8'), _bcrypt.gensalt()).decode('utf-8')
 
     def verify_password(self, password: str) -> bool:
         """Verify a plaintext password against the stored hash.
@@ -303,4 +303,4 @@ class CaregiverModel(database):
         Returns:
             bool: True if password matches, False otherwise
         """
-        return bcrypt.verify(password, self.password)
+        return _bcrypt.checkpw(password.encode('utf-8'), self.password.encode('utf-8'))
