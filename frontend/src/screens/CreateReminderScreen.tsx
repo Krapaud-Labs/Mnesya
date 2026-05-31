@@ -36,7 +36,6 @@ import { createPulseAnimation, getPulseScale } from '../utils/animations';
 import {
     formatDate,
     formatTime,
-    getRecurrenceSummary,
     getRecurrenceDescription,
     isRecurrenceValid,
 } from '../utils/recurrenceUtils';
@@ -93,9 +92,8 @@ const CreateReminderScreen: React.FC<Props> = ({ navigation }) => {
         createPulseAnimation(pulseAnim).start();
     }, [pulseAnim]);
 
-    const recurrenceSummary = getRecurrenceSummary(isRecurring, recurrenceType, recurrenceDays, t);
     const recurrenceDesc = getRecurrenceDescription(recurrenceType, recurrenceDays, reminderDate, recurrenceEndDate, t);
-    const schedulingSummary = `${formatDate(reminderDate)} à ${formatTime(reminderDate)}${recurrenceSummary ? ` · ${recurrenceSummary}` : ''}`;
+
 
     const handleSaveReminder = () => {
         setShowProfileError(false);

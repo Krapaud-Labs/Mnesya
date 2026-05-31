@@ -32,7 +32,11 @@ export function useAutoRefresh(refresh: () => void, intervalMs = DEFAULT_INTERVA
         };
 
         const handleAppState = (next: AppStateStatus) => {
-            next === 'active' ? start() : stop();
+            if (next === 'active') {
+                start();
+            } else {
+                stop();
+            }
         };
 
         start();

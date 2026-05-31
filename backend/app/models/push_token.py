@@ -28,12 +28,15 @@ class PushTokenModel(database):
 
     _id: uuid.UUID = Column('id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     _token: str = Column('token', String(255), nullable=False, unique=True)
-    _user_id: uuid.UUID | None = Column('user_id', UUID(as_uuid=True), ForeignKey('user.id'), nullable=True)
-    _caregiver_id: uuid.UUID | None = Column('caregiver_id', UUID(as_uuid=True), ForeignKey('caregiver.id'), nullable=True)
+    _user_id: uuid.UUID | None = Column(
+        'user_id', UUID(as_uuid=True), ForeignKey('user.id'), nullable=True)
+    _caregiver_id: uuid.UUID | None = Column(
+        'caregiver_id', UUID(as_uuid=True), ForeignKey('caregiver.id'), nullable=True)
     _device_name: str | None = Column('device_name', String(100), nullable=True)
     _is_active: bool = Column('is_active', Boolean, default=True, nullable=False)
     _locale: str = Column('locale', String(5), default='fr')
-    _created_at: datetime = Column('created_at', DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
+    _created_at: datetime = Column(
+        'created_at', DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     _updated_at: datetime = Column('updated_at', DateTime(timezone=True), default=lambda: datetime.now(timezone.utc),
                                    onupdate=lambda: datetime.now(timezone.utc), nullable=False)
 
@@ -42,7 +45,7 @@ class PushTokenModel(database):
     @property
     def id(self):
         """Get the token record's unique identifier.
-        
+
         Returns:
             UUID: The push token record's ID
         """
@@ -51,7 +54,7 @@ class PushTokenModel(database):
     @property
     def token(self) -> str:
         """Get the Expo push token.
-        
+
         Returns:
             str: The Expo push notification token
         """
@@ -60,10 +63,10 @@ class PushTokenModel(database):
     @token.setter
     def token(self, value: str) -> None:
         """Set the Expo push token with validation.
-        
+
         Args:
             value (str): The Expo push token
-            
+
         Raises:
             ValueError: If token is empty, too long, or has invalid format
         """
@@ -78,7 +81,7 @@ class PushTokenModel(database):
     @property
     def user_id(self):
         """Get the user ID.
-        
+
         Returns:
             UUID: The associated user's ID, or None if caregiver token
         """
@@ -87,7 +90,7 @@ class PushTokenModel(database):
     @user_id.setter
     def user_id(self, value) -> None:
         """Set the user ID.
-        
+
         Args:
             value (UUID): The user's unique identifier
         """
@@ -96,7 +99,7 @@ class PushTokenModel(database):
     @property
     def caregiver_id(self):
         """Get the caregiver ID.
-        
+
         Returns:
             UUID: The associated caregiver's ID, or None if user token
         """
@@ -105,7 +108,7 @@ class PushTokenModel(database):
     @caregiver_id.setter
     def caregiver_id(self, value) -> None:
         """Set the caregiver ID.
-        
+
         Args:
             value (UUID): The caregiver's unique identifier
         """
@@ -114,7 +117,7 @@ class PushTokenModel(database):
     @property
     def device_name(self) -> str:
         """Get the device name.
-        
+
         Returns:
             str: The device name or description, or None if not set
         """
@@ -123,10 +126,10 @@ class PushTokenModel(database):
     @device_name.setter
     def device_name(self, value: str) -> None:
         """Set the device name.
-        
+
         Args:
             value (str): The device name (max 100 characters)
-            
+
         Raises:
             ValueError: If device name exceeds 100 characters
         """
@@ -137,7 +140,7 @@ class PushTokenModel(database):
     @property
     def is_active(self) -> bool:
         """Get whether the token is active.
-        
+
         Returns:
             bool: True if the token is active and can receive notifications
         """
@@ -146,7 +149,7 @@ class PushTokenModel(database):
     @is_active.setter
     def is_active(self, value: bool) -> None:
         """Set whether the token is active.
-        
+
         Args:
             value (bool): True to activate, False to deactivate
         """
@@ -159,7 +162,7 @@ class PushTokenModel(database):
     @property
     def created_at(self) -> datetime:
         """Get the creation timestamp.
-        
+
         Returns:
             datetime: When this token was registered
         """
@@ -168,7 +171,7 @@ class PushTokenModel(database):
     @property
     def updated_at(self) -> datetime:
         """Get the last update timestamp.
-        
+
         Returns:
             datetime: When this token was last updated
         """

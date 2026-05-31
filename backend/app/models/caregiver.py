@@ -281,7 +281,7 @@ class CaregiverModel(database):
         # columns)
         if self._user_ids is not None and isinstance(self._user_ids, tuple):
             self._user_ids = list(self._user_ids)
-        
+
         if self._user_ids and user_id in self._user_ids:
             self._user_ids.remove(user_id)
 

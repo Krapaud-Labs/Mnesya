@@ -83,12 +83,12 @@ class ReminderStatusModel(database):
         """
         if not value or len(value.strip()) == 0:
             raise ValueError("Status is required")
-        
+
         value_upper = value.strip().upper()
         if not ReminderStatusEnum.is_valid(value_upper):
             valid_statuses = ", ".join(ReminderStatusEnum.values())
             raise ValueError(f"Invalid status. Must be one of: {valid_statuses}")
-        
+
         self._status = value_upper
 
     @property

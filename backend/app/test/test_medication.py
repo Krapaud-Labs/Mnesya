@@ -9,9 +9,9 @@ Tests cover:
 """
 
 import pytest
-from datetime import datetime, date, timezone, timedelta
+from datetime import datetime, date, timezone
 from typing import Optional, List
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock, patch
 from pydantic import ValidationError
 
 from app.services.medication_facade import (

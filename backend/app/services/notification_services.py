@@ -32,7 +32,7 @@ class NotificationService:
         priority: str = "default"
     ) -> Dict:
         """Send a push notification to one or more devices.
-        
+
         Args:
             tokens (List[str]): List of Expo push tokens
             title (str): Notification title
@@ -41,10 +41,10 @@ class NotificationService:
             sound (str): Sound to play ("default" or custom sound name)
             badge (int): Badge number to display on app icon
             priority (str): Priority level ("default", "normal", or "high")
-            
+
         Returns:
             Dict: Results containing successful and failed sends
-            
+
         Example:
             >>> service = NotificationService()
             >>> result = service.send_notification(
@@ -58,7 +58,7 @@ class NotificationService:
 
         # Filter out invalid tokens
         valid_tokens = [token for token in tokens if PushClient.is_exponent_push_token(token)]
-        
+
         if not valid_tokens:
             logger.warning("No valid Expo push tokens provided")
             return {"success": [], "errors": ["No valid tokens"]}
@@ -86,15 +86,15 @@ class NotificationService:
             chunk_size = 100
             for i in range(0, len(messages), chunk_size):
                 chunk = messages[i:i + chunk_size]
-                
+
                 try:
                     # Get push tickets
                     tickets = self.push_client.publish_multiple(chunk)
-                    
+
                     # Process tickets
                     for idx, ticket in enumerate(tickets):
                         token = valid_tokens[i + idx]
-                        
+
                         if ticket.is_success():
                             successes.append({
                                 "token": token,
@@ -106,11 +106,11 @@ class NotificationService:
                                 "error": ticket.message
                             })
                             logger.error(f"Push notification failed for {token}: {ticket.message}")
-                            
+
                 except PushServerError as e:
                     logger.error(f"Expo push server error: {e}")
                     errors.append({"error": f"Server error: {str(e)}"})
-                    
+
         except Exception as e:
             logger.error(f"Unexpected error sending push notifications: {e}")
             errors.append({"error": f"Unexpected error: {str(e)}"})
@@ -131,7 +131,7 @@ class NotificationService:
         extra_data: dict = None
     ) -> Dict:
         """Send a reminder notification.
-        
+
         Args:
             tokens (List[str]): List of Expo push tokens
             reminder_title (str): The reminder title
@@ -139,7 +139,7 @@ class NotificationService:
             reminder_id (str): Optional reminder ID for deep linking
             extra_data (dict): Optional extra key/value pairs merged into the
                 notification data payload (e.g. isUserNotification, retry offset)
-            
+
         Returns:
             Dict: Results of the notification send
         """

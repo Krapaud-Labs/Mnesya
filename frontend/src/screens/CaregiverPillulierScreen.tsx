@@ -97,7 +97,7 @@ const CaregiverPillulierScreen: React.FC<Props> = ({ navigation }) => {
         setShowScrollFade(!isAtBottom);
     };
 
-    const { medications, loading, error, reload, silentReload } = useMedications(selectedUserId);
+    const { medications, loading, error, silentReload } = useMedications(selectedUserId);
 
     useAutoRefresh(silentReload, 20_000);
 

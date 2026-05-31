@@ -20,7 +20,6 @@ interface ReminderCardProps {
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-const DAY_KEYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 function recurrenceLabel(reminder: ReminderData, t: (k: string) => string): string | null {
     if (!reminder.is_recurring || !reminder.recurrence_type) return null;
