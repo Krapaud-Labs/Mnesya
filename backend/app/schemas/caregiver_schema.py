@@ -7,7 +7,7 @@ Includes comprehensive password validation for security.
 
 import re
 from pydantic import BaseModel, Field, field_validator, ConfigDict
-from datetime import datetime, date
+from datetime import datetime
 from uuid import UUID
 from typing import List, Optional
 import validators

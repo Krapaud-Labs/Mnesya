@@ -31,10 +31,10 @@ class PairingCodeRepository(BaseRepository[PairingCodeModel]):
 
     def delete_by_user_id(self, user_id: UUID) -> int:
         """Delete all pairing codes associated with a user.
-        
+
         Args:
             user_id (UUID): The user's unique identifier
-            
+
         Returns:
             int: Number of pairing codes deleted
         """
