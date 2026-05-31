@@ -8,7 +8,6 @@ Tests cover:
 """
 
 import pytest
-from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 from app.models.reminder_status import ReminderStatusModel
 from app.models.reminder_status_enum import ReminderStatusEnum
@@ -522,7 +521,7 @@ class TestReminderStatusIntegration:
         reminder = create_test_reminder(caregiver_id=caregiver.id, user_id=user.id)
 
         # 1. Create initial PENDING status
-        initial_status = create_test_reminder_status(
+        _initial_status = create_test_reminder_status(  # noqa: F841
             reminder_id=reminder.id, status=ReminderStatusEnum.PENDING.value
         )
 

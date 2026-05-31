@@ -24,9 +24,9 @@ SessionLocal = None
 
 def init_app(database_url: str):
     """Initialize the application database.
-    
+
     Creates the database engine, session maker, and creates all tables.
-    
+
     Args:
         database_url (str): Database connection URL
     """
@@ -38,10 +38,10 @@ def init_app(database_url: str):
 
 def get_db() -> Generator[Session, None, None]:
     """Dependency to get database session.
-    
+
     Yields:
         Session: SQLAlchemy database session
-        
+
     Note:
         Session is automatically closed after use
     """
@@ -55,19 +55,20 @@ def get_db() -> Generator[Session, None, None]:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Manage application lifespan.
-    
+
     Handles startup and shutdown events for the FastAPI application.
     Properly disposes of database engine on shutdown.
-    
+
     Args:
         app (FastAPI): The FastAPI application instance
-        
+
     Yields:
         None: Control to the application
     """
     yield
     if engine:
         engine.dispose()
+
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     """Adds security headers to every HTTP response."""
@@ -90,10 +91,10 @@ security = HTTPBasic()
 def verify_docs_credentials(
         credentials: HTTPBasicCredentials = Depends(security)):
     """Protects Swagger and ReDoc with HTTP Basic Auth using environment variables.
-    
+
     Args:
         credentials (HTTPBasicCredentials): HTTP Basic credentials from request
-        
+
     Raises:
         HTTPException: If credentials are invalid (401 Unauthorized)
     """

@@ -207,7 +207,9 @@ class ReminderFacade:
         if not reminder:
             return None
 
-        new_scheduled_at = (datetime.now(timezone.utc) + timedelta(minutes=delay_minutes)).replace(second=0, microsecond=0)
+        new_scheduled_at = (
+            datetime.now(timezone.utc) + timedelta(minutes=delay_minutes)
+        ).replace(second=0, microsecond=0)
         self.reminder_repo.update(UUID(reminder_id), {"scheduled_at": new_scheduled_at})
 
         postponed_status = ReminderStatusModel()

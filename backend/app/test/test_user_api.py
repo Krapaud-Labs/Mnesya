@@ -8,9 +8,6 @@ Tests cover:
 - DELETE /api/users/{profile_id} - Delete user profile
 """
 
-import pytest
-from datetime import date
-
 
 class TestCreateUserProfile:
     """Tests for POST /api/users"""

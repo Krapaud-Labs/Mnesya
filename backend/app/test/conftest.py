@@ -12,13 +12,13 @@ from fastapi.testclient import TestClient
 # Add parent directory to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
-from app.main import app
-from app import get_db, database as Base
-from app.models.caregiver import CaregiverModel
-from app.models.user import UserModel
-from app.models.pairing_code import PairingCodeModel
-from app.models.reminder import ReminderModel
-from app.models.push_token import PushTokenModel
+from app.main import app  # noqa: E402
+from app import get_db, database as Base  # noqa: E402
+from app.models.caregiver import CaregiverModel  # noqa: E402
+from app.models.user import UserModel  # noqa: E402
+from app.models.pairing_code import PairingCodeModel  # noqa: E402,F401
+from app.models.reminder import ReminderModel  # noqa: E402
+from app.models.push_token import PushTokenModel  # noqa: E402,F401
 
 # Test database URL — définie via TEST_DATABASE_URL dans l'environnement
 # Fallback vers l'URL Docker si non définie (usage dans docker-compose uniquement)

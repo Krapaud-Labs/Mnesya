@@ -4,38 +4,38 @@ This module provides JWT-based authentication endpoints for caregivers.
 Includes login, registration, and token management.
 """
 
+import bcrypt as _bcrypt
+import logging
+import os
+import uuid as _uuid
+from datetime import datetime, timedelta, timezone
+from typing import Optional
+from uuid import UUID
+
 from fastapi import APIRouter, HTTPException, Depends, status, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError, jwt
-from datetime import datetime, timedelta, timezone
-from typing import Optional
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-import os
-import logging
+
+from app import get_db
 from app.limiter import limiter
-import uuid as _uuid
-
-import bcrypt as _bcrypt
-
-# Pre-computed dummy hash used to normalise response time when an email is not
-# found, preventing timing-based account enumeration (ÉLEVÉ-01).
-_DUMMY_HASH = _bcrypt.hashpw(b"__dummy__", _bcrypt.gensalt()).decode('utf-8')
-
+from app.persistence.revoked_token_repository import RevokedTokenRepository
+from app.persistence.user_session_revocation_repository import UserSessionRevocationRepository
 from app.schemas.authentication_schema import (
     LoginRequest,
     RegisterRequest,
     TokenResponse,
     CaregiverProfile,
 )
-from app.services.caregiver_facade import CaregiverFacade
 from app.schemas.caregiver_schema import CaregiverResponse, CaregiverUpdate
-from app import get_db
-from sqlalchemy.exc import IntegrityError
-from uuid import UUID
-from app.persistence.revoked_token_repository import RevokedTokenRepository
-from app.persistence.user_session_revocation_repository import UserSessionRevocationRepository
+from app.services.caregiver_facade import CaregiverFacade
 
 logger = logging.getLogger(__name__)
+
+# Pre-computed dummy hash used to normalise response time when an email is not
+# found, preventing timing-based account enumeration (ÉLEVÉ-01).
+_DUMMY_HASH = _bcrypt.hashpw(b"__dummy__", _bcrypt.gensalt()).decode('utf-8')
 
 # JWT Configuration
 SECRET_KEY = os.environ["SECRET_KEY"]
@@ -162,16 +162,16 @@ def require_caregiver_role(
     summary="Register a new caregiver account",
     description="""
     Create a new caregiver account with email and password.
-    
+
     This endpoint allows new caregivers to register in the system.
     The email must be unique and not already registered.
     Password will be securely hashed before storage.
-    
+
     **Requirements:**
     - Valid email format
     - Password minimum 8 characters
     - First name and last name required
-    
+
     **Returns a caregiver profile with:**
     - Unique caregiver ID
     - Personal information
@@ -284,15 +284,15 @@ async def register(
     summary="Login as caregiver",
     description="""
     Authenticate a caregiver and receive a JWT access token.
-    
+
     Use the email and password provided during registration to authenticate.
     Upon successful authentication, you will receive a JWT token that must be
     included in the Authorization header of subsequent requests.
-    
+
     **Token Format:** `Bearer <access_token>`
-    
+
     **Token Expiration:** 60 minutes
-    
+
     The returned token contains:
     - Caregiver ID (sub claim)
     - Email address
@@ -393,12 +393,12 @@ async def login(
     summary="Get current caregiver profile",
     description="""
     Retrieve the profile information of the currently authenticated caregiver.
-    
+
     This endpoint requires a valid JWT token in the Authorization header.
     It returns the complete profile information for the authenticated caregiver.
-    
+
     **Authentication required:** Bearer token
-    
+
     Use this endpoint to:
     - Display caregiver profile in the UI
     - Verify token validity
@@ -597,18 +597,18 @@ async def logout(
     summary="Refresh JWT access token",
     description="""
     Generate a new JWT access token using a valid existing token.
-    
+
     Use this endpoint to refresh an expired or soon-to-expire token without
     requiring the user to log in again. The new token will have the same
     claims as the original token but with an updated expiration time.
-    
+
     **Authentication required:** Bearer token (can be near expiration)
-    
+
     **Use cases:**
     - Token is about to expire
     - Implementing silent authentication
     - Extending user session
-    
+
     **Token Expiration:** 60 minutes from refresh time
     """,
     responses={
