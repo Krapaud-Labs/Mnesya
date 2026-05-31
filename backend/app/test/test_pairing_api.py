@@ -5,7 +5,6 @@ Tests cover:
 - POST /api/pairing/verify - Verify a pairing code
 """
 
-import pytest
 from datetime import datetime, timezone, timedelta
 from uuid import uuid4
 
@@ -270,7 +269,7 @@ class TestVerifyPairingCode:
         response_lower = client.post("/api/pairing/verify", json={"code": code.lower()})
 
         # Try different case combination
-        response_mixed = client.post(
+        _response_mixed = client.post(  # noqa: F841
             "/api/pairing/verify",
             json={"code": code.upper() if code[0].islower() else code.lower()},
         )

@@ -10,7 +10,7 @@ from sqlalchemy.exc import IntegrityError
 from uuid import UUID
 from app.services.caregiver_facade import CaregiverFacade
 from app.schemas.caregiver_schema import CaregiverUpdate, CaregiverResponse
-from app.api.authentication import verify_token, require_caregiver_role
+from app.api.authentication import require_caregiver_role
 from app import get_db
 
 # Router
@@ -50,23 +50,23 @@ def get_current_caregiver_id(
     summary="Update caregiver profile",
     description="""
     Update the authenticated caregiver's profile information.
-    
+
     Supports partial updates - only the fields you provide will be updated.
     Other fields will remain unchanged.
-    
+
     **Authentication required:** Bearer token (caregiver)
-    
+
     **Updatable fields:**
     - First name
     - Last name
     - Email address
     - Password (requires current_password)
-    
+
     **Password change:**
     - Must provide current_password to change password
     - New password will be securely hashed
     - Password must meet minimum requirements (8+ characters)
-    
+
     **Email change:**
     - New email must be unique in the system
     - Returns 409 Conflict if email already exists
@@ -254,20 +254,20 @@ async def update_my_profile(
     summary="Delete caregiver account",
     description="""
     Permanently delete the authenticated caregiver's account.
-    
+
     **⚠️ Warning:** This action is irreversible and will:
     - Delete the caregiver account permanently
     - Remove all associations with user profiles
     - Delete all reminders created by this caregiver
     - Invalidate all JWT tokens
-    
+
     **Authentication required:** Bearer token (caregiver)
-    
+
     **Before deletion, consider:**
     - Backing up important data
     - Transferring user profiles to another caregiver
     - Informing users of the account closure
-    
+
     After successful deletion, the client should:
     - Clear all local storage
     - Remove authentication tokens
