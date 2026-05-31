@@ -15,11 +15,11 @@ import logging
 from app.limiter import limiter
 import uuid as _uuid
 
-from passlib.hash import bcrypt as _bcrypt
+import bcrypt as _bcrypt
 
 # Pre-computed dummy hash used to normalise response time when an email is not
 # found, preventing timing-based account enumeration (ÉLEVÉ-01).
-_DUMMY_HASH = _bcrypt.hash("__dummy__")
+_DUMMY_HASH = _bcrypt.hashpw(b"__dummy__", _bcrypt.gensalt()).decode('utf-8')
 
 from app.schemas.authentication_schema import (
     LoginRequest,
@@ -348,7 +348,7 @@ async def login(
 
         if not caregiver:
             # Constant-time dummy comparison to prevent timing-based email enumeration
-            _bcrypt.verify(body.password, _DUMMY_HASH)
+            _bcrypt.checkpw(body.password.encode('utf-8'), _DUMMY_HASH.encode('utf-8'))
             logger.warning("Failed login attempt — email not found: %s", body.email)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,

@@ -318,7 +318,6 @@ const UserProfileDetailScreen: React.FC<Props> = ({ navigation, route }: Props) 
                                         key={reminder.id}
                                         reminder={reminder}
                                         onDelete={handleDeleteReminder}
-                                        reloadTrigger={reloadCounter}
                                     />
                                 ))
                             )}

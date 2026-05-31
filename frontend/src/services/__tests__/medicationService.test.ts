@@ -26,7 +26,7 @@ const mockMedication: MedicationData = {
     user_id: 'user-1',
     name: 'Doliprane',
     dosage: '500mg',
-    times: ['08:00', '20:00'],
+    moments: ['AFTER_BREAKFAST', 'AFTER_DINNER'],
     frequency: 'DAILY',
     start_date: '2026-05-01',
 };
@@ -40,7 +40,7 @@ const mockWeekResponse: WeekResponse = {
                 medication_id: 'med-1',
                 name: 'Doliprane',
                 dosage: '500mg',
-                time: '08:00',
+                moment: 'AFTER_BREAKFAST',
                 reminder_id: 'rem-1',
                 status: 'PENDING',
             },
@@ -64,7 +64,7 @@ describe('medicationService', () => {
                 user_id: 'user-1',
                 name: 'Doliprane',
                 dosage: '500mg',
-                times: ['08:00', '20:00'],
+                moments: ['AFTER_BREAKFAST', 'AFTER_DINNER'],
                 frequency: 'DAILY',
                 start_date: '2026-05-01',
             };
@@ -80,7 +80,7 @@ describe('medicationService', () => {
             const payload: CreateMedication = {
                 user_id: 'user-1',
                 name: 'Aspirine',
-                times: ['12:00'],
+                moments: ['DURING_LUNCH'],
                 frequency: 'WEEKLY',
                 recurrence_days: [0, 2, 4],
                 start_date: '2026-05-01',
@@ -99,7 +99,7 @@ describe('medicationService', () => {
             const payload: CreateMedication = {
                 user_id: 'user-1',
                 name: 'Antibiotique',
-                times: ['09:00'],
+                moments: ['BEFORE_BREAKFAST'],
                 frequency: 'DAILY',
                 start_date: '2026-05-01',
                 end_date: '2026-05-10',
@@ -116,7 +116,7 @@ describe('medicationService', () => {
             (apiClient.post as jest.Mock).mockRejectedValue(new Error('Server error'));
 
             await expect(
-                createMedication({ user_id: 'u-1', name: 'X', times: ['08:00'], frequency: 'DAILY', start_date: '2026-01-01' })
+                createMedication({ user_id: 'u-1', name: 'X', moments: ['AFTER_BREAKFAST'], frequency: 'DAILY', start_date: '2026-01-01' })
             ).rejects.toThrow('Server error');
         });
     });
