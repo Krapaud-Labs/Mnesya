@@ -29,7 +29,6 @@ const UserTabsContent: React.FC = () => {
     return (
         <>
             <Tab.Navigator
-                id="user-tabs"
                 screenOptions={{
                     headerShown: false,
                     tabBarActiveTintColor: styles.activeTab.color,
@@ -42,6 +41,7 @@ const UserTabsContent: React.FC = () => {
             >
                 {/* Emergency button - Opens emergency numbers modal */}
                 <Tab.Screen
+                    // @ts-expect-error -- React Navigation infers wrong RouteName for screens with listeners (known type inference limitation)
                     name="Emergency"
                     component={UserHomeScreen}
                     listeners={() => ({
