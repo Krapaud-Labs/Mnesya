@@ -1,24 +1,24 @@
 # FastAPI Framework
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
-python-multipart==0.0.6
+python-multipart==0.0.32
 
 # Database
-sqlalchemy==2.0.50
+sqlalchemy==2.0.52
 alembic==1.12.1
-psycopg2-binary==2.9.9
+psycopg2-binary==2.9.12
 
 # Authentication & Security
 python-jose[cryptography]==3.3.0
 bcrypt==4.3.0
-python-dotenv==1.2.2
+python-dotenv==1.2.3
 pydantic==2.5.0
 pydantic-settings==2.1.0
 validators==0.35.0
-slowapi==0.1.9
+slowapi==0.1.10
 
 # Scheduler for reminders
-apscheduler==3.11.2
+apscheduler==3.11.3
 
 # Push notifications (Firebase)
 firebase-admin==6.3.0
