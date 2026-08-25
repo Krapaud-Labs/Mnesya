@@ -55,8 +55,8 @@ Mnesya is a mobile reminder application designed to help elderly people (Users) 
 - **Enhanced Notifications**: Backend scheduler with 3 jobs (T+0, T+5, T+10 min) + automatic caregiver alerts
 - **Activity Log**: Caregiver dashboard bell icon showing the last 48 h of user interactions (DONE/POSTPONED/UNABLE/MISSED) with unread badge
 - **Rate Limiting**: Register (3/min) and Login (5/min) with user-facing modal on HTTP 429
-- **Recurring Reminders**: DAILY / WEEKLY / MONTHLY recurrence with optional end date — full-stack feature (frontend modal UI + backend scheduler + Pydantic validation)
-- **Medication Management (Pillulier)**: Full-stack medication feature — CRUD + automatic reminder generation + 7-day semainier for users
+- **Recurring Reminders**: DAILY / WEEKLY / MONTHLY recurrence with optional end date , full-stack feature (frontend modal UI + backend scheduler + Pydantic validation)
+- **Medication Management (Pillulier)**: Full-stack medication feature , CRUD + automatic reminder generation + 7-day semainier for users
 - **API Integration**: Frontend fully connected to backend (auth, profiles, pairing, reminders, reminder status, activity log, medication)
 - **Code Quality**: ESLint v9 configured (0 errors, 0 warnings across all frontend files)
 - **Current status**: Frontend 100% connected, Backend 100% (auth, profiles, pairing, reminders, reminder status, activity log, medication all live)
@@ -86,7 +86,7 @@ Mnesya is a mobile reminder application designed to help elderly people (Users) 
 - ✅ Chronological reminder view with filters (date, profile, status) - Fully integrated
 - ✅ Status tracking (Done, Pending, Postponed, Unable) - Fully integrated
 - ✅ Tab navigation (Home | Reminders | Profile) - Implemented
-- ✅ **Activity log**: Bell icon in caregiver dashboard header — displays the last 48 h of user interactions (DONE / POSTPONED / UNABLE / MISSED), with a red unread badge when new entries are detected and auto-reload on screen focus
+- ✅ **Activity log**: Bell icon in caregiver dashboard header , displays the last 48 h of user interactions (DONE / POSTPONED / UNABLE / MISSED), with a red unread badge when new entries are detected and auto-reload on screen focus
 - ✅ **Rate limiting feedback**: HTTP 429 from Register (3/min) or Login (5/min) triggers a dedicated `RateLimitModal` instead of a generic error
 - ✅ **Recurring reminders**: DAILY / WEEKLY / MONTHLY recurrence with optional end date
   - Dedicated scheduling modal (`pageSheet`) for date, time and recurrence config
@@ -97,10 +97,10 @@ Mnesya is a mobile reminder application designed to help elderly people (Users) 
 
 ### Medication Management / Pillulier (v1.3.0)
 
-- ✅ Medication creation (name, dosage, DAILY/WEEKLY frequency, multiple times per day, start/end dates) — Fully integrated
-- ✅ Automatic reminder generation — one `ReminderModel` per time slot, linked via `medication_id`
-- ✅ Caregiver pillulier screen — profile selector, medication list with time badges, delete with confirmation
-- ✅ User semainier — 7-day week view (Mon→Sun) with per-day status dots (DONE/MISSED/PENDING/POSTPONED), week navigation, "Aujourd'hui" badge
+- ✅ Medication creation (name, dosage, DAILY/WEEKLY frequency, multiple times per day, start/end dates) , Fully integrated
+- ✅ Automatic reminder generation , one `ReminderModel` per time slot, linked via `medication_id`
+- ✅ Caregiver pillulier screen , profile selector, medication list with time badges, delete with confirmation
+- ✅ User semainier , 7-day week view (Mon→Sun) with per-day status dots (DONE/MISSED/PENDING/POSTPONED), week navigation, "Aujourd'hui" badge
 - ✅ Backend: `MedicationFacade`, `MedicationRepository`, Alembic migration 007 (table `medication` + FK on `reminder`)
 - ✅ 44 backend unit tests + 33 frontend tests (medicationService, useMedications, useWeekSchedule)
 
@@ -154,13 +154,13 @@ Mnesya is a mobile reminder application designed to help elderly people (Users) 
 
 6. ✅ **Activity Log**: Caregiver opens dashboard bell → Frontend → FastAPI → PostgreSQL (JOIN reminder_status + reminder + user)
    - Frontend: `useActivityLog` hook + `ActivityLogModal` component, unread badge logic
-   - Backend: `GET /api/reminder-status/caregiver/recent` — 48 h window, DONE/POSTPONED/UNABLE/MISSED only
+   - Backend: `GET /api/reminder-status/caregiver/recent` , 48 h window, DONE/POSTPONED/UNABLE/MISSED only
 
 ## Technologies
 
 ### Frontend
 
-- **Framework** : React Native 0.81.5 with Expo 54 (iOS/Android)
+- **Framework** : React Native 0.85.3 with Expo 56 (iOS/Android)
 - **Language**: TypeScript 5.9
 - **State Management** : React Hooks + AsyncStorage
 - **Navigation** : React Navigation 7 (Stack + Bottom Tabs)
@@ -177,8 +177,8 @@ Mnesya is a mobile reminder application designed to help elderly people (Users) 
 
 - **Framework** : Python 3.9+ with FastAPI 0.104.1
 - **Database** : PostgreSQL 13+ with psycopg2-binary
-- **ORM** : SQLAlchemy 2.0.23 with Alembic 1.12.1 (7 migrations)
-- **Authentication** : JWT with python-jose — implemented
+- **ORM** : SQLAlchemy 2.0.50 with Alembic 1.12.1 (9 migration revisions in the repository)
+- **Authentication** : JWT with python-jose , implemented
 - **Async Tasks** : APScheduler 3.10.4 (3 background jobs every 60s)
   - **Push Notifications** : Expo Push Service (fully integrated)
 - **Current Implementation Status**:
@@ -186,22 +186,22 @@ Mnesya is a mobile reminder application designed to help elderly people (Users) 
   - ✅ Persistence Repositories (BaseRepository + 7 domain-specific, incl. MedicationRepository)
   - ✅ Service Facades (caregiver, user, reminder, reminder_status, notification, medication)
   - ✅ Pydantic Schemas (caregiver, user, reminder, reminder_status, push_token, authentication, pairing_code, medication)
-  - ✅ FastAPI app with health endpoint
+  - ⚠️ No `/health` endpoint is currently exposed; add it before relying on health-check supervision
   - ✅ JWT Authentication (`/api/auth/register`, `/api/auth/login`)
   - ✅ User profile CRUD (`/api/users`)
   - ✅ Caregiver profile management (`/api/caregivers`)
   - ✅ Pairing code generate + verify (`/api/pairing`)
-  - ✅ Alembic migrations configured and applied (7 migrations)
+  - ✅ Alembic migrations configured; application on an empty database still requires runtime verification
   - ✅ Docker Compose full setup (PostgreSQL + Backend + Worker)
   - ✅ pytest test suite (authentication, pairing, user, caregiver, reminder, reminder_status, push_notification, medication)
-  - ✅ Reminder API endpoints (`/api/reminders`) — full CRUD
+  - ✅ Reminder API endpoints (`/api/reminders`) , full CRUD
   - ✅ Reminder status update endpoint (`/api/reminder-status/{id}`)
-  - ✅ Push token registration (`/api/push-tokens`) — register, unregister, list
-  - ✅ APScheduler Worker — 3 jobs: T+0 user notification, T+5 retry, T+10 caregiver escalation
-  - ✅ Rate limiting — Register: 3/min, Login: 5/min (SlowAPI)
-  - ✅ Activity log endpoint (`GET /api/reminder-status/caregiver/recent`) — last 48 h, DONE/POSTPONED/UNABLE/MISSED
-  - ✅ Medication CRUD + auto-generation of reminders (`/api/medication`) — create, list by user, get, update, delete
-  - ✅ Medication semainier endpoint (`GET /api/medication/week`) — 7-day schedule with per-entry status
+  - ✅ Push token registration (`/api/push-tokens`) , register, unregister, list
+  - ✅ APScheduler Worker , 3 jobs: T+0 user notification, T+5 retry, T+10 caregiver escalation
+  - ✅ Rate limiting , Register: 3/min, Login: 5/min (SlowAPI)
+  - ✅ Activity log endpoint (`GET /api/reminder-status/caregiver/recent`) , last 48 h, DONE/POSTPONED/UNABLE/MISSED
+  - ✅ Medication CRUD + auto-generation of reminders (`/api/medication`) , create, list by user, get, update, delete
+  - ✅ Medication semainier endpoint (`GET /api/medication/week`) , 7-day schedule with per-entry status
 
 ### Infrastructure
 
@@ -213,8 +213,8 @@ Mnesya is a mobile reminder application designed to help elderly people (Users) 
 
 ### Current Status (Mar 2, 2026)
 
-**Frontend**: Fully operational — connected to real backend (auth, profiles, pairing, reminders, reminder status, activity log)  
-**Backend**: Fully operational — all MVP endpoints live  
+**Frontend**: Fully operational , connected to real backend (auth, profiles, pairing, reminders, reminder status, activity log)
+**Backend**: Fully operational , all MVP endpoints live
 **Docker**: Fully configured with PostgreSQL, Backend, and Worker services
 
 ### Prerequisites
@@ -242,8 +242,8 @@ docker-compose ps
 docker-compose logs -f backend
 ```
 
-The backend will be available at `http://localhost:8000`  
-Health endpoint: `http://localhost:8000/health`
+The backend will be available at `http://localhost:8000`.
+The current application has no `/health` endpoint. Use the root endpoint only as a basic reachability check until a dedicated health route is implemented.
 
 ### Manual Installation
 
@@ -457,7 +457,7 @@ mnesya/
 
 ## API Documentation
 
-> Base URL: `http://localhost:8000`  
+> Base URL: `http://localhost:8000`
 > Interactive docs: `http://localhost:8000/docs` (Swagger UI)
 
 ### Authentication
@@ -510,7 +510,7 @@ mnesya/
 | `/api/reminder-status/{id}/current`     | GET    | Get current status of a reminder      | Yes             |
 | `/api/reminder-status/{id}/history`     | GET    | Get full status history of a reminder | Yes             |
 | `/api/reminder-status/{id}`             | PUT    | Update status (Done/Postponed/Unable) | Yes (User)      |
-| `/api/reminder-status/caregiver/recent` | GET    | Activity log — last 48 h interactions | Yes (Caregiver) |
+| `/api/reminder-status/caregiver/recent` | GET    | Activity log , last 48 h interactions | Yes (Caregiver) |
 | `/api/reminder-status/valid-statuses`   | GET    | List all valid status values          | Yes             |
 
 ### Push Notifications
@@ -645,13 +645,13 @@ docs: update README
 
 **📋 Complete Test Documentation**: [backend/app/test/README.md](backend/app/test/README.md)
 
-**Test Suite**: 364 tests (166 API integration tests + 198 unit tests)  
-**Status**: ✅ All tests passing
+**Test Suite**: historical counts are documented below.
+**Current status**: Docker regression execution must be rerun before claiming a passing backend suite.
 
 ```bash
 cd backend
 
-# Run all tests (requires Docker — see docker/docker-compose.test.yml)
+# Run all tests (requires Docker , see docker/docker-compose.test.yml)
 docker-compose -f docker/docker-compose.test.yml up --build --abort-on-container-exit
 
 # Run recurrence unit tests locally (no database required)
@@ -662,25 +662,25 @@ PYTHONPATH=. venv/bin/pytest app/test/test_recurrence.py -v --noconftest
 
 **API Integration Tests (166 tests)**:
 
-- `test_authentication_api.py` — Register, login, token validation (19 tests)
-- `test_caregiver_api.py` — Caregiver profile CRUD (14 tests)
-- `test_pairing_api.py` — Generate and verify pairing codes (18 tests)
-- `test_user_api.py` — User profile CRUD (27 tests)
-- `test_reminder_api.py` — Reminder CRUD endpoints (36 tests)
-- `test_reminder_status_api.py` — Reminder status update endpoint (32 tests)
-- `test_push_notification_api.py` — Push token register, unregister, list (20 tests)
+- `test_authentication_api.py` , Register, login, token validation (19 tests)
+- `test_caregiver_api.py` , Caregiver profile CRUD (14 tests)
+- `test_pairing_api.py` , Generate and verify pairing codes (18 tests)
+- `test_user_api.py` , User profile CRUD (27 tests)
+- `test_reminder_api.py` , Reminder CRUD endpoints (36 tests)
+- `test_reminder_status_api.py` , Reminder status update endpoint (32 tests)
+- `test_push_notification_api.py` , Push token register, unregister, list (20 tests)
 
 **Unit Tests (154 tests)**:
 
-- `test.py` — Models validation, schemas validation, business logic, entity relationships
+- `test.py` , Models validation, schemas validation, business logic, entity relationships
   - Model tests (65): User, Caregiver, Reminder, ReminderStatus
   - Schema tests (49): Create/Update validation
   - Integration tests (16): Edge cases and model interactions
-- `test_recurrence.py` — Recurrence logic unit tests (24 tests)
+- `test_recurrence.py` , Recurrence logic unit tests (24 tests)
   - `calculate_next_occurrence`: DAILY, WEEKLY, MONTHLY, end date cutoff, edge cases
   - `schedule_next_occurrence`: DB interaction, returns True/False
   - `ReminderCreate` schema: recurrence validation rules (all 9 cases)
-- `test_medication.py` — Medication unit tests (44 tests, no database required)
+- `test_medication.py` , Medication unit tests (44 tests, no database required)
   - `MedicationFacade.create_medication`: DAILY/WEEKLY, multiple times, reminder auto-generation
   - `MedicationFacade.get_week`: semainier 7 days, status resolution, past/present/future
   - `MedicationCreate` schema: WEEKLY/recurrence_days cross-validation, HH:MM format
@@ -691,8 +691,8 @@ PYTHONPATH=. venv/bin/pytest app/test/test_recurrence.py -v --noconftest
 
 **📋 Complete Test Documentation**: [frontend/README-tests.md](frontend/README-tests.md)
 
-**Test Suite**: 283 tests (20 test suites)  
-**Status**: ✅ All tests passing
+**Test Suite**: 20 suites are declared in the repository.
+**Current status**: Jest does not start with the installed React Native version because `@react-native/jest-preset` is missing from the configuration.
 
 ```bash
 cd frontend
@@ -706,31 +706,31 @@ npm test -- --coverage
 
 #### Frontend Test Files (283 tests across 20 suites)
 
-- `__tests__/hooks/useFormValidation.test.ts` — Form validation hook (18 tests)
-- `__tests__/utils/validation.test.ts` — Validation utility functions (42 tests)
-- `services/__tests__/authService.test.ts` — register, login API calls (24 tests)
-- `services/__tests__/tokenService.test.ts` — JWT storage and retrieval (11 tests)
-- `services/__tests__/reminderService.test.ts` — Reminder CRUD + recurring payloads (19 tests)
-- `services/__tests__/pairingService.test.ts` — Pairing code generate and verify (7 tests)
-- `services/__tests__/profileService.test.ts` — User profile CRUD API calls (11 tests)
-- `hooks/__tests__/useCaregiverProfile.test.ts` — Hook loading/error/reload behaviour (9 tests)
-- `hooks/__tests__/useUserProfile.test.ts` — User profile hook behaviour (7 tests)
-- `hooks/__tests__/useUserProfiles.test.ts` — Profiles list hook behaviour (6 tests)
-- `hooks/__tests__/useUserReminders.test.ts` — Reminders list hook behaviour (6 tests)
-- `hooks/__tests__/useCaregiverReminders.test.ts` — Caregiver reminders hook behaviour (6 tests)
-- `hooks/__tests__/useReminderStatus.test.ts` — Reminder status hook behaviour (6 tests)
-- `components/__tests__/UpdateUserProfileModal.test.tsx` — Modal rendering and validation (21 tests)
-- `components/__tests__/UpdateCaregiverProfileModal.test.tsx` — Modal rendering and validation (16 tests)
-- `utils/__tests__/validation.test.ts` — Form validation utility functions (42 tests)
-- `utils/__tests__/recurrenceUtils.test.ts` — Recurrence display and validation helpers (35 tests)
+- `__tests__/hooks/useFormValidation.test.ts` , Form validation hook (18 tests)
+- `__tests__/utils/validation.test.ts` , Validation utility functions (42 tests)
+- `services/__tests__/authService.test.ts` , register, login API calls (24 tests)
+- `services/__tests__/tokenService.test.ts` , JWT storage and retrieval (11 tests)
+- `services/__tests__/reminderService.test.ts` , Reminder CRUD + recurring payloads (19 tests)
+- `services/__tests__/pairingService.test.ts` , Pairing code generate and verify (7 tests)
+- `services/__tests__/profileService.test.ts` , User profile CRUD API calls (11 tests)
+- `hooks/__tests__/useCaregiverProfile.test.ts` , Hook loading/error/reload behaviour (9 tests)
+- `hooks/__tests__/useUserProfile.test.ts` , User profile hook behaviour (7 tests)
+- `hooks/__tests__/useUserProfiles.test.ts` , Profiles list hook behaviour (6 tests)
+- `hooks/__tests__/useUserReminders.test.ts` , Reminders list hook behaviour (6 tests)
+- `hooks/__tests__/useCaregiverReminders.test.ts` , Caregiver reminders hook behaviour (6 tests)
+- `hooks/__tests__/useReminderStatus.test.ts` , Reminder status hook behaviour (6 tests)
+- `components/__tests__/UpdateUserProfileModal.test.tsx` , Modal rendering and validation (21 tests)
+- `components/__tests__/UpdateCaregiverProfileModal.test.tsx` , Modal rendering and validation (16 tests)
+- `utils/__tests__/validation.test.ts` , Form validation utility functions (42 tests)
+- `utils/__tests__/recurrenceUtils.test.ts` , Recurrence display and validation helpers (35 tests)
   - `formatDate` / `formatTime`: padding, format DD/MM/YYYY and HH:MM
   - `getRecurrenceSummary`: DAILY / WEEKLY / MONTHLY / off state / no days / mutation guard
   - `getRecurrenceDescription`: all types, end date suffix, empty WEEKLY
   - `getSchedulingSummary`: with and without recurrence
   - `isRecurrenceValid`: WEEKLY/no days → false, all other cases → true
-- `services/__tests__/medicationService.test.ts` — Medication CRUD + week schedule API calls (15 tests)
-- `hooks/__tests__/useMedications.test.ts` — Loading, null userId guard, reload/silentReload (9 tests)
-- `hooks/__tests__/useWeekSchedule.test.ts` — Week navigation, reload, auth error handling (9 tests)
+- `services/__tests__/medicationService.test.ts` , Medication CRUD + week schedule API calls (15 tests)
+- `hooks/__tests__/useMedications.test.ts` , Loading, null userId guard, reload/silentReload (9 tests)
+- `hooks/__tests__/useWeekSchedule.test.ts` , Week navigation, reload, auth error handling (9 tests)
 - **Tools**: Jest + React Native Testing Library + ESLint v9
 
 ### Manual Tests
@@ -741,7 +741,7 @@ Acceptance criteria checklist to verify before each Production deployment:
 
 - [x] A caregiver can create an account and log in
 - [x] A caregiver can create and edit a user profile
-- [x] A caregiver can generate a 24h valid pairing code
+- [ ] A caregiver can generate and verify a 5-minute pairing code in the deployed version
 - [x] A user can pair with the code and receive a JWT
 - [x] A caregiver can create a one-shot reminder
 - [x] A caregiver can create a recurring reminder (DAILY / WEEKLY / MONTHLY) with optional end date
@@ -762,13 +762,13 @@ Acceptance criteria checklist to verify before each Production deployment:
 #### Technical
 
 - [x] JWT token is stored and restored correctly across sessions
-- [x] Pairing code expires after 24h (backend enforcement)
+- [ ] Pairing code expiration and single use are verified against the deployed version
 - [x] Notifications work when the app is in the background
 - [x] API errors are displayed gracefully (no crashes)
 
 ### CI/CD
 
-⚠️ Not yet configured — planned for future sprints:
+⚠️ Not yet configured , planned for future sprints:
 
 1. **On PR**: Run automated tests (backend pytest + frontend Jest)
 2. **Staging Deployment**: Auto-deploy `dev` branch if tests pass
@@ -778,7 +778,7 @@ Acceptance criteria checklist to verify before each Production deployment:
 
 Features **not included** in v1.0 (postponed post-MVP):
 
-- ✅ ~~Recurring reminders (daily, weekly, monthly)~~ — **Implemented in v1.2.0**
+- ✅ ~~Recurring reminders (daily, weekly, monthly)~~ , **Implemented in v1.2.0**
 - ❌ Graphical calendar view
 - ❌ Statistics and graphs
 - ❌ Voice messages in reminders

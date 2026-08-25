@@ -80,3 +80,12 @@ GoogleService-Info.plist
 
 # Python venv local (type-checking uniquement, pas utilisé en prod)
 backend/venv/
+
+# Agentic Starter Kit local
+.codex/
+AGENTS.md
+
+# Artefacts temporaires de lecture documentaire et RNCP
+.tmp-docs-rncp-cleanup-*/
+.tmp-docs-rncp-expand-*/
+.tmp-rncp-trusted-read/

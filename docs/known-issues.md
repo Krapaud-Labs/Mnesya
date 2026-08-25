@@ -1,4 +1,4 @@
-# Known Issues — Mnesya
+# Known Issues , Mnesya
 
 This document tracks confirmed bugs, limitations, and planned improvements. See the [Security Audit](security-audit.md) for security-specific issues.
 
@@ -6,7 +6,7 @@ This document tracks confirmed bugs, limitations, and planned improvements. See 
 
 ## Open Issues
 
-### 🔴 ISSUE-001 — No password reset flow
+### 🔴 ISSUE-001 , No password reset flow
 
 **Area:** Authentication  
 **Severity:** High (UX blocker)  
@@ -20,21 +20,19 @@ This document tracks confirmed bugs, limitations, and planned improvements. See 
 
 ---
 
-### 🟠 ISSUE-002 — Caregiver JWT has no server-side revocation
+### ✅ ISSUE-002 , Caregiver JWT server-side revocation
 
 **Area:** Security / Authentication  
 **Severity:** Medium  
-**Status:** Open (see MED-2 in [security-audit.md](security-audit.md))
+**Status:** Resolved in the current code.
 
-**Description:** Logging out a caregiver does not invalidate the JWT server-side. If the token is stolen, it remains valid for up to 60 minutes.
+**Description:** `POST /api/auth/logout` revokes the token JTI and invalidates sessions issued before the recorded revocation time.
 
-**Workaround:** Token lifetime is 60 minutes — exposure window is limited.
-
-**Planned fix:** Token blacklist in Redis or a `revoked_tokens` DB table, checked on every protected request.
+**Verification still required:** Run the authentication regression suite in Docker and verify a revoked token is rejected by the deployed API.
 
 ---
 
-### 🟠 ISSUE-003 — No image upload for user profiles
+### 🟠 ISSUE-003 , No image upload for user profiles
 
 **Area:** Profile management  
 **Severity:** Medium (feature gap)  
@@ -48,7 +46,7 @@ This document tracks confirmed bugs, limitations, and planned improvements. See 
 
 ---
 
-### 🟠 ISSUE-004 — Reminder status cannot be corrected by the user
+### 🟠 ISSUE-004 , Reminder status cannot be corrected by the user
 
 **Area:** Reminder lifecycle  
 **Severity:** Medium (UX)  
@@ -62,7 +60,7 @@ This document tracks confirmed bugs, limitations, and planned improvements. See 
 
 ---
 
-### 🟡 ISSUE-005 — Push notifications require the app to be opened once
+### 🟡 ISSUE-005 , Push notifications require the app to be opened once
 
 **Area:** Notifications / Onboarding  
 **Severity:** Low  
@@ -70,13 +68,13 @@ This document tracks confirmed bugs, limitations, and planned improvements. See 
 
 **Description:** The Expo push token is registered when the app is first opened. If a user installs the app and never opens it, they will not receive push notifications.
 
-**Workaround:** Completed during the pairing flow — users must open the app to enter the pairing code, which triggers token registration.
+**Workaround:** Completed during the pairing flow , users must open the app to enter the pairing code, which triggers token registration.
 
 **Planned fix:** Ensure token registration occurs immediately during pairing and is retried on subsequent launches.
 
 ---
 
-### 🟡 ISSUE-006 — No offline support
+### 🟡 ISSUE-006 , No offline support
 
 **Area:** General  
 **Severity:** Low  
@@ -90,7 +88,7 @@ This document tracks confirmed bugs, limitations, and planned improvements. See 
 
 ---
 
-### 🟡 ISSUE-007 — Reminder list performance degrades with large datasets
+### 🟡 ISSUE-007 , Reminder list performance degrades with large datasets
 
 **Area:** Backend / API  
 **Severity:** Low  
@@ -104,7 +102,7 @@ This document tracks confirmed bugs, limitations, and planned improvements. See 
 
 ---
 
-### 🟡 ISSUE-008 — Docker frontend container not working on ARM (Apple Silicon)
+### 🟡 ISSUE-008 , Docker frontend container not working on ARM (Apple Silicon)
 
 **Area:** Developer Experience  
 **Severity:** Low  
@@ -123,12 +121,12 @@ npm install && npm run ios
 
 ---
 
-### 🔵 INFO-001 — Swagger UI / ReDoc require Basic Auth
+### 🔵 INFO-001 , Swagger UI / ReDoc require Basic Auth
 
 **Area:** Developer Experience  
 **Status:** By design
 
-**Description:** The `/docs` and `/redoc` endpoints are protected with HTTP Basic Auth (`DOCS_USERNAME` / `DOCS_PASSWORD`). This is intentional — the interactive docs expose all endpoints and must not be public.
+**Description:** The `/docs` and `/redoc` endpoints are protected with HTTP Basic Auth (`DOCS_USERNAME` / `DOCS_PASSWORD`). This is intentional , the interactive docs expose all endpoints and must not be public.
 
 **Note:** The static API reference is available in [docs/api.md](api.md) without authentication.
 
@@ -143,7 +141,8 @@ npm install && npm run ios
 | ISSUE-SEC-3 | Password max length 20 chars                   | `fix/security-bugfixes-and-tests` |
 | ISSUE-SEC-4 | `datetime.utcnow()` timezone-naive             | `fix/security-bugfixes-and-tests` |
 | ISSUE-SEC-5 | No rate limiting on auth endpoints             | `feat/back/slow-api`              |
-| ISSUE-SEC-6 | User token never refreshed (90-day expiry)     | `feat/user-token-refresh`         |
+| ISSUE-SEC-6 | User token refresh endpoint                    | `feat/user-token-refresh`         |
+| ISSUE-SEC-7 | Caregiver JWT server-side revocation           | `004_add_revoked_tokens_table`     |
 
 ---
 

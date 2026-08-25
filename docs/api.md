@@ -1,10 +1,8 @@
-# API Reference — Mnesya
+# API Reference , Mnesya
 
 **Base URL (dev):** `http://localhost:8000`  
-**Base URL (prod):** `https://mnesya.com`  
-**Swagger UI:** `GET /docs` _(Basic Auth required — see `DOCS_USERNAME` / `DOCS_PASSWORD`)_  
-**ReDoc:** `GET /redoc` _(same credentials)_  
-**OpenAPI JSON:** `GET /openapi.json`
+**Base URL (prod):** `https://api.mnesya.app`
+**Swagger UI, ReDoc and OpenAPI:** available only when `APP_ENV=development` and protected by Basic Auth. They return `404` in the observed production deployment.
 
 All endpoints expect and return `application/json`. Timestamps are ISO 8601 UTC.
 
@@ -23,8 +21,8 @@ Two token types exist:
 
 | Type      | Audience   | Lifetime | Obtained via               |
 | --------- | ---------- | -------- | -------------------------- |
-| Caregiver | Caregivers | 60 min   | `POST /api/auth/login`     |
-| User      | Elderly    | 90 days  | `POST /api/pairing/verify` |
+| Caregiver | Caregivers | 7 days by default, configurable by `CAREGIVER_TOKEN_EXPIRE_MINUTES` | `POST /api/auth/login` |
+| User      | Elderly    | 14 days | `POST /api/pairing/verify` |
 
 ---
 
@@ -51,7 +49,7 @@ Exceeded limits return `429 Too Many Requests`.
 
 ## Endpoints
 
-### Authentication — `/api/auth`
+### Authentication , `/api/auth`
 
 #### `POST /api/auth/register`
 
@@ -148,7 +146,7 @@ Get the currently authenticated caregiver's profile.
 
 #### `POST /api/auth/refresh`
 
-Refresh the caregiver JWT token (issue a new 60-min token).
+Refresh the caregiver JWT token with the configured default lifetime.
 
 **Auth:** Bearer (caregiver)
 
@@ -160,21 +158,17 @@ Refresh the caregiver JWT token (issue a new 60-min token).
 
 #### `POST /api/auth/logout`
 
-Confirm logout. The client must discard the token — no server-side revocation.
+Logout revokes the current JWT server-side. The client must also discard the token.
 
 **Auth:** Bearer (caregiver)
 
-**Response `200`:**
-
-```json
-{ "message": "Successfully logged out" }
-```
+**Response `204`:** no content.
 
 **Errors:** `401`
 
 ---
 
-### Caregiver Profile — `/api/caregivers`
+### Caregiver Profile , `/api/caregivers`
 
 #### `PUT /api/caregivers/me`
 
@@ -212,7 +206,7 @@ Update the authenticated caregiver's profile. All fields are optional (partial u
 
 ---
 
-### User Profiles — `/api/users`
+### User Profiles , `/api/users`
 
 #### `POST /api/users`
 
@@ -275,7 +269,7 @@ Get the currently authenticated user's profile (elderly user token).
 Get a specific user profile by ID.
 
 **Auth:** Bearer (caregiver)  
-**Path param:** `profile_id` — UUID
+**Path param:** `profile_id` , UUID
 
 **Response `200`:** user object  
 **Errors:** `401` · `403` no access · `404` · `500`
@@ -314,7 +308,7 @@ Permanently delete a user profile, all associated reminders, and pairing codes.
 
 ---
 
-### Pairing — `/api/pairing`
+### Pairing , `/api/pairing`
 
 #### `POST /api/pairing/generate`
 
@@ -345,7 +339,7 @@ Generate a pairing code for a user. Returns existing active code if one already 
 
 #### `POST /api/pairing/verify`
 
-Verify a pairing code and receive a 90-day user token.
+Verify a pairing code and receive a 14-day user token.
 
 **Auth:** None
 
@@ -361,7 +355,7 @@ Verify a pairing code and receive a 90-day user token.
 {
   "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "token_type": "bearer",
-  "expires_in": 7776000,
+  "expires_in": 1209600,
   "user_id": "456e7890-e89b-12d3-a456-426614174000",
   "first_name": "Marie",
   "last_name": "Dupont"
@@ -374,7 +368,7 @@ Verify a pairing code and receive a 90-day user token.
 
 #### `POST /api/pairing/refresh`
 
-Refresh a user (elderly) token. Verifies the existing token and issues a new 90-day one.
+Refresh a user token. Verifies the existing token and issues a new 14-day one.
 
 **Auth:** Bearer (user)
 
@@ -386,17 +380,17 @@ Refresh a user (elderly) token. Verifies the existing token and issues a new 90-
 {
   "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "token_type": "bearer",
-  "expires_in": 7776000
+  "expires_in": 1209600
 }
 ```
 
-> The frontend calls this automatically when the token expires in < 7 days.
+> The refresh endpoint accepts a still-valid user token. Frontend refresh behaviour must be validated in the running application.
 
 **Errors:** `401` · `500`
 
 ---
 
-### Reminders — `/api/reminder`
+### Reminders , `/api/reminder`
 
 #### `GET /api/reminder/caregiver`
 
@@ -492,7 +486,7 @@ Delete a reminder.
 
 ---
 
-### Reminder Status — `/api/reminder-status`
+### Reminder Status , `/api/reminder-status`
 
 #### `GET /api/reminder-status/{reminder_id}/current`
 
@@ -528,7 +522,7 @@ Get the complete status history of a reminder (newest first).
 
 #### `PUT /api/reminder-status/{reminder_id}`
 
-Set a new status on a reminder. Creates a new entry — history is preserved.
+Set a new status on a reminder. Creates a new entry , history is preserved.
 
 **Auth:** Bearer (caregiver or user)
 
@@ -564,7 +558,7 @@ Returns the list of valid status values.
 
 ---
 
-### Push Notifications — `/api/push-tokens`
+### Push Notifications , `/api/push-tokens`
 
 #### `POST /api/push-tokens/register`
 

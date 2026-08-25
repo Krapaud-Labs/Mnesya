@@ -1,13 +1,13 @@
-# Changelog — Mnesya
+# Changelog , Mnesya
 
 Toutes les modifications notables du projet sont documentées ici.
-Format : `emoji vX.Y.Z — Titre` · Auteur · Date
+Format : `emoji vX.Y.Z , Titre` · Auteur · Date
 
 ---
 
 ## 06/03/2026
 
-### 🏗️ v0.1 — Initialisation du projet
+### 🏗️ v0.1 , Initialisation du projet
 
 - Structure initiale du projet (frontend + backend + Docker)
 - Navigation de base et écrans squelettes (Welcome, Login, Register)
@@ -15,7 +15,7 @@ Format : `emoji vX.Y.Z — Titre` · Auteur · Date
 
 ---
 
-### 👤 v0.2 — Authentification & Profils (Back)
+### 👤 v0.2 , Authentification & Profils (Back)
 
 - API d'authentification caregiver (création de compte, login JWT)
 - API utilisateur (création de profil, gestion des données)
@@ -24,7 +24,7 @@ Format : `emoji vX.Y.Z — Titre` · Auteur · Date
 
 ---
 
-### 🔗 v0.3 — Pairing & Frontend Auth
+### 🔗 v0.3 , Pairing & Frontend Auth
 
 - Système de code de pairing (6 chars, valide 24h)
 - Intégration frontend ↔ backend (auth, profils, pairing)
@@ -33,7 +33,7 @@ Format : `emoji vX.Y.Z — Titre` · Auteur · Date
 
 ---
 
-### 📱 v0.4 — Rappels (Backend)
+### 📱 v0.4 , Rappels (Backend)
 
 - API reminders (CRUD complet)
 - API reminder status (DONE / POSTPONED / UNABLE / MISSED)
@@ -42,7 +42,7 @@ Format : `emoji vX.Y.Z — Titre` · Auteur · Date
 
 ---
 
-### 📲 v0.5 — Rappels (Frontend)
+### 📲 v0.5 , Rappels (Frontend)
 
 - Écrans de création et liste des rappels
 - Hooks dédiés (useCaregiver, useReminders, useReminderStatus)
@@ -50,7 +50,7 @@ Format : `emoji vX.Y.Z — Titre` · Auteur · Date
 
 ---
 
-### 🔔 v0.6 — Push Notifications
+### 🔔 v0.6 , Push Notifications
 
 - Enregistrement / désenregistrement du token push au login/logout
 - API backend de gestion des tokens push
@@ -59,7 +59,7 @@ Format : `emoji vX.Y.Z — Titre` · Auteur · Date
 
 ---
 
-### ✨ v0.7 — UX & i18n
+### ✨ v0.7 , UX & i18n
 
 - Internationalisation complète FR/EN (i18next)
 - Pickers custom cross-platform (date + heure) entièrement traduits
@@ -69,7 +69,7 @@ Format : `emoji vX.Y.Z — Titre` · Auteur · Date
 
 ---
 
-### ⚙️ v0.8 — DevOps & Sécurité
+### ⚙️ v0.8 , DevOps & Sécurité
 
 - Containerisation Docker (frontend + backend)
 - Déploiement VPS (Dokploy / Coolify)
@@ -79,7 +79,7 @@ Format : `emoji vX.Y.Z — Titre` · Auteur · Date
 
 ---
 
-### 🔒 v0.9 — Sécurité & Qualité
+### 🔒 v0.9 , Sécurité & Qualité
 
 - Corrections de bugs critiques (tests + prod)
 - ESLint v9 configuré → 0 erreurs, 0 warnings
@@ -88,7 +88,7 @@ Format : `emoji vX.Y.Z — Titre` · Auteur · Date
 
 ---
 
-### 📊 v1.0 — Activity Log & Finalisation
+### 📊 v1.0 , Activity Log & Finalisation
 
 - Journal d'activité caregiver (48h d'historique, badge non-lu)
 - RateLimitModal (HTTP 429 → modale orange)
@@ -99,7 +99,7 @@ Format : `emoji vX.Y.Z — Titre` · Auteur · Date
 
 ---
 
-### 🔐 v1.1 — Révocation JWT (Logout serveur)
+### 🔐 v1.1 , Révocation JWT (Logout serveur)
 
 - Claim `jti` (UUID v4) ajouté à chaque token généré
 - Table `revoked_token` en base (`jti` + `revoked_at`, indexée)
@@ -112,43 +112,43 @@ Format : `emoji vX.Y.Z — Titre` · Auteur · Date
 
 ---
 
-### 🐛 v1.1.1 — Corrections scheduleur & notifications push
+### 🐛 v1.1.1 , Corrections scheduleur & notifications push
 
-#### Backend — Scheduler
+#### Backend , Scheduler
 
 - `window_seconds` réduit de 90s → 55s : une seule fenêtre par tick CronTrigger, fini les doubles notifications
 - `postpone_reminder()` : `scheduled_at` tronqué à la minute entière (`.replace(second=0, microsecond=0)`) → le tick CronTrigger capture désormais le reminder reporté exactement à la bonne minute
 - `get_reminders_due_now()` : correction d'un `return` manquant dans la query filtrée (la requête n'était jamais retournée)
 
-#### Frontend — Push notifications
+#### Frontend , Push notifications
 
 - Correction `reminderId` (camelCase) → `reminder_id` (snake_case) dans `App.tsx` pour coller au payload backend → le `PUT /api/reminder/:id/postpone` ne tapait plus sur `undefined`
 
-#### Frontend — UI
+#### Frontend , UI
 
-- `ActivityLogModal` : ajout de l'effet de flou de scroll + flèche chevron (identique aux autres listes) — disparaît automatiquement quand on atteint le bas de la liste
+- `ActivityLogModal` : ajout de l'effet de flou de scroll + flèche chevron (identique aux autres listes) , disparaît automatiquement quand on atteint le bas de la liste
 
 ---
 
 ## 18/03/2026
 
-### 🐛 v1.1.2 — Correction de navigation post-notification
+### 🐛 v1.1.2 , Correction de navigation post-notification
 
-#### Frontend — Notifications
+#### Frontend , Notifications
 
 - Correction de la redirection suite au clic sur une notification native OS : l'application navigue désormais correctement vers le bon écran au lieu de rester sur l'écran d'accueil
 
 ---
 
-### 🐛 v1.1.3 — Corrections UX (Frontend)
+### 🐛 v1.1.3 , Corrections UX (Frontend)
 
-#### Frontend — UI
+#### Frontend , UI
 
 - Corrections d'interface suite aux retours utilisateurs
 
 ---
 
-### 🚀 v1.1.5 — Build TestFlight iOS
+### 🚀 v1.1.5 , Build TestFlight iOS
 
 #### Infrastructure
 
@@ -156,17 +156,17 @@ Format : `emoji vX.Y.Z — Titre` · Auteur · Date
 
 ---
 
-### ✨ v1.1.6 — Auto-refresh des données
+### ✨ v1.1.6 , Auto-refresh des données
 
-#### Frontend — Data
+#### Frontend , Data
 
 - Ajout du rafraîchissement automatique des données côté Caregiver et côté User : les écrans se mettent à jour sans action manuelle de l'utilisateur
 
 ---
 
-### 🐛 v1.1.7 — Correction marges boutons de réponse (User)
+### 🐛 v1.1.7 , Correction marges boutons de réponse (User)
 
-#### Frontend — UI
+#### Frontend , UI
 
 - Correction du margin côté User pour les boutons de réponse des reminders (Done / Remind later / Unable)
 
@@ -174,9 +174,9 @@ Format : `emoji vX.Y.Z — Titre` · Auteur · Date
 
 ## 19/03/2026
 
-### ⚡ v1.1.8 — Performance auto-refresh
+### ⚡ v1.1.8 , Performance auto-refresh
 
-#### Frontend — Data
+#### Frontend , Data
 
 - Correction et amélioration des performances du mécanisme d'auto-refresh : réduction des re-renders inutiles, meilleure gestion des intervalles et de la synchronisation des données côté Caregiver et User
 
@@ -184,9 +184,9 @@ Format : `emoji vX.Y.Z — Titre` · Auteur · Date
 
 ## 05/05/2026
 
-### 🔐 v1.1.9 — Corrections sécurité (Pentests)
+### 🔐 v1.1.9 , Corrections sécurité (Pentests)
 
-#### Backend — Sécurité
+#### Backend , Sécurité
 
 - Correction des failles de sécurité identifiées lors des tests de pénétration (pentests)
 
@@ -194,15 +194,15 @@ Format : `emoji vX.Y.Z — Titre` · Auteur · Date
 
 ## 12/05/2026
 
-### ✨ v1.2.0 — Rappels récurrents (DAILY / WEEKLY / MONTHLY)
+### ✨ v1.2.0 , Rappels récurrents (DAILY / WEEKLY / MONTHLY)
 
-#### Backend — Récurrence
+#### Backend , Récurrence
 
 - `calculate_next_occurrence()` : calcule la prochaine occurrence en sautant les dates passées, avec clamping sur les mois courts (ex. 31 jan → 28 fév) et wrap décembre → janvier
 - `schedule_next_occurrence()` : replanifie automatiquement le reminder après chaque déclenchement et crée un nouveau statut PENDING ; retourne `False` quand la date de fin est dépassée
-- `ReminderCreate` schema : validation cross-champs — `recurrence_type` obligatoire si `is_recurring`, `recurrence_days` obligatoire pour WEEKLY, jours validés entre 0 (lundi) et 6 (dimanche)
+- `ReminderCreate` schema : validation cross-champs , `recurrence_type` obligatoire si `is_recurring`, `recurrence_days` obligatoire pour WEEKLY, jours validés entre 0 (lundi) et 6 (dimanche)
 
-#### Frontend — Modal de programmation
+#### Frontend , Modal de programmation
 
 - Date, heure et récurrence déplacés dans un unique modal `pageSheet` → le formulaire principal ne nécessite plus de scroll
 - Switch de récurrence enveloppé dans un container gris `#F5F5F5` pour contraster sur fond blanc
@@ -211,16 +211,16 @@ Format : `emoji vX.Y.Z — Titre` · Auteur · Date
 - Description dynamique sous les chips de type (ex. *Tous les jours à 09:30 · jusqu'au 31/12/2026*)
 - Card de résumé `#EEF4FC` sur le formulaire principal avec icône de récurrence
 
-#### Frontend — UI
+#### Frontend , UI
 
 - Correction `.sort()` → `.slice().sort()` pour éviter la mutation du state React (causait l'absence de description pour WEEKLY)
 - Padding bas des boutons corrigé : `insets.bottom + 20` → `insets.bottom` sur WelcomeScreen, LoginScreen, RegisterScreen, CreateProfileScreen
 
 ---
 
-### 💊 v1.3.0 — Pillulier (Medication Management)
+### 💊 v1.3.0 , Pillulier (Medication Management)
 
-#### Backend — Modèle & API
+#### Backend , Modèle & API
 
 - Nouvelle entité `MedicationModel` (SQLAlchemy 2.x `Mapped`/`mapped_column`) : nom, dosage, horaires (`times[]`), fréquence (DAILY/WEEKLY), jours de récurrence, dates début/fin
 - Migration Alembic `007` : table `medication` + colonne `medication_id` (FK nullable) sur `reminder`
@@ -230,29 +230,29 @@ Format : `emoji vX.Y.Z — Titre` · Auteur · Date
 - `MedicationRepository.get_active_by_user` : filtre `start_date ≤ date ≤ end_date` avec `end_date IS NULL` toléré
 - Endpoint `GET /api/medication/week` placé avant `/{medication_id}` pour éviter le shadowing de route
 - Schemas Pydantic : `MedicationCreate` (validation cross-champs WEEKLY/recurrence_days, format HH:MM), `MedicationUpdate`, `MedicationResponse`, `WeekResponse`
-- 44 tests unitaires backend (`test_medication.py`) — aucune base de données requise
+- 44 tests unitaires backend (`test_medication.py`) , aucune base de données requise
 
-#### Frontend — Écrans & Navigation
+#### Frontend , Écrans & Navigation
 
 - `CaregiverPillulierScreen` : sélecteur de profil, liste des médicaments (nom, dosage, horaires, fréquence), suppression avec confirmation
-- `CreateMedicationScreen` : formulaire complet — nom, dosage, fréquence (chips DAILY/WEEKLY), jours (hebdo), horaires multiples (jusqu'à 6), dates début/fin
+- `CreateMedicationScreen` : formulaire complet , nom, dosage, fréquence (chips DAILY/WEEKLY), jours (hebdo), horaires multiples (jusqu'à 6), dates début/fin
 - `UserPillulierScreen` : semainier 7 jours avec navigation prev/next, dots colorés par statut (DONE/MISSED/PENDING/POSTPONED), badge "Aujourd'hui"
 - Onglet **Pillulier** ajouté dans `CaregiverTabs` (4ème onglet) et `UserTabs` (3ème onglet)
 - Route `CreateMedication` enregistrée dans `AppNavigator`
 - Harmonisation des conventions d'écrans : `useAutoRefresh`, `isFirstFocus` + `useFocusEffect`, scroll fade, `titleSection` `fontSize: 28` sur les 3 nouveaux écrans
 
-#### Frontend — Services & Hooks
+#### Frontend , Services & Hooks
 
 - `medicationService` : `createMedication`, `getMedicationsForUser`, `getMedication`, `deleteMedication`, `getWeekSchedule`
 - `useMedications(userId)` : chargement différé quand `userId` est null, `reload` / `silentReload`
 - `useWeekSchedule` : navigation prev/next semaine (`addDays ±7`), calcul automatique du lundi courant, `silentReload` ajouté
 
-#### Frontend — Composants
+#### Frontend , Composants
 
-- `PlatformTimePicker` : nouvelle prop `allowPastTime` — désactive la restriction d'heure passée pour les plannings récurrents (utilisée dans `CreateMedicationScreen` et `CreateReminderScreen` quand `isRecurring`)
+- `PlatformTimePicker` : nouvelle prop `allowPastTime` , désactive la restriction d'heure passée pour les plannings récurrents (utilisée dans `CreateMedicationScreen` et `CreateReminderScreen` quand `isRecurring`)
 - Correction `SafeAreaView` : import migré de `react-native` vers `react-native-safe-area-context` dans `CreateReminderScreen` et `PairingCodeModal`
 
-#### Frontend — Tests & Traductions
+#### Frontend , Tests & Traductions
 
-- 33 nouveaux tests Jest : `medicationService.test.ts` (15), `useMedications.test.ts` (9), `useWeekSchedule.test.ts` (9) — total frontend 283/283 ✅
+- 33 nouveaux tests Jest : `medicationService.test.ts` (15), `useMedications.test.ts` (9), `useWeekSchedule.test.ts` (9) , total frontend 283/283 ✅
 - Traductions FR/EN : section `medication` complète + `tabs.Pillulier`
