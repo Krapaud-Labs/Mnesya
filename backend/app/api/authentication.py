@@ -17,10 +17,6 @@ import uuid as _uuid
 
 from passlib.hash import bcrypt as _bcrypt
 
-# Pre-computed dummy hash used to normalise response time when an email is not
-# found, preventing timing-based account enumeration (ÉLEVÉ-01).
-_DUMMY_HASH = _bcrypt.hash("__dummy__")
-
 from app.schemas.authentication_schema import (
     LoginRequest,
     RegisterRequest,
@@ -34,6 +30,10 @@ from sqlalchemy.exc import IntegrityError
 from uuid import UUID
 from app.persistence.revoked_token_repository import RevokedTokenRepository
 from app.persistence.user_session_revocation_repository import UserSessionRevocationRepository
+
+# Pre-computed dummy hash used to normalise response time when an email is not
+# found, preventing timing-based account enumeration (ÉLEVÉ-01).
+_DUMMY_HASH = _bcrypt.hash("__dummy__")
 
 logger = logging.getLogger(__name__)
 
@@ -141,6 +141,18 @@ def verify_token(
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+
+def require_caregiver_role(
+    token_payload: dict = Depends(verify_token),
+) -> dict:
+    """Dependency that rejects non-caregiver tokens."""
+    if token_payload.get("role") != "caregiver":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Caregiver role required",
+        )
+    return token_payload
 
 
 @router.post(
@@ -664,18 +676,6 @@ async def refresh_token(token_payload: dict = Depends(verify_token)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Token refresh failed",
         )
-
-
-def require_caregiver_role(
-    token_payload: dict = Depends(verify_token),
-) -> dict:
-    """Dependency that rejects non-caregiver tokens."""
-    if token_payload.get("role") != "caregiver":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Caregiver role required",
-        )
-    return token_payload
 
 
 # Export for use in other modules
