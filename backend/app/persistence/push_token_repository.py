@@ -17,10 +17,10 @@ class PushTokenRepository(BaseRepository):
 
     def get_by_token(self, token: str):
         """Get a push token by its token string.
-
+        
         Args:
             token (str): The Expo push token string
-
+            
         Returns:
             PushTokenModel: The token record if found, None otherwise
         """
@@ -30,38 +30,38 @@ class PushTokenRepository(BaseRepository):
 
     def get_active_tokens_by_user(self, user_id: UUID):
         """Get all active push tokens for a user.
-
+        
         Args:
             user_id (UUID): The user's unique identifier
-
+            
         Returns:
             list[PushTokenModel]: List of active tokens for the user
         """
         return self.db.query(PushTokenModel).filter(
             PushTokenModel._user_id == user_id,
-            PushTokenModel._is_active.is_(True)
+            PushTokenModel._is_active == True
         ).all()
 
     def get_active_tokens_by_caregiver(self, caregiver_id: UUID):
         """Get all active push tokens for a caregiver.
-
+        
         Args:
             caregiver_id (UUID): The caregiver's unique identifier
-
+            
         Returns:
             list[PushTokenModel]: List of active tokens for the caregiver
         """
         return self.db.query(PushTokenModel).filter(
             PushTokenModel._caregiver_id == caregiver_id,
-            PushTokenModel._is_active.is_(True)
+            PushTokenModel._is_active == True
         ).all()
 
     def deactivate_token(self, token: str) -> bool:
         """Deactivate a push token.
-
+        
         Args:
             token (str): The Expo push token string
-
+            
         Returns:
             bool: True if token was found and deactivated, False otherwise
         """
@@ -89,10 +89,10 @@ class PushTokenRepository(BaseRepository):
 
     def delete_by_token(self, token: str) -> bool:
         """Delete a push token by its token string.
-
+        
         Args:
             token (str): The Expo push token string
-
+            
         Returns:
             bool: True if deleted, False if not found
         """
@@ -102,3 +102,12 @@ class PushTokenRepository(BaseRepository):
             self.db.commit()
             return True
         return False
+
+    def delete_by_token_for_owner(self, token: str, owner_id: UUID) -> bool:
+        """Delete a token only when it belongs to the authenticated owner."""
+        token_record = self.get_by_token(token)
+        if not token_record or (token_record.user_id != owner_id and token_record.caregiver_id != owner_id):
+            return False
+        self.db.delete(token_record)
+        self.db.commit()
+        return True
