@@ -102,3 +102,12 @@ class PushTokenRepository(BaseRepository):
             self.db.commit()
             return True
         return False
+
+    def delete_by_token_for_owner(self, token: str, owner_id: UUID) -> bool:
+        """Delete a token only when it belongs to the authenticated owner."""
+        token_record = self.get_by_token(token)
+        if not token_record or (token_record.user_id != owner_id and token_record.caregiver_id != owner_id):
+            return False
+        self.db.delete(token_record)
+        self.db.commit()
+        return True

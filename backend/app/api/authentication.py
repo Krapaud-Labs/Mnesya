@@ -641,6 +641,8 @@ async def refresh_token(token_payload: dict = Depends(verify_token)):
         caregiver_id = token_payload.get("sub")
         email = token_payload.get("email")
         role = token_payload.get("role", "caregiver")
+        if role != "caregiver" or not caregiver_id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Caregiver role required")
 
         # Create new access token
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -655,10 +657,12 @@ async def refresh_token(token_payload: dict = Depends(verify_token)):
             expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         )
 
-    except Exception as e:
+    except HTTPException:
+        raise
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Token refresh failed: {str(e)}",
+            detail="Token refresh failed",
         )
 
 
