@@ -40,8 +40,9 @@ const UserTabsContent: React.FC = () => {
                 }}
             >
                 {/* Emergency button - Opens emergency numbers modal */}
+                {/* React Navigation 7 infers the second screen name here; the route is declared in UserTabsParamList. */}
                 <Tab.Screen
-                    name="Emergency"
+                    name={'Emergency' as never}
                     component={UserHomeScreen}
                     listeners={() => ({
                         tabPress: (e) => {
