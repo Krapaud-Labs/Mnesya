@@ -9,7 +9,6 @@ Tests cover:
 - DELETE /api/reminder/{reminder_id} - Delete reminder
 """
 
-import pytest
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 

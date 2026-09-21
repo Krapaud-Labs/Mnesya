@@ -5,7 +5,6 @@ utility functions for accessing environment variables.
 """
 
 import os
-import psycopg2
 
 
 class config:

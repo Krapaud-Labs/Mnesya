@@ -12,8 +12,7 @@ from app.persistence.push_token_repository import PushTokenRepository
 from app.persistence.user_repository import UserRepository
 from app.schemas.push_token_schema import (
     PushTokenCreate,
-    PushTokenResponse,
-    PushTokenDelete
+    PushTokenResponse
 )
 from typing import List
 from uuid import UUID

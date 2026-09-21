@@ -6,7 +6,7 @@ This module defines Pydantic schemas for ReminderStatus entity validation and se
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 from datetime import datetime
 from uuid import UUID
-from typing import List, Optional
+from typing import List
 from app.models.reminder_status_enum import ReminderStatusEnum
 
 

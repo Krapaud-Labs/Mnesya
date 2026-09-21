@@ -8,7 +8,6 @@ Tests cover:
 - DELETE /api/users/{profile_id} - Delete user profile
 """
 
-import pytest
 from datetime import date
 
 
@@ -89,7 +88,7 @@ class TestCreateUserProfile:
         """Test profile creation with future birthday fails."""
         client, _ = authenticated_client
 
-        from datetime import date, timedelta
+        from datetime import timedelta
         future_date = (date.today() + timedelta(days=365)).isoformat()
 
         response = client.post("/api/users", json={

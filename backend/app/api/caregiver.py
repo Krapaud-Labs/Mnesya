@@ -10,7 +10,7 @@ from sqlalchemy.exc import IntegrityError
 from uuid import UUID
 from app.services.caregiver_facade import CaregiverFacade
 from app.schemas.caregiver_schema import CaregiverUpdate, CaregiverResponse
-from app.api.authentication import verify_token, require_caregiver_role
+from app.api.authentication import require_caregiver_role
 from app import get_db
 
 # Router
