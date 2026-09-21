@@ -33,15 +33,19 @@ export const register = async (data: RegisterData): Promise<void> => {
 /** Logs out the current user and removes the stored token. */
 export const logout = async (): Promise<void> => {
     try {
-        const expoPushToken = await SecureStore.getItemAsync('expo_push_token');
-        if (expoPushToken) {
-            await apiClient.delete('/api/push-tokens/unregister', {
-                data: { token: expoPushToken },
-            });
-        }
-    } catch {}
-    await apiClient.post('/api/auth/logout');
-    await deleteToken();
+        try {
+            const expoPushToken = await SecureStore.getItemAsync('expo_push_token');
+            if (expoPushToken) {
+                await apiClient.delete('/api/push-tokens/unregister', {
+                    data: { token: expoPushToken },
+                });
+            }
+        } catch {}
+        await apiClient.post('/api/auth/logout');
+    } finally {
+        // Local logout must succeed even when the server is unavailable.
+        await deleteToken();
+    }
 };
 
 /** Returns the profile of the currently logged-in caregiver. */
