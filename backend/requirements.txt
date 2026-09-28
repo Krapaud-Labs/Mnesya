@@ -21,7 +21,7 @@ slowapi==0.1.10
 apscheduler==3.11.3
 
 # Push notifications (Firebase)
-firebase-admin==6.3.0
+firebase-admin==7.7.0
 exponent-server-sdk==2.2.0
 
 # HTTP requests (for notifications)
