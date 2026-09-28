@@ -12,7 +12,7 @@ from app.persistence.push_token_repository import PushTokenRepository
 from app.persistence.user_repository import UserRepository
 from app.schemas.push_token_schema import (
     PushTokenCreate,
-    PushTokenResponse,
+    PushTokenResponse
 )
 from typing import List
 from uuid import UUID
@@ -247,7 +247,7 @@ async def unregister_push_token(
     """
     try:
         repo = PushTokenRepository(db)
-        deleted = repo.delete_by_token(token)
+        deleted = repo.delete_by_token_for_owner(token, UUID(user_id))
 
         if not deleted:
             raise HTTPException(
@@ -259,10 +259,10 @@ async def unregister_push_token(
 
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to unregister push token: {str(e)}"
+            detail="Failed to unregister push token"
         )
 
 

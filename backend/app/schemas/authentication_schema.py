@@ -95,9 +95,9 @@ class RegisterRequest(BaseModel):
             raise ValueError(
                 'Password must contain at least one lowercase letter')
         if not has_sym:
+            special_chars = ", ".join(SpecialSym)
             raise ValueError(
-                f'Password must contain at least one special character: {
-                    ", ".join(SpecialSym)}')
+                f"Password must contain at least one special character: {special_chars}")
 
         return value
 

@@ -101,16 +101,16 @@ class TestCreateUserProfile:
         """Test profile creation without authentication fails."""
         response = client.post("/api/users", json=sample_user_data)
 
-        assert response.status_code == 403
+        assert response.status_code == 401
 
     def test_create_multiple_profiles(self, authenticated_client):
         """Test creating multiple profiles for same caregiver."""
         client, caregiver = authenticated_client
 
         profiles_data = [
-            {"first_name": "User1", "last_name": "Test", "birthday": "1950-01-01"},
-            {"first_name": "User2", "last_name": "Test", "birthday": "1960-02-02"},
-            {"first_name": "User3", "last_name": "Test", "birthday": "1970-03-03"},
+            {"first_name": "UserOne", "last_name": "Test", "birthday": "1950-01-01"},
+            {"first_name": "UserTwo", "last_name": "Test", "birthday": "1960-02-02"},
+            {"first_name": "UserThree", "last_name": "Test", "birthday": "1970-03-03"},
         ]
 
         created_ids = []
@@ -181,7 +181,7 @@ class TestGetAllUserProfiles:
         """Test getting profiles without authentication fails."""
         response = client.get("/api/users")
 
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 class TestGetSpecificUserProfile:
@@ -241,7 +241,7 @@ class TestGetSpecificUserProfile:
 
         response = client.get(f"/api/users/{user.id}")
 
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 class TestUpdateUserProfile:
@@ -342,7 +342,7 @@ class TestUpdateUserProfile:
             "first_name": "ShouldFail"
         })
 
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 class TestDeleteUserProfile:
@@ -397,7 +397,7 @@ class TestDeleteUserProfile:
 
         response = client.delete(f"/api/users/{user.id}")
 
-        assert response.status_code == 403
+        assert response.status_code == 401
 
     def test_delete_profile_cascades(
             self, authenticated_client, create_test_user, db_session):

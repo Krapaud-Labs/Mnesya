@@ -80,7 +80,10 @@ class MedicationFacade:
         medication.user_id = data['user_id']
         medication.name = data['name']
         medication.dosage = data.get('dosage')
-        medication.moments = data['moments']
+        moments = data.get('moments')
+        if moments is None and data.get('times') is not None:
+            moments = [TIME_TO_MOMENT.get(t, t) for t in data['times']]
+        medication.moments = moments
         medication.frequency = data['frequency']
         medication.recurrence_days = data.get('recurrence_days')
         medication.start_date = data['start_date']
@@ -103,7 +106,9 @@ class MedicationFacade:
         if not medication:
             return None
 
-        schedule_fields = {'moments', 'frequency', 'recurrence_days', 'start_date', 'end_date'}
+        if 'times' in data and 'moments' not in data:
+            data = {**data, 'moments': [TIME_TO_MOMENT.get(t, t) for t in data['times']]}
+        schedule_fields = {'moments', 'times', 'frequency', 'recurrence_days', 'start_date', 'end_date'}
         schedule_changed = bool(schedule_fields & set(data.keys()))
 
         self.medication_repo.update(medication_id, data)

@@ -1,5 +1,5 @@
 /**
- * Root component — sets up navigation and notifications.
+ * Root component - sets up navigation and notifications.
  *
  * @module App
  */
@@ -13,9 +13,8 @@ import AppNavigator from './navigation/AppNavigator';
 import { registerForPushNotifications, cancelNotifications } from './utils/notifications';
 import * as Notifications from 'expo-notifications';
 import { navigationRef } from './services/navigationService';
-import { getToken, saveToken } from './services/tokenService';
-import axios from 'axios';
-import { API_BASE_URL } from './config/api';
+import { getToken } from './services/tokenService';
+import { refreshCaregiverToken } from './services/api';
 
 // Set the notification behavior
 Notifications.setNotificationHandler({
@@ -60,14 +59,9 @@ const App: React.FC = () => {
 
                     if (isCaregiverToken && exp !== undefined && exp > now && exp - now < 24 * 60 * 60) {
                         try {
-                            const response = await axios.post(
-                                `${API_BASE_URL}/api/auth/refresh`,
-                                {},
-                                { headers: { Authorization: `Bearer ${token}` } }
-                            );
-                            await saveToken(response.data.access_token as string);
+                            await refreshCaregiverToken(token);
                         } catch {
-                            // Token already expired or refresh failed — the next API call
+                            // Token already expired or refresh failed - the next API call
                             // will trigger the 401 handler and redirect to Login.
                         }
                     }

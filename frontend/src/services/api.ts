@@ -21,6 +21,25 @@ const REFRESH_THRESHOLD_SECONDS = 7 * 24 * 60 * 60;
 /** Number of seconds before expiry at which a silent refresh is triggered for caregiver tokens (1 day). */
 const CAREGIVER_REFRESH_THRESHOLD_SECONDS = 24 * 60 * 60;
 
+let caregiverRefreshPromise: Promise<string> | null = null;
+
+/** Shares an in-flight caregiver refresh between concurrent requests. */
+export const refreshCaregiverToken = async (token: string): Promise<string> => {
+    if (!caregiverRefreshPromise) {
+        caregiverRefreshPromise = axios
+            .post(`${BASE_API_URL}/api/auth/refresh`, {}, { headers: { Authorization: `Bearer ${token}` } })
+            .then(async (response) => {
+                const newToken: string = response.data.access_token;
+                await saveToken(newToken);
+                return newToken;
+            })
+            .finally(() => {
+                caregiverRefreshPromise = null;
+            });
+    }
+    return caregiverRefreshPromise;
+};
+
 // ─── Client ───────────────────────────────────────────────────────────────────
 
 const apiClient = axios.create({
@@ -42,6 +61,10 @@ apiClient.interceptors.request.use(
         if (token) {
             const payload = decodeJwtPayload(token);
             const now = Math.floor(Date.now() / 1000);
+            if (!payload?.exp || payload.exp <= now) {
+                await deleteToken();
+                return config;
+            }
 
             // Identify token type from its claims.
             const payload_any = payload as Record<string, unknown>;
@@ -71,7 +94,7 @@ apiClient.interceptors.request.use(
                     token = newToken;
                 } catch {
                     // Refresh failed (token already expired or server error).
-                    // Let the request proceed with the old token — the 401 handler
+                    // Let the request proceed with the old token - the 401 handler
                     // will clear it and redirect the user to re-pair.
                 }
             }
@@ -83,16 +106,9 @@ apiClient.interceptors.request.use(
                 payload.exp - now < CAREGIVER_REFRESH_THRESHOLD_SECONDS
             ) {
                 try {
-                    const refreshResponse = await axios.post(
-                        `${BASE_API_URL}/api/auth/refresh`,
-                        {},
-                        { headers: { Authorization: `Bearer ${token}` } }
-                    );
-                    const newToken: string = refreshResponse.data.access_token;
-                    await saveToken(newToken);
-                    token = newToken;
+                    token = await refreshCaregiverToken(token);
                 } catch {
-                    // Refresh failed — let the request proceed; the 401 handler
+                    // Refresh failed - let the request proceed; the 401 handler
                     // will clear the token and redirect to login.
                 }
             }
@@ -107,7 +123,7 @@ apiClient.interceptors.request.use(
     }
 );
 
-// Handle responses globally — clear token on 401 Unauthorized and redirect to login.
+// Handle responses globally - clear token on 401 Unauthorized and redirect to login.
 apiClient.interceptors.response.use(
     (response) => response,
     async (error) => {

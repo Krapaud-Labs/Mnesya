@@ -41,7 +41,7 @@ class TestUpdateCaregiverProfile:
         client, _ = authenticated_client
 
         new_email = f"newemail.{pytest.__version__}@example.com"
-        response = client.put("/api/caregivers/me", json={"email": new_email})
+        response = client.put("/api/caregivers/me", json={"email": new_email, "current_password": "TestPass123!"})
 
         assert response.status_code == 200
         data = response.json()
@@ -77,6 +77,7 @@ class TestUpdateCaregiverProfile:
                 "first_name": "MultiUpdate",
                 "last_name": "Test",
                 "email": f"multiupdate.{pytest.__version__}@example.com",
+                "current_password": "TestPass123!",
             },
         )
 
@@ -137,7 +138,7 @@ class TestUpdateCaregiverProfile:
         """Test update without authentication fails."""
         response = client.put("/api/caregivers/me", json={"first_name": "ShouldFail"})
 
-        assert response.status_code == 403
+        assert response.status_code == 401
 
     def test_update_with_duplicate_email(
         self, authenticated_client, create_test_caregiver
@@ -179,7 +180,7 @@ class TestDeleteCaregiverProfile:
         """Test delete without authentication fails."""
         response = client.delete("/api/caregivers/me")
 
-        assert response.status_code == 403
+        assert response.status_code == 401
 
     def test_delete_profile_invalid_token(self, client):
         """Test delete with invalid token fails."""

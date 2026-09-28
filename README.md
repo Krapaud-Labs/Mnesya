@@ -16,6 +16,7 @@ Mobile reminder application for elderly people and their caregivers.
 - [API Documentation](#api-documentation)
 - [Development](#development)
 - [Tests](#tests)
+- [CI and dependency security](#ci-and-dependency-security)
 - [Bug History](#bug-history)
 - [Authors](#authors)
 - [License](#license)
@@ -645,8 +646,8 @@ docs: update README
 
 **📋 Complete Test Documentation**: [backend/app/test/README.md](backend/app/test/README.md)
 
-**Test Suite**: historical counts are documented below.
-**Current status**: Docker regression execution must be rerun before claiming a passing backend suite.
+**Test Suite**: 234 backend tests across the API and domain suites.
+**Current status**: The CI backend gate compiles, lints, audits dependencies, and runs the Docker regression suite. The medication API accepts both the current `moments` representation and the legacy `times` representation during migration.
 
 ```bash
 cd backend
@@ -692,7 +693,7 @@ PYTHONPATH=. venv/bin/pytest app/test/test_recurrence.py -v --noconftest
 **📋 Complete Test Documentation**: [frontend/README-tests.md](frontend/README-tests.md)
 
 **Test Suite**: 20 suites are declared in the repository.
-**Current status**: Jest does not start with the installed React Native version because `@react-native/jest-preset` is missing from the configuration.
+**Current status**: Jest runs with the configured React Native preset and the CI frontend gate also runs ESLint, TypeScript, and the high-severity npm audit.
 
 ```bash
 cd frontend
@@ -766,13 +767,12 @@ Acceptance criteria checklist to verify before each Production deployment:
 - [x] Notifications work when the app is in the background
 - [x] API errors are displayed gracefully (no crashes)
 
-### CI/CD
+## CI and dependency security
 
-⚠️ Not yet configured , planned for future sprints:
+The workflow in `.github/workflows/ci.yml` runs on pull requests and pushes targeting `dev` or `main`.
+It validates Docker configuration, backend compilation/lint/tests, frontend lint/typecheck/tests, and dependency audits.
 
-1. **On PR**: Run automated tests (backend pytest + frontend Jest)
-2. **Staging Deployment**: Auto-deploy `dev` branch if tests pass
-3. **Production Deployment**: Manual deploy from `main` after validation
+The backend audit explicitly records `PYSEC-2026-1325` as an exception because it affects the latest `ecdsa` release pulled by `python-jose` and has no fixed release yet. The frontend lockfile overrides `image-size` to a fixed release; the remaining Expo transitive findings are moderate and require a breaking Expo downgrade, so they remain tracked for an Expo upgrade cycle.
 
 ## MVP Exclusions
 

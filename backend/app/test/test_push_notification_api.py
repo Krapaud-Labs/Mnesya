@@ -182,7 +182,7 @@ class TestRegisterPushToken:
 
         response = client.post("/api/push-tokens/register", json=token_data)
 
-        assert response.status_code == 403
+        assert response.status_code == 401
 
     def test_register_token_long_device_name(self, authenticated_client, sample_push_token):
         """Test that device name too long returns error."""
@@ -243,7 +243,7 @@ class TestUnregisterPushToken:
             f"/api/push-tokens/unregister?token={sample_push_token}"
         )
 
-        assert response.status_code == 403
+        assert response.status_code == 401
 
     def test_unregister_token_missing_token_field(self, authenticated_client):
         """Test that missing token field returns error."""
@@ -360,7 +360,7 @@ class TestGetMyTokens:
         """Test that unauthenticated users cannot get tokens."""
         response = client.get("/api/push-tokens/my-tokens")
 
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 class TestPushTokenIntegration:

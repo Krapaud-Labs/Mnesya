@@ -111,7 +111,7 @@ def verify_token(
 
         jti = payload.get("jti")
         if jti and RevokedTokenRepository(db).is_revoked(jti):
-            logger.warning("Revoked token used — sub=%s jti=%s", payload.get("sub"), jti)
+            logger.warning("Revoked token used - sub=%s jti=%s", payload.get("sub"), jti)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Token has been revoked",
@@ -126,7 +126,7 @@ def verify_token(
                 from datetime import timezone as _tz
                 token_issued_at = datetime.fromtimestamp(iat, tz=_tz.utc)
                 if token_issued_at <= revoked_before:
-                    logger.warning("Session-revoked token used — sub=%s", sub)
+                    logger.warning("Session-revoked token used - sub=%s", sub)
                     raise HTTPException(
                         status_code=status.HTTP_401_UNAUTHORIZED,
                         detail="Token has been revoked",
@@ -243,7 +243,7 @@ async def register(
         if existing_caregiver:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Registration failed",
+                detail="Email already registered",
             )
 
         # Create new caregiver
@@ -349,7 +349,7 @@ async def login(
         if not caregiver:
             # Constant-time dummy comparison to prevent timing-based email enumeration
             _bcrypt.checkpw(body.password.encode('utf-8'), _DUMMY_HASH.encode('utf-8'))
-            logger.warning("Failed login attempt — email not found: %s", body.email)
+            logger.warning("Failed login attempt - email not found: %s", body.email)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid email or password",
@@ -358,7 +358,7 @@ async def login(
 
         # Verify password
         if not caregiver.verify_password(body.password):
-            logger.warning("Failed login attempt — wrong password for: %s", body.email)
+            logger.warning("Failed login attempt - wrong password for: %s", body.email)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid email or password",
@@ -653,6 +653,8 @@ async def refresh_token(token_payload: dict = Depends(verify_token)):
         caregiver_id = token_payload.get("sub")
         email = token_payload.get("email")
         role = token_payload.get("role", "caregiver")
+        if role != "caregiver" or not caregiver_id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Caregiver role required")
 
         # Create new access token
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -667,10 +669,12 @@ async def refresh_token(token_payload: dict = Depends(verify_token)):
             expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         )
 
-    except Exception as e:
+    except HTTPException:
+        raise
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Token refresh failed: {str(e)}",
+            detail="Token refresh failed",
         )
 
 

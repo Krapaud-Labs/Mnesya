@@ -80,7 +80,7 @@ class TestGeneratePairingCode:
 
         response = client.post("/api/pairing/generate", json={"user_id": str(user.id)})
 
-        assert response.status_code == 403
+        assert response.status_code == 401
 
     def test_generate_code_invalid_user_id(self, authenticated_client):
         """Test generating code with invalid user ID format."""

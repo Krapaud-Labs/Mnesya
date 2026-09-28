@@ -20,7 +20,7 @@ from app.schemas.pairing_code_schema import (
 
 from app.services.pairing_facade import PairingFacade
 from app.services.user_facade import UserFacade
-from app.api.authentication import verify_token, create_access_token
+from app.api.authentication import verify_token, require_caregiver_role, create_access_token
 from app import get_db
 
 ACCESS_TOKEN_EXPIRE_DAYS = 14
@@ -38,7 +38,7 @@ def get_user_facade(db: Session = Depends(get_db)) -> UserFacade:
     return UserFacade(db)
 
 
-def get_current_caregiver_id(token_payload: dict = Depends(verify_token)) -> str:
+def get_current_caregiver_id(token_payload: dict = Depends(require_caregiver_role)) -> str:
     """Extract caregiver ID from JWT token payload."""
     caregiver_id = token_payload.get("sub")
     if not caregiver_id:
@@ -292,6 +292,7 @@ async def verify_code(
 )
 async def refresh_user_token(
     token_payload: dict = Depends(verify_token),
+    user_facade: UserFacade = Depends(get_user_facade),
 ) -> UserTokenRefreshResponse:
     """Silently renew the user's JWT token.
 
@@ -305,13 +306,18 @@ async def refresh_user_token(
             detail="Invalid authentication credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    if token_payload.get("role") != "patient":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Patient role required")
+    user = user_facade.get_user(UUID(user_id))
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User no longer exists")
 
     access_token = create_access_token(
         data={
             "sub": user_id,
-            "firstname": token_payload.get("firstname", ""),
-            "lastname": token_payload.get("lastname", ""),
-            "role": token_payload.get("role", "patient"),
+            "firstname": user.first_name,
+            "lastname": user.last_name,
+            "role": "patient",
         },
         expires_delta=timedelta(days=ACCESS_TOKEN_EXPIRE_DAYS),
     )
