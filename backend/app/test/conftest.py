@@ -20,7 +20,7 @@ from app.models.pairing_code import PairingCodeModel  # noqa: E402,F401
 from app.models.reminder import ReminderModel  # noqa: E402
 from app.models.push_token import PushTokenModel  # noqa: E402,F401
 
-# Test database URL — définie via TEST_DATABASE_URL dans l'environnement
+# Test database URL - définie via TEST_DATABASE_URL dans l'environnement
 # Fallback vers l'URL Docker si non définie (usage dans docker-compose uniquement)
 TEST_DATABASE_URL = os.getenv(
     "TEST_DATABASE_URL", "postgresql://mnesya_user:changeme@db:5432/mnesya_test_db"

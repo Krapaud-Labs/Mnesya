@@ -111,7 +111,7 @@ def verify_token(
 
         jti = payload.get("jti")
         if jti and RevokedTokenRepository(db).is_revoked(jti):
-            logger.warning("Revoked token used — sub=%s jti=%s", payload.get("sub"), jti)
+            logger.warning("Revoked token used - sub=%s jti=%s", payload.get("sub"), jti)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Token has been revoked",
@@ -126,7 +126,7 @@ def verify_token(
                 from datetime import timezone as _tz
                 token_issued_at = datetime.fromtimestamp(iat, tz=_tz.utc)
                 if token_issued_at <= revoked_before:
-                    logger.warning("Session-revoked token used — sub=%s", sub)
+                    logger.warning("Session-revoked token used - sub=%s", sub)
                     raise HTTPException(
                         status_code=status.HTTP_401_UNAUTHORIZED,
                         detail="Token has been revoked",
@@ -349,7 +349,7 @@ async def login(
         if not caregiver:
             # Constant-time dummy comparison to prevent timing-based email enumeration
             _bcrypt.checkpw(body.password.encode('utf-8'), _DUMMY_HASH.encode('utf-8'))
-            logger.warning("Failed login attempt — email not found: %s", body.email)
+            logger.warning("Failed login attempt - email not found: %s", body.email)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid email or password",
@@ -358,7 +358,7 @@ async def login(
 
         # Verify password
         if not caregiver.verify_password(body.password):
-            logger.warning("Failed login attempt — wrong password for: %s", body.email)
+            logger.warning("Failed login attempt - wrong password for: %s", body.email)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid email or password",
