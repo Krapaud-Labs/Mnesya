@@ -28,26 +28,26 @@ router = APIRouter(prefix="/api/push-tokens", tags=["Push Notifications"])
     summary="Register push notification token",
     description="""
     Register a device's push notification token for receiving notifications.
-    
+
     This endpoint registers a device's Expo push notification token, allowing
     the system to send push notifications to this device. If the token already
     exists, it will be updated with the new information.
-    
+
     **Authentication required:** Bearer token (caregiver or user)
-    
+
     **Required fields:**
     - token: Expo push token (format: ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx])
     - device_name: Device identifier (e.g., "iPhone 13", "Pixel 6")
-    
+
     **Optional fields:**
     - user_id: UUID of the user (for user devices)
     - caregiver_id: UUID of the caregiver (for caregiver devices)
-    
+
     **Behavior:**
     - If token exists: Updates device_name and reactivates the token
     - If token is new: Creates a new token record
     - Automatically associates with authenticated user/caregiver if IDs not provided
-    
+
     **Use cases:**
     - Register device on app launch
     - Update token after app reinstall
@@ -177,22 +177,22 @@ async def register_push_token(
     summary="Unregister push notification token",
     description="""
     Remove a push notification token from the system.
-    
+
     Use this endpoint to unregister a device's push notification token,
     typically when:
     - User logs out
     - App is uninstalled
     - User disables notifications
     - Device is no longer in use
-    
+
     **Authentication required:** Bearer token (caregiver or user)
-    
+
     **Query parameters:**
     - token: The push token to unregister (URL encoded)
-    
+
     After unregistration, the device will no longer receive push notifications
     until it registers again.
-    
+
     **Note:** This permanently deletes the token record. To temporarily disable
     notifications, you may want to implement a deactivation feature instead.
     """,
@@ -237,27 +237,27 @@ async def unregister_push_token(
     db: Session = Depends(get_db)
 ):
     """Unregister (delete) a push notification token.
-    
+
     Args:
         token: Token information to delete
         user_id: Authenticated user/caregiver ID from JWT
         db: Database session
-        
+
     Returns:
         Success message
     """
     try:
         repo = PushTokenRepository(db)
         deleted = repo.delete_by_token_for_owner(token, UUID(user_id))
-        
+
         if not deleted:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Push token not found"
             )
-        
+
         return {"message": "Push token unregistered successfully"}
-        
+
     except HTTPException:
         raise
     except Exception:
@@ -273,20 +273,20 @@ async def unregister_push_token(
     summary="Get my push notification tokens",
     description="""
     Retrieve all active push notification tokens for the authenticated user.
-    
+
     Returns a list of all devices registered to receive push notifications
     for the authenticated caregiver or user. Useful for:
     - Displaying registered devices in settings
     - Managing multiple devices
     - Debugging notification delivery issues
-    
+
     **Authentication required:** Bearer token (caregiver or user)
-    
+
     **Search logic:**
     1. First attempts to find tokens as caregiver
     2. If no caregiver tokens found, searches as user
     3. Returns empty list if no tokens found
-    
+
     **Response includes:**
     - Token ID and value
     - Device name
@@ -345,26 +345,26 @@ async def get_my_tokens(
     db: Session = Depends(get_db)
 ):
     """Get all push tokens for the authenticated user/caregiver.
-    
+
     Args:
         user_id: Authenticated user/caregiver ID from JWT
         db: Database session
-        
+
     Returns:
         List of push tokens
     """
     try:
         repo = PushTokenRepository(db)
-        
+
         # Try to get as caregiver first
         tokens = repo.get_active_tokens_by_caregiver(UUID(user_id))
-        
+
         # If no caregiver tokens, try as user
         if not tokens:
             tokens = repo.get_active_tokens_by_user(UUID(user_id))
-        
+
         return tokens
-        
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
