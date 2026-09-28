@@ -39,7 +39,7 @@ class PushTokenRepository(BaseRepository):
         """
         return self.db.query(PushTokenModel).filter(
             PushTokenModel._user_id == user_id,
-            PushTokenModel._is_active == True
+            PushTokenModel._is_active
         ).all()
 
     def get_active_tokens_by_caregiver(self, caregiver_id: UUID):
@@ -53,7 +53,7 @@ class PushTokenRepository(BaseRepository):
         """
         return self.db.query(PushTokenModel).filter(
             PushTokenModel._caregiver_id == caregiver_id,
-            PushTokenModel._is_active == True
+            PushTokenModel._is_active
         ).all()
 
     def deactivate_token(self, token: str) -> bool:
