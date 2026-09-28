@@ -26,7 +26,10 @@ jobs:
       - run: python -m pip install --upgrade pip && pip install -r requirements.txt ruff pip-audit
       - run: python -m compileall -q app
       - run: ruff check app --select E,F --ignore E501
-      - run: pip-audit -r requirements.txt
+      # PYSEC-2026-1325 affects ecdsa 0.19.2, pulled by python-jose 3.5.0.
+      # No fixed ecdsa release exists yet; keep the finding explicit while
+      # allowing the rest of the dependency gate to run.
+      - run: pip-audit -r requirements.txt --ignore PYSEC-2026-1325
       - name: Backend tests
         working-directory: .
         run: docker compose -f docker/docker-compose.test.yml up --build --abort-on-container-exit --exit-code-from tests
