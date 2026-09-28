@@ -4,7 +4,7 @@
  * Configures Jest to work with TypeScript, JSX, and React Native environment.
  */
 module.exports = {
-  preset: 'react-native',
+  preset: '@react-native/jest-preset',
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
   transform: {
     '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', { configFile: './babel.config.js' }],
