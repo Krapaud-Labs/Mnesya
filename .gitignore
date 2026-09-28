@@ -84,6 +84,9 @@ backend/venv/
 # Agentic Starter Kit local
 .codex/
 AGENTS.md
+.agents/
+CODEX.md
+codex/
 
 # Artefacts temporaires de lecture documentaire et RNCP
 .tmp-docs-rncp-cleanup-*/
