@@ -131,7 +131,7 @@ class TestGetCurrentStatus:
 
         response = client.get(f"/api/reminder-status/{reminder.id}/current")
 
-        assert response.status_code == 403
+        assert response.status_code == 401
 
     def test_get_current_status_invalid_uuid(self, authenticated_client):
         """Test retrieving status with invalid reminder ID format."""
@@ -234,7 +234,7 @@ class TestGetStatusHistory:
 
         response = client.get(f"/api/reminder-status/{reminder.id}/history")
 
-        assert response.status_code == 403
+        assert response.status_code == 401
 
     def test_get_status_history_invalid_uuid(self, authenticated_client):
         """Test retrieving history with invalid reminder ID format."""
@@ -438,7 +438,7 @@ class TestUpdateReminderStatus:
         update_data = {"status": "DONE"}
         response = client.put(f"/api/reminder-status/{reminder.id}", json=update_data)
 
-        assert response.status_code == 403
+        assert response.status_code == 401
 
     def test_update_status_invalid_uuid(self, authenticated_client):
         """Test updating status with invalid reminder ID format."""

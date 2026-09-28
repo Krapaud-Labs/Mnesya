@@ -12,6 +12,13 @@ VALID_MOMENTS = {
     "BEFORE_DINNER", "DURING_DINNER", "AFTER_DINNER",
     "BEDTIME",
 }
+MOMENT_TO_TIME = {
+    "BEFORE_BREAKFAST": "07:30", "DURING_BREAKFAST": "08:00", "AFTER_BREAKFAST": "08:30",
+    "BEFORE_LUNCH": "11:45", "DURING_LUNCH": "12:15", "AFTER_LUNCH": "13:00",
+    "BEFORE_DINNER": "18:30", "DURING_DINNER": "19:15", "AFTER_DINNER": "20:00",
+    "BEDTIME": "21:30",
+}
+TIME_TO_MOMENT = {value: key for key, value in MOMENT_TO_TIME.items()}
 
 
 class MedicationCreate(BaseModel):
@@ -23,6 +30,14 @@ class MedicationCreate(BaseModel):
     recurrence_days: Optional[List[int]] = None
     start_date: date
     end_date: Optional[date] = None
+
+    @model_validator(mode='before')
+    @classmethod
+    def accept_legacy_times(cls, values):
+        if isinstance(values, dict) and 'moments' not in values and 'times' in values:
+            values = dict(values)
+            values['moments'] = [TIME_TO_MOMENT.get(t, t) for t in values.pop('times')]
+        return values
 
     @field_validator('name')
     @classmethod
@@ -78,6 +93,10 @@ class MedicationCreate(BaseModel):
         if self.end_date and self.end_date < self.start_date:
             raise ValueError("end_date must be after start_date")
         return self
+
+    @property
+    def times(self) -> List[str]:
+        return [MOMENT_TO_TIME[m] for m in self.moments]
 
 
 class MedicationUpdate(BaseModel):
@@ -139,6 +158,10 @@ class WeekEntryResponse(BaseModel):
     moment: str
     reminder_id: Optional[UUID]
     status: Optional[str]
+
+    @property
+    def time(self) -> str:
+        return MOMENT_TO_TIME.get(self.moment, self.moment)
 
 
 class WeekDayResponse(BaseModel):

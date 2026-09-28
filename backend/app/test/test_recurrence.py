@@ -252,7 +252,7 @@ class TestReminderCreateSchema:
 
     base: dict = {
         "title": "Test",
-        "scheduled_at": "2026-06-01T09:00:00Z",
+        "scheduled_at": "2027-06-01T09:00:00Z",
         "user_id": "00000000-0000-0000-0000-000000000001",
     }
 

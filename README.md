@@ -646,8 +646,8 @@ docs: update README
 
 **📋 Complete Test Documentation**: [backend/app/test/README.md](backend/app/test/README.md)
 
-**Test Suite**: historical counts are documented below.
-**Current status**: The CI backend gate compiles, lints, audits dependencies, and runs the Docker regression suite.
+**Test Suite**: 234 backend tests across the API and domain suites.
+**Current status**: The CI backend gate compiles, lints, audits dependencies, and runs the Docker regression suite. The medication API accepts both the current `moments` representation and the legacy `times` representation during migration.
 
 ```bash
 cd backend

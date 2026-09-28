@@ -85,6 +85,13 @@ class MedicationModel(database):
         "BEFORE_DINNER", "DURING_DINNER", "AFTER_DINNER",
         "BEDTIME",
     }
+    MOMENT_TO_TIME = {
+        "BEFORE_BREAKFAST": "07:30", "DURING_BREAKFAST": "08:00", "AFTER_BREAKFAST": "08:30",
+        "BEFORE_LUNCH": "11:45", "DURING_LUNCH": "12:15", "AFTER_LUNCH": "13:00",
+        "BEFORE_DINNER": "18:30", "DURING_DINNER": "19:15", "AFTER_DINNER": "20:00",
+        "BEDTIME": "21:30",
+    }
+    TIME_TO_MOMENT = {value: key for key, value in MOMENT_TO_TIME.items()}
 
     @property
     def moments(self) -> List[str]:
@@ -98,6 +105,18 @@ class MedicationModel(database):
             if m not in self.VALID_MOMENTS:
                 raise ValueError(f"Invalid moment: {m}. Must be one of {self.VALID_MOMENTS}")
         self._moments = value
+
+    @property
+    def times(self) -> List[str]:
+        return [self.MOMENT_TO_TIME[m] for m in self._moments]
+
+    @times.setter
+    def times(self, value: List[str]) -> None:
+        if not value:
+            raise ValueError("times must not be empty")
+        if any(t not in self.TIME_TO_MOMENT for t in value):
+            raise ValueError("Invalid time format")
+        self.moments = [self.TIME_TO_MOMENT[t] for t in value]
 
     @property
     def frequency(self) -> str:

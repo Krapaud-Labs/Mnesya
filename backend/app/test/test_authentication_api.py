@@ -187,7 +187,7 @@ class TestGetMeEndpoint:
         """Test getting profile without authentication token fails."""
         response = client.get("/api/auth/me")
 
-        assert response.status_code == 403  # Forbidden
+        assert response.status_code == 401  # Forbidden
 
     def test_get_me_invalid_token(self, client):
         """Test getting profile with invalid token fails."""
@@ -213,7 +213,7 @@ class TestLogoutEndpoint:
         """Test logout without token."""
         response = client.post("/api/auth/logout")
 
-        assert response.status_code == 403
+        assert response.status_code == 401
 
     def test_logout_revokes_token(self, authenticated_client):
         """Test that after logout, the same token is rejected."""
@@ -249,7 +249,7 @@ class TestRefreshTokenEndpoint:
         """Test refresh without authentication fails."""
         response = client.post("/api/auth/refresh")
 
-        assert response.status_code == 403
+        assert response.status_code == 401
 
     def test_refresh_token_invalid(self, client):
         """Test refresh with invalid token fails."""
