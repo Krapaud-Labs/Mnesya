@@ -30,7 +30,9 @@ TEST_DATABASE_URL = os.getenv(
 @pytest.fixture(scope="function")
 def db_session():
     """Create a fresh database session for each test."""
-    engine = create_engine(TEST_DATABASE_URL)
+    # Each test owns a short-lived engine. Keep the pool bounded and dispose
+    # it after teardown so the full API suite cannot exhaust PostgreSQL.
+    engine = create_engine(TEST_DATABASE_URL, pool_size=1, max_overflow=0)
 
     # Create all tables
     Base.metadata.create_all(bind=engine)
@@ -44,6 +46,7 @@ def db_session():
     # Cleanup
     session.close()
     Base.metadata.drop_all(bind=engine)
+    engine.dispose()
 
 
 @pytest.fixture(scope="function")
