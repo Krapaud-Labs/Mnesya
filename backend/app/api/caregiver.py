@@ -4,14 +4,16 @@ This module provides endpoints for managing caregiver profiles.
 Caregivers can view and update their own profile information.
 """
 
-from fastapi import APIRouter, HTTPException, Depends, status
-from sqlalchemy.orm import Session
-from sqlalchemy.exc import IntegrityError
 from uuid import UUID
-from app.services.caregiver_facade import CaregiverFacade
-from app.schemas.caregiver_schema import CaregiverUpdate, CaregiverResponse
-from app.api.authentication import verify_token, require_caregiver_role
+
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
+
 from app import get_db
+from app.api.authentication import require_caregiver_role
+from app.schemas.caregiver_schema import CaregiverResponse, CaregiverUpdate
+from app.services.caregiver_facade import CaregiverFacade
 
 # Router
 router = APIRouter(prefix="/api/caregivers", tags=["Caregivers"])
@@ -244,7 +246,7 @@ async def update_my_profile(
         traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to update profile: {str(e)}"
+            detail=f"Failed to update profile: {e!s}"
         )
 
 
@@ -341,7 +343,7 @@ async def delete_my_profile(
                 detail="Failed to delete caregiver account"
             )
 
-        return None
+        return
 
     except HTTPException:
         raise
@@ -350,7 +352,7 @@ async def delete_my_profile(
         traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to delete account: {str(e)}"
+            detail=f"Failed to delete account: {e!s}"
         )
 
 

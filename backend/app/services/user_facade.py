@@ -5,14 +5,15 @@ It provides a simplified interface for user operations, coordinating
 between the model layer and repository layer.
 """
 
-from sqlalchemy.orm import Session
 from uuid import UUID
-from typing import List
+
+from sqlalchemy.orm import Session
+
 from app.models.user import UserModel
-from app.persistence.user_repository import UserRepository
 from app.persistence.pairing_code_repository import PairingCodeRepository
-from app.persistence.reminder_repository import ReminderRepository
 from app.persistence.push_token_repository import PushTokenRepository
+from app.persistence.reminder_repository import ReminderRepository
+from app.persistence.user_repository import UserRepository
 
 
 class UserFacade:
@@ -61,7 +62,7 @@ class UserFacade:
         """
         return self.user_repo.get(user_id)
 
-    def get_users_by_caregiver(self, caregiver_id: UUID) -> List[UserModel]:
+    def get_users_by_caregiver(self, caregiver_id: UUID) -> list[UserModel]:
         """Get all users associated with a caregiver."""
         return self.user_repo.get_users_by_caregiver(caregiver_id)
 

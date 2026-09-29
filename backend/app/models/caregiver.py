@@ -7,11 +7,13 @@ users.
 
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import Column, String, DateTime, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID, ARRAY
-from app import database
+
 import validators
 from passlib.hash import bcrypt
+from sqlalchemy import Column, DateTime, ForeignKey, String
+from sqlalchemy.dialects.postgresql import ARRAY, UUID
+
+from app import database
 
 
 class CaregiverModel(database):

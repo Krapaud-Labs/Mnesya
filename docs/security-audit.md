@@ -1,3 +1,6 @@
+---
+last_updated: 2026-09-29
+---
 # Security Audit Report — Mnesya
 
 **Date :** March 3, 2026  

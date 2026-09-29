@@ -1,3 +1,6 @@
+---
+last_updated: 2026-09-29
+---
 # Known Issues — Mnesya
 
 This document tracks confirmed bugs, limitations, and planned improvements. See the [Security Audit](security-audit.md) for security-specific issues.

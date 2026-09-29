@@ -4,36 +4,37 @@ This module provides JWT-based authentication endpoints for caregivers.
 Includes login, registration, and token management.
 """
 
-from fastapi import APIRouter, HTTPException, Depends, status, Request
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from jose import JWTError, jwt
-from datetime import datetime, timedelta, timezone
-from typing import Optional
-from sqlalchemy.orm import Session
-import os
 import logging
-from app.limiter import limiter
+import os
 import uuid as _uuid
+from datetime import datetime, timedelta, timezone
 
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from jose import JWTError, jwt
 from passlib.hash import bcrypt as _bcrypt
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
+from uuid import UUID
+
+from app.limiter import limiter
+from app import get_db
+from app.persistence.revoked_token_repository import RevokedTokenRepository
+from app.persistence.user_session_revocation_repository import (
+    UserSessionRevocationRepository,
+)
+from app.schemas.authentication_schema import (
+    CaregiverProfile,
+    LoginRequest,
+    RegisterRequest,
+    TokenResponse,
+)
+from app.schemas.caregiver_schema import CaregiverResponse, CaregiverUpdate
+from app.services.caregiver_facade import CaregiverFacade
 
 # Pre-computed dummy hash used to normalise response time when an email is not
 # found, preventing timing-based account enumeration (ÉLEVÉ-01).
 _DUMMY_HASH = _bcrypt.hash("__dummy__")
-
-from app.schemas.authentication_schema import (
-    LoginRequest,
-    RegisterRequest,
-    TokenResponse,
-    CaregiverProfile,
-)
-from app.services.caregiver_facade import CaregiverFacade
-from app.schemas.caregiver_schema import CaregiverResponse, CaregiverUpdate
-from app import get_db
-from sqlalchemy.exc import IntegrityError
-from uuid import UUID
-from app.persistence.revoked_token_repository import RevokedTokenRepository
-from app.persistence.user_session_revocation_repository import UserSessionRevocationRepository
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +59,7 @@ def get_caregiver_facade(db: Session = Depends(get_db)) -> CaregiverFacade:
     return CaregiverFacade(db)
 
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
     """Create a JWT access token.
 
     Args:
@@ -141,6 +142,18 @@ def verify_token(
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+
+def require_caregiver_role(
+    token_payload: dict = Depends(verify_token),
+) -> dict:
+    """Dependency that rejects non-caregiver tokens."""
+    if token_payload.get("role") != "caregiver":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Caregiver role required",
+        )
+    return token_payload
 
 
 @router.post(
@@ -231,7 +244,7 @@ async def register(
         if existing_caregiver:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Registration failed",
+                detail="Email already registered",
             )
 
         # Create new caregiver
@@ -371,7 +384,7 @@ async def login(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Login failed: {str(e)}",
+            detail=f"Login failed: {e!s}",
         )
 
 
@@ -467,7 +480,7 @@ async def get_current_user(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get profile: {str(e)}",
+            detail=f"Failed to get profile: {e!s}",
         )
 
 
@@ -528,7 +541,7 @@ async def update_current_user(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to update profile: {str(e)}",
+            detail=f"Failed to update profile: {e!s}",
         )
 
 
@@ -658,21 +671,9 @@ async def refresh_token(token_payload: dict = Depends(verify_token)):
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Token refresh failed: {str(e)}",
+            detail=f"Token refresh failed: {e!s}",
         )
-
-
-def require_caregiver_role(
-    token_payload: dict = Depends(verify_token),
-) -> dict:
-    """Dependency that rejects non-caregiver tokens."""
-    if token_payload.get("role") != "caregiver":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Caregiver role required",
-        )
-    return token_payload
 
 
 # Export for use in other modules
-__all__ = ["router", "verify_token", "require_caregiver_role"]
+__all__ = ["require_caregiver_role", "router", "verify_token"]

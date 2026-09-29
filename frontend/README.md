@@ -53,6 +53,8 @@ cp .env.example .env.local
 | `npm run android`       | Launch on Android emulator                        |
 | `npm run web`           | Launch in browser (limited native features)       |
 | `npm test`              | Run Jest test suite                               |
+| `npm run lint`          | Run ESLint on the source tree                    |
+| `npx tsc --noEmit`      | Type-check the TypeScript project               |
 | `npm run test:watch`    | Run tests in watch mode                           |
 | `npm run test:coverage` | Run tests and generate coverage report            |
 | `npm run format`        | Format source files with Prettier                 |
@@ -160,7 +162,7 @@ Mock files are in `__mocks__/`.
 
 ## Linting
 
-ESLint v9 is configured in `eslint.config.js`. The project must have **0 errors and 0 warnings** before any commit.
+ESLint v9 is configured in `eslint.config.js`. The project must have **0 errors and 0 warnings** before any commit. TypeScript is checked with `npx tsc --noEmit` using `tsconfig.json`.
 
 ```bash
 npx eslint src/

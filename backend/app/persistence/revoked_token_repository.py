@@ -1,8 +1,9 @@
 """Revoked Token Repository module."""
 
 from datetime import datetime, timezone
-from app.persistence.base_repository import BaseRepository
+
 from app.models.revoked_token import RevokedTokenModel
+from app.persistence.base_repository import BaseRepository
 
 
 class RevokedTokenRepository(BaseRepository):

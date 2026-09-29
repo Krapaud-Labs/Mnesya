@@ -3,8 +3,11 @@
 This module provides endpoints for managing push notification tokens.
 """
 
-from fastapi import APIRouter, HTTPException, Depends, status
+from uuid import UUID
+
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+
 from app import get_db
 from app.api.authentication import verify_token
 from app.models.push_token import PushTokenModel
@@ -13,10 +16,7 @@ from app.persistence.user_repository import UserRepository
 from app.schemas.push_token_schema import (
     PushTokenCreate,
     PushTokenResponse,
-    PushTokenDelete
 )
-from typing import List
-from uuid import UUID
 
 router = APIRouter(prefix="/api/push-tokens", tags=["Push Notifications"])
 
@@ -263,13 +263,13 @@ async def unregister_push_token(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to unregister push token: {str(e)}"
+            detail=f"Failed to unregister push token: {e!s}"
         )
 
 
 @router.get(
     "/my-tokens",
-    response_model=List[PushTokenResponse],
+    response_model=list[PushTokenResponse],
     summary="Get my push notification tokens",
     description="""
     Retrieve all active push notification tokens for the authenticated user.
@@ -368,7 +368,7 @@ async def get_my_tokens(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retrieve push tokens: {str(e)}"
+            detail=f"Failed to retrieve push tokens: {e!s}"
         )
 
 

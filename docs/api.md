@@ -1,3 +1,6 @@
+---
+last_updated: 2026-09-29
+---
 # API Reference — Mnesya
 
 **Base URL (dev):** `http://localhost:8000`  

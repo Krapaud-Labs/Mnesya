@@ -5,8 +5,10 @@ This module defines the PushToken entity for storing Expo push notification toke
 
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import Column, String, DateTime, Boolean, ForeignKey
+
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID
+
 from app import database
 
 

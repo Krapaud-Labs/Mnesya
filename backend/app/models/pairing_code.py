@@ -4,9 +4,11 @@ This module defines the PairingCode entity for user-caregiver pairing.
 """
 
 import uuid
-from datetime import datetime, timezone, timedelta
-from sqlalchemy import Column, String, DateTime, Boolean, ForeignKey
+from datetime import datetime, timezone
+
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID
+
 from app import database
 
 

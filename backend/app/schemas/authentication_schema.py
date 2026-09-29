@@ -4,9 +4,10 @@ This module defines Pydantic schemas for authentication operations.
 """
 
 import re
-from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
+
 import validators
+from pydantic import BaseModel, Field, field_validator
 
 _NAME_RE = re.compile(r"^[A-Za-zÀ-ÖØ-öø-ÿ' \-]+$")
 
@@ -96,8 +97,8 @@ class RegisterRequest(BaseModel):
                 'Password must contain at least one lowercase letter')
         if not has_sym:
             raise ValueError(
-                f'Password must contain at least one special character: {
-                    ", ".join(SpecialSym)}')
+                'Password must contain at least one special character: '
+                + ", ".join(SpecialSym))
 
         return value
 

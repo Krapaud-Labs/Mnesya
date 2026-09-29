@@ -3,9 +3,10 @@
 This module provides data access methods for PushToken entities.
 """
 
-from app.persistence.base_repository import BaseRepository
-from app.models.push_token import PushTokenModel
 from uuid import UUID
+
+from app.models.push_token import PushTokenModel
+from app.persistence.base_repository import BaseRepository
 
 
 class PushTokenRepository(BaseRepository):
@@ -39,7 +40,7 @@ class PushTokenRepository(BaseRepository):
         """
         return self.db.query(PushTokenModel).filter(
             PushTokenModel._user_id == user_id,
-            PushTokenModel._is_active == True
+            PushTokenModel._is_active.is_(True)
         ).all()
 
     def get_active_tokens_by_caregiver(self, caregiver_id: UUID):
@@ -53,7 +54,7 @@ class PushTokenRepository(BaseRepository):
         """
         return self.db.query(PushTokenModel).filter(
             PushTokenModel._caregiver_id == caregiver_id,
-            PushTokenModel._is_active == True
+            PushTokenModel._is_active.is_(True)
         ).all()
 
     def deactivate_token(self, token: str) -> bool:

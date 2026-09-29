@@ -8,6 +8,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "test": "jest",
+    "lint": "eslint src",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "format": "prettier --write \"src/**/*.{ts,tsx}\""
@@ -46,6 +47,7 @@
     "@tsconfig/react-native": "^3.0.9",
     "@types/jest": "^29.5.14",
     "@types/react": "~19.1.10",
+    "babel-jest": "^29.7.0",
     "@typescript-eslint/eslint-plugin": "^8.56.1",
     "@typescript-eslint/parser": "^8.56.1",
     "eslint": "^9.39.3",

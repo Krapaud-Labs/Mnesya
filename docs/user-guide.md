@@ -1,3 +1,6 @@
+---
+last_updated: 2026-09-29
+---
 # Mnesya — User Guide
 
 Mnesya is a reminder app designed to help **elderly people** manage their daily tasks, supported by a **caregiver** (family member, nurse, or carer) who sets up and monitors reminders remotely.

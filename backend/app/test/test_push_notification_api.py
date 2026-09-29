@@ -6,8 +6,9 @@ Tests cover:
 - GET /api/push-tokens/my-tokens - Get user's push tokens
 """
 
-import pytest
 from uuid import uuid4
+
+import pytest
 
 
 @pytest.fixture
@@ -298,7 +299,7 @@ class TestGetMyTokens:
         user = create_test_user(caregiver_id=caregiver.id)
         
         # Create token for user
-        token = create_test_push_token(
+        _token = create_test_push_token(
             user_id=user.id,
             device_name="User Phone"
         )

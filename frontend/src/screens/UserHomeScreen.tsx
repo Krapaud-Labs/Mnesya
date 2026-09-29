@@ -30,7 +30,7 @@ import type { UserProfileData, ReminderData } from '../types/interfaces';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-type Props = NativeStackScreenProps<UserTabsParamList, 'Refresh'>;
+type Props = NativeStackScreenProps<UserTabsParamList, 'Refresh' | 'Emergency'>;
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 

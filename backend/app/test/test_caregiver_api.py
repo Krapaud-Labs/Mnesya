@@ -41,7 +41,10 @@ class TestUpdateCaregiverProfile:
         client, _ = authenticated_client
 
         new_email = f"newemail.{pytest.__version__}@example.com"
-        response = client.put("/api/caregivers/me", json={"email": new_email})
+        response = client.put(
+            "/api/caregivers/me",
+            json={"email": new_email, "current_password": "TestPass123!"},
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -77,6 +80,7 @@ class TestUpdateCaregiverProfile:
                 "first_name": "MultiUpdate",
                 "last_name": "Test",
                 "email": f"multiupdate.{pytest.__version__}@example.com",
+                "current_password": "TestPass123!",
             },
         )
 

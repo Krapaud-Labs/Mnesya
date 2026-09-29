@@ -18,11 +18,9 @@ Typical scenarios:
 
 import random
 import string
-import uuid
 from datetime import datetime, timedelta, timezone
 
 from locust import HttpUser, TaskSet, between, task
-
 
 # ---------------------------------------------------------------------------
 # Helpers

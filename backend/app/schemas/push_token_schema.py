@@ -3,10 +3,10 @@
 This module defines Pydantic schemas for PushToken validation and serialization.
 """
 
-from pydantic import BaseModel, Field, field_validator, ConfigDict
 from datetime import datetime
 from uuid import UUID
-from typing import Optional
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class PushTokenCreate(BaseModel):
@@ -20,9 +20,9 @@ class PushTokenCreate(BaseModel):
     """
     
     token: str = Field(..., description="Expo push token")
-    user_id: Optional[UUID] = Field(None, description="User ID (for elderly user app)")
-    caregiver_id: Optional[UUID] = Field(None, description="Caregiver ID (for caregiver app)")
-    device_name: Optional[str] = Field(None, description="Device name/description")
+    user_id: UUID | None = Field(None, description="User ID (for elderly user app)")
+    caregiver_id: UUID | None = Field(None, description="Caregiver ID (for caregiver app)")
+    device_name: str | None = Field(None, description="Device name/description")
 
     @field_validator('token')
     def validate_token(cls, value: str) -> str:
@@ -34,7 +34,7 @@ class PushTokenCreate(BaseModel):
         return value.strip()
 
     @field_validator('device_name')
-    def validate_device_name(cls, value: Optional[str]) -> Optional[str]:
+    def validate_device_name(cls, value: str | None) -> str | None:
         """Validate device name."""
         if value and len(value) > 100:
             raise ValueError("Device name must be <= 100 characters")
@@ -57,9 +57,9 @@ class PushTokenResponse(BaseModel):
     
     id: UUID
     token: str
-    user_id: Optional[UUID]
-    caregiver_id: Optional[UUID]
-    device_name: Optional[str]
+    user_id: UUID | None
+    caregiver_id: UUID | None
+    device_name: str | None
     is_active: bool
     created_at: datetime
     updated_at: datetime
@@ -88,4 +88,4 @@ class SendNotificationRequest(BaseModel):
     
     title: str = Field(..., description="Notification title")
     body: str = Field(..., description="Notification message")
-    data: Optional[dict] = Field(None, description="Optional extra data")
+    data: dict | None = Field(None, description="Optional extra data")

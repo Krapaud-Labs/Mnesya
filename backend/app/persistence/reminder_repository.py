@@ -3,14 +3,15 @@
 This module provides data access operations specific to Reminder entities.
 """
 
-from typing import List
+from datetime import datetime, timedelta, timezone
 from uuid import UUID
+
 from sqlalchemy.orm import Session
+
 from app.models.reminder import ReminderModel
 from app.models.reminder_status import ReminderStatusModel
 from app.models.user import UserModel
 from app.persistence.base_repository import BaseRepository
-from datetime import datetime, timedelta, timezone
 
 
 class ReminderRepository(BaseRepository[ReminderModel]):
@@ -24,7 +25,7 @@ class ReminderRepository(BaseRepository[ReminderModel]):
         """Initialize the ReminderRepository with ReminderModel and database session."""
         super().__init__(ReminderModel, db)
 
-    def get_reminders_by_caregiver(self, caregiver_id: UUID) -> List[ReminderModel]:
+    def get_reminders_by_caregiver(self, caregiver_id: UUID) -> list[ReminderModel]:
         """Get all reminders created by a specific caregiver, enriched with user name.
 
         Args:
@@ -45,7 +46,7 @@ class ReminderRepository(BaseRepository[ReminderModel]):
             reminder.user_last_name = last_name
         return [r for r, _, _ in results]
 
-    def get_reminders_by_user(self, user_id: UUID) -> List[ReminderModel]:
+    def get_reminders_by_user(self, user_id: UUID) -> list[ReminderModel]:
         """Get all reminders for a specific user, enriched with user name.
 
         Args:
@@ -66,7 +67,7 @@ class ReminderRepository(BaseRepository[ReminderModel]):
             reminder.user_last_name = last_name
         return [r for r, _, _ in results]
 
-    def get_reminders_due_now(self, window_seconds: int = 60) -> List[ReminderModel]:
+    def get_reminders_due_now(self, window_seconds: int = 60) -> list[ReminderModel]:
         """Get reminders that are due within the current time window.
 
         Excludes reminders with a terminal status (DONE, UNABLE, MISSED) to avoid
@@ -115,8 +116,8 @@ class ReminderRepository(BaseRepository[ReminderModel]):
         )
 
     def get_reminders_at_offset(
-        self, offset_minutes: int = 60, statuses: List[str] = None
-    ) -> List[ReminderModel]:
+        self, offset_minutes: int = 60, statuses: list[str] = None
+    ) -> list[ReminderModel]:
         """Get reminders scheduled exactly offset_minutes ago (±30 seconds).
 
         Used for retry logic: finds reminders whose scheduled_at was
@@ -178,7 +179,7 @@ class ReminderRepository(BaseRepository[ReminderModel]):
         self.db.commit()
         return deleted_count
 
-    def get_reminders_to_escalate(self, delay_minutes: int = 10) -> List[ReminderModel]:
+    def get_reminders_to_escalate(self, delay_minutes: int = 10) -> list[ReminderModel]:
         """Get reminders that should be escalated to the caregiver.
 
         Returns all reminders older than delay_minutes that have never been

@@ -138,11 +138,9 @@ const App: React.FC = () => {
 
         // Cleanup listener on component unmount
         return () => subscription.remove();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handleNotificationNavigation = async () => {
-        // eslint-disable-next-line @typescript-eslint/no-deprecated
         const lastResponse = await Notifications.getLastNotificationResponseAsync();
         if (!lastResponse) return;
 

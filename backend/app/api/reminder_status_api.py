@@ -4,20 +4,21 @@ This module provides endpoints for managing reminder statuses.
 Statuses track the lifecycle of reminders (PENDING, DONE, POSTPONED, UNABLE).
 """
 
-from fastapi import APIRouter, HTTPException, Depends, status
+from uuid import UUID
+
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from app.services.reminder_status_facade import ReminderStatusFacade
-from app.services.reminder_facade import ReminderFacade
+
+from app import get_db
+from app.api.authentication import require_caregiver_role, verify_token
+from app.models.reminder_status_enum import ReminderStatusEnum
 from app.schemas.reminder_status_schema import (
+    ActivityLogEntry,
     ReminderStatusResponse,
     ReminderStatusUpdate,
-    ActivityLogEntry,
 )
-from app.models.reminder_status_enum import ReminderStatusEnum
-from app.api.authentication import verify_token, require_caregiver_role
-from app import get_db
-from uuid import UUID
-from typing import List
+from app.services.reminder_facade import ReminderFacade
+from app.services.reminder_status_facade import ReminderStatusFacade
 
 router = APIRouter(prefix="/api/reminder-status", tags=["Reminder Status"])
 
@@ -154,13 +155,13 @@ async def get_current_status(
         traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retrieve status: {str(e)}",
+            detail=f"Failed to retrieve status: {e!s}",
         )
 
 
 @router.get(
     "/{reminder_id}/history",
-    response_model=List[ReminderStatusResponse],
+    response_model=list[ReminderStatusResponse],
     summary="Get reminder status history",
     description="""
     Retrieve the complete status change history for a reminder.
@@ -295,7 +296,7 @@ async def get_status_history(
         traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retrieve status history: {str(e)}",
+            detail=f"Failed to retrieve status history: {e!s}",
         )
 
 
@@ -442,13 +443,13 @@ async def update_reminder_status(
         traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to update status: {str(e)}",
+            detail=f"Failed to update status: {e!s}",
         )
 
 
 @router.get(
     "/caregiver/recent",
-    response_model=List[ActivityLogEntry],
+    response_model=list[ActivityLogEntry],
     summary="Get recent activity log for the caregiver",
     description="""
     Returns all user interactions on reminders (DONE, POSTPONED, UNABLE, MISSED)
@@ -536,13 +537,13 @@ async def get_caregiver_activity_log(
         traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retrieve activity log: {str(e)}",
+            detail=f"Failed to retrieve activity log: {e!s}",
         )
 
 
 @router.get(
     "/valid-statuses",
-    response_model=List[str],
+    response_model=list[str],
     description="""
     Retrieve the list of all valid reminder status values.
     

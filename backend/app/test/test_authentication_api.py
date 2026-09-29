@@ -8,8 +8,6 @@ Tests cover:
 - POST /api/auth/refresh - Refresh access token
 """
 
-import pytest
-from datetime import datetime, timedelta
 
 
 class TestRegisterEndpoint:

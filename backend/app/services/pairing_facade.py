@@ -5,10 +5,9 @@ It provides a simplified interface for pairing operations, coordinating
 between the model layer and repository layer.
 """
 
-import string
 import secrets
-from datetime import datetime, timezone, timedelta
-from typing import Optional
+import string
+from datetime import datetime, timedelta, timezone
 from uuid import UUID
 
 from sqlalchemy.orm import Session
@@ -67,7 +66,7 @@ class PairingFacade:
         self.pairing_code_repo.add(pairing_code)
         return pairing_code
 
-    def find_pairing_code(self, code: str) -> Optional[PairingCodeModel]:
+    def find_pairing_code(self, code: str) -> PairingCodeModel | None:
         """Find a pairing code by its string value.
 
         Args:

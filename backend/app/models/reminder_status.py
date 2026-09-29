@@ -6,8 +6,10 @@ Each status entry represents a state change in a reminder's lifecycle.
 
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import Column, String, DateTime, ForeignKey
+
+from sqlalchemy import Column, DateTime, ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID
+
 from app import database
 from app.models.reminder_status_enum import ReminderStatusEnum
 

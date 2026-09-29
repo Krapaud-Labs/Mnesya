@@ -6,21 +6,20 @@ Caregivers can create, read, update, and delete reminders for their users.
 
 import traceback
 from uuid import UUID
-from typing import List
 
-from fastapi import APIRouter, HTTPException, Depends, status, Body
+from fastapi import APIRouter, Body, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.services.reminder_facade import ReminderFacade
+from app import get_db
+from app.api.authentication import require_caregiver_role, verify_token
 from app.schemas.reminder_schema import (
-    ReminderResponse,
     ReminderCreate,
+    ReminderResponse,
     ReminderUpdate,
 )
-from app.services.user_facade import UserFacade
+from app.services.reminder_facade import ReminderFacade
 from app.services.reminder_status_facade import ReminderStatusFacade
-from app.api.authentication import verify_token, require_caregiver_role
-from app import get_db
+from app.services.user_facade import UserFacade
 
 router = APIRouter(prefix="/api/reminder", tags=["Reminder"])
 
@@ -67,7 +66,7 @@ def build_reminder_response(reminder, current_status: str = None) -> ReminderRes
 
 @router.get(
     "/caregiver",
-    response_model=List[ReminderResponse],
+    response_model=list[ReminderResponse],
     summary="Get all reminders by caregiver",
     description="""
     Retrieve all reminders created by the authenticated caregiver.
@@ -158,13 +157,13 @@ async def get_all_reminder_by_caregiver(
         traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retrieve reminders: {str(e)}",
+            detail=f"Failed to retrieve reminders: {e!s}",
         )
 
 
 @router.get(
     "/user",
-    response_model=List[ReminderResponse],
+    response_model=list[ReminderResponse],
     summary="Get all reminders for user",
     description="""
     Retrieve all reminders assigned to the authenticated user.
@@ -266,7 +265,7 @@ async def get_all_reminder_by_user(
         traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retrieve reminders: {str(e)}",
+            detail=f"Failed to retrieve reminders: {e!s}",
         )
 
 
@@ -375,7 +374,7 @@ async def get_reminder(
         traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retrieve reminder: {str(e)}",
+            detail=f"Failed to retrieve reminder: {e!s}",
         )
 
 
@@ -516,7 +515,7 @@ async def create_reminder(
         traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to create reminder: {str(e)}",
+            detail=f"Failed to create reminder: {e!s}",
         )
 
 
@@ -679,7 +678,7 @@ async def update_reminder(
         traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to update reminder: {str(e)}",
+            detail=f"Failed to update reminder: {e!s}",
         )
 
 
@@ -732,7 +731,7 @@ async def postpone_reminder(
         traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to postpone reminder: {str(e)}",
+            detail=f"Failed to postpone reminder: {e!s}",
         )
 
 
@@ -839,7 +838,7 @@ async def delete_reminder(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Failed to delete reminder",
             )
-        return None
+        return
 
     except HTTPException:
         raise
@@ -847,7 +846,7 @@ async def delete_reminder(
         traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to delete reminder: {str(e)}",
+            detail=f"Failed to delete reminder: {e!s}",
         )
 
 

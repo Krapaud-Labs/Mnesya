@@ -4,17 +4,18 @@ This module handles the initialization of the FastAPI application,
 including database setup, CORS configuration, and API documentation.
 """
 
-from fastapi import FastAPI, Depends, HTTPException, status, Request
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
-from starlette.middleware.base import BaseHTTPMiddleware
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base, Session
-from contextlib import asynccontextmanager
-from typing import Generator
-import secrets
 import os
+import secrets
+from collections.abc import Generator
+from contextlib import asynccontextmanager
+
+from fastapi import Depends, FastAPI, HTTPException, Request, status
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session, declarative_base, sessionmaker
+from starlette.middleware.base import BaseHTTPMiddleware
 
 # ==================== Database setup ====================
 database = declarative_base()

@@ -4,10 +4,10 @@ This module defines Pydantic schemas for pairing code operations.
 Pairing codes enable users to connect their devices with their profiles.
 """
 
-from pydantic import BaseModel, Field
 from datetime import datetime
 from uuid import UUID
-from typing import Optional
+
+from pydantic import BaseModel, Field
 
 
 class PairingCodeCreate(BaseModel):

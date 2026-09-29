@@ -3,13 +3,13 @@
 This module provides functionality for sending push notifications via Expo.
 """
 
+import logging
+
 from exponent_server_sdk import (
     PushClient,
     PushMessage,
     PushServerError,
 )
-from typing import List, Dict
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -23,14 +23,14 @@ class NotificationService:
 
     def send_notification(
         self,
-        tokens: List[str],
+        tokens: list[str],
         title: str,
         body: str,
-        data: Dict = None,
+        data: dict = None,
         sound: str = "default",
         badge: int = None,
         priority: str = "default"
-    ) -> Dict:
+    ) -> dict:
         """Send a push notification to one or more devices.
         
         Args:
@@ -109,11 +109,11 @@ class NotificationService:
                             
                 except PushServerError as e:
                     logger.error(f"Expo push server error: {e}")
-                    errors.append({"error": f"Server error: {str(e)}"})
+                    errors.append({"error": f"Server error: {e!s}"})
                     
         except Exception as e:
             logger.error(f"Unexpected error sending push notifications: {e}")
-            errors.append({"error": f"Unexpected error: {str(e)}"})
+            errors.append({"error": f"Unexpected error: {e!s}"})
 
         return {
             "success": successes,
@@ -124,12 +124,12 @@ class NotificationService:
 
     def send_reminder_notification(
         self,
-        tokens: List[str],
+        tokens: list[str],
         reminder_title: str,
         reminder_description: str = None,
         reminder_id: str = None,
         extra_data: dict = None
-    ) -> Dict:
+    ) -> dict:
         """Send a reminder notification.
         
         Args:

@@ -10,6 +10,7 @@ no rate limit is ever hit during the test suite.
 
 import os
 import uuid
+
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 

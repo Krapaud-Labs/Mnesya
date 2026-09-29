@@ -5,11 +5,11 @@ Schemas are used for API request/response validation and data transformation.
 """
 
 import re
-from pydantic import BaseModel, Field, field_validator, ConfigDict
-from datetime import datetime, date
+from datetime import date, datetime
 from uuid import UUID
-from typing import List, Optional
+
 from app.schemas.pairing_code_schema import PairingCodeResponse
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 _NAME_RE = re.compile(r"^[A-Za-zÀ-ÖØ-öø-ÿ' \-]+$")
 
@@ -49,13 +49,13 @@ class UserUpdate(BaseModel):
         last_name (Optional[str]): Updated last name (1-100 chars)
         birthday (Optional[date]): Updated date of birth
     """
-    first_name: Optional[str] = Field(None, min_length=1, max_length=100)
-    last_name: Optional[str] = Field(None, min_length=1, max_length=100)
-    birthday: Optional[date] = None
+    first_name: str | None = Field(None, min_length=1, max_length=100)
+    last_name: str | None = Field(None, min_length=1, max_length=100)
+    birthday: date | None = None
 
     @field_validator('first_name', 'last_name')
     @classmethod
-    def validate_name(cls, value: Optional[str]) -> Optional[str]:
+    def validate_name(cls, value: str | None) -> str | None:
         if value is None:
             return None
         value = value.strip()
@@ -84,7 +84,7 @@ class UserResponse(BaseModel):
     first_name: str
     last_name: str
     birthday: date
-    caregiver_ids: List[UUID]
+    caregiver_ids: list[UUID]
     created_at: datetime
     updated_at: datetime
 
@@ -99,7 +99,7 @@ class UserListResponse(BaseModel):
         users (List[UserResponse]): List of user objects
         total (int): Total count of users
     """
-    users: List[UserResponse]
+    users: list[UserResponse]
     total: int
 
 

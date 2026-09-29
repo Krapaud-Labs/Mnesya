@@ -4,10 +4,12 @@ This module implements the Facade pattern for Caregiver business logic.
 It provides a simplified interface for caregiver operations, including
 authentication and user management.
 """
+from uuid import UUID
+
 from sqlalchemy.orm import Session
+
 from app.models.caregiver import CaregiverModel
 from app.persistence.caregiver_repository import CaregiverRepository
-from uuid import UUID
 
 
 class CaregiverFacade:
