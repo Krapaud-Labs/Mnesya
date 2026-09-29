@@ -1,5 +1,5 @@
 /**
- * i18n configuration — sets up French/English translations.
+ * i18n configuration - sets up French/English translations.
  *
  * @module i18n
  */

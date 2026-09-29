@@ -131,7 +131,7 @@ class ReminderRepository(BaseRepository[ReminderModel]):
 
         Args:
             offset_minutes (int): Target offset in minutes from now. Defaults to 60.
-            statuses (List[str]): Unused — kept for API compatibility.
+            statuses (List[str]): Unused - kept for API compatibility.
 
         Returns:
             List[ReminderModel]: Unresolved reminders within the ±30s window around the target time.

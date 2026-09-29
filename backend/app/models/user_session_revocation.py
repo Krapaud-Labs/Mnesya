@@ -1,4 +1,4 @@
-"""UserSessionRevocation model — tracks per-user logout timestamps."""
+"""UserSessionRevocation model - tracks per-user logout timestamps."""
 
 from datetime import datetime, timezone
 

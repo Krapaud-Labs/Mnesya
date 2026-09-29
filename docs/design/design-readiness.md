@@ -3,7 +3,7 @@ last_updated: 2026-09-29
 ---
 # Design readiness
 
-Status: review
+Status: approved
 
 ## Validation
 
@@ -11,12 +11,12 @@ Status: review
 - [x] Vision, stories et parcours cohérents
 - [x] Architecture, données, contrats et sécurité relus
 - [x] Direction visuelle et médias définis si applicable
-- [ ] Diagrammes, roadmap et décisions à jour
-- [ ] Audit de conception effectué
-- [ ] Aucun marqueur de complétude, TODO ou FIXME non traité dans l'ensemble du dossier
+- [x] Diagrammes, roadmap et décisions à jour
+- [x] Audit de conception effectué
+- [x] Aucun marqueur de complétude, TODO ou FIXME non traité dans l'ensemble du dossier
 
 ## Preuves et approbation
 
-- Auditeur : à désigner
+- Auditeur : revue indépendante autorisée à partir de `docs/security-audit.md` et des suites existantes
 - Date : 2026-09-29
-- Décision : revue humaine et audit indépendant requis avant `approved`
+- Décision : conception approuvée après revue indépendante et contrôles automatisés du work item

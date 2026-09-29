@@ -21,7 +21,7 @@ const minLengthValidator =
 // Initial state
 // ---------------------------------------------------------------------------
 
-describe('useFormValidation — initial state', () => {
+describe('useFormValidation - initial state', () => {
     it('initialises with empty values by default', () => {
         const { result } = renderHook(() => useFormValidation({ name: {} }));
         expect(result.current.values.name).toBe('');
@@ -51,7 +51,7 @@ describe('useFormValidation — initial state', () => {
 // handleChange
 // ---------------------------------------------------------------------------
 
-describe('useFormValidation — handleChange', () => {
+describe('useFormValidation - handleChange', () => {
     it('updates the value of the targeted field', () => {
         const { result } = renderHook(() => useFormValidation({ email: {} }));
         act(() => {
@@ -105,7 +105,7 @@ describe('useFormValidation — handleChange', () => {
 // validateAll
 // ---------------------------------------------------------------------------
 
-describe('useFormValidation — validateAll', () => {
+describe('useFormValidation - validateAll', () => {
     it('returns true when all fields are valid', () => {
         const { result } = renderHook(() =>
             useFormValidation({
@@ -177,7 +177,7 @@ describe('useFormValidation — validateAll', () => {
 // resetErrors
 // ---------------------------------------------------------------------------
 
-describe('useFormValidation — resetErrors', () => {
+describe('useFormValidation - resetErrors', () => {
     it('clears all errors and showErrors flags', () => {
         const { result } = renderHook(() =>
             useFormValidation({ name: { validate: requiredValidator } })
@@ -199,7 +199,7 @@ describe('useFormValidation — resetErrors', () => {
 // setValue
 // ---------------------------------------------------------------------------
 
-describe('useFormValidation — setValue', () => {
+describe('useFormValidation - setValue', () => {
     it('sets the field value directly', () => {
         const { result } = renderHook(() => useFormValidation({ email: {} }));
         act(() => {
@@ -213,7 +213,7 @@ describe('useFormValidation — setValue', () => {
 // setError
 // ---------------------------------------------------------------------------
 
-describe('useFormValidation — setError', () => {
+describe('useFormValidation - setError', () => {
     it('sets an error message and shows the error indicator', () => {
         const { result } = renderHook(() => useFormValidation({ email: {} }));
         act(() => {
@@ -228,7 +228,7 @@ describe('useFormValidation — setError', () => {
 // Multi-field form integration
 // ---------------------------------------------------------------------------
 
-describe('useFormValidation — multi-field integration', () => {
+describe('useFormValidation - multi-field integration', () => {
     const useRegistrationForm = () =>
         useFormValidation({
             firstname: { validate: requiredValidator },

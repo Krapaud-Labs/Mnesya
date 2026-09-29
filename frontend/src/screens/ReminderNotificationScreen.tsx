@@ -61,7 +61,7 @@ const ReminderNotificationScreen: React.FC<Props> = ({ navigation, route }) => {
                     navigation.goBack();
                 }
             } catch (_error) {
-                // No status yet (404) — reminder is still actionable, do nothing
+                // No status yet (404) - reminder is still actionable, do nothing
             }
         };
         checkStatus();

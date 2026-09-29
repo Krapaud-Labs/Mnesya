@@ -9,7 +9,7 @@ import os
 
 class config:
     """Configuration class for application settings.
-    
+
     Attributes:
         SECRET_KEY (str): Secret key for JWT token encoding/decoding
         DEBUG (bool): Debug mode flag
@@ -20,7 +20,7 @@ class config:
 
 def get_database_url():
     """Get the database URL from environment variables.
-    
+
     Returns:
         str: Database connection URL
     """
@@ -29,7 +29,7 @@ def get_database_url():
 
 class Config:
     """Configuration class for environment settings.
-    
+
     Attributes:
         env_file (str): Path to environment file
     """

@@ -35,7 +35,7 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(['caregiver_id'], ['caregiver.id'], ),
         sa.UniqueConstraint('token')
     )
-    
+
     # Create indexes for performance
     op.create_index('ix_push_token_user_id', 'push_token', ['user_id'], unique=False)
     op.create_index('ix_push_token_caregiver_id', 'push_token', ['caregiver_id'], unique=False)
@@ -47,6 +47,6 @@ def downgrade() -> None:
     op.drop_index('ix_push_token_is_active', table_name='push_token')
     op.drop_index('ix_push_token_caregiver_id', table_name='push_token')
     op.drop_index('ix_push_token_user_id', table_name='push_token')
-    
+
     # Drop table
     op.drop_table('push_token')

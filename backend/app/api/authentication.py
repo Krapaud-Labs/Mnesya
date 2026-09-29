@@ -112,7 +112,7 @@ def verify_token(
 
         jti = payload.get("jti")
         if jti and RevokedTokenRepository(db).is_revoked(jti):
-            logger.warning("Revoked token used — sub=%s jti=%s", payload.get("sub"), jti)
+            logger.warning("Revoked token used - sub=%s jti=%s", payload.get("sub"), jti)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Token has been revoked",
@@ -127,7 +127,7 @@ def verify_token(
                 from datetime import timezone as _tz
                 token_issued_at = datetime.fromtimestamp(iat, tz=_tz.utc)
                 if token_issued_at <= revoked_before:
-                    logger.warning("Session-revoked token used — sub=%s", sub)
+                    logger.warning("Session-revoked token used - sub=%s", sub)
                     raise HTTPException(
                         status_code=status.HTTP_401_UNAUTHORIZED,
                         detail="Token has been revoked",
@@ -163,16 +163,16 @@ def require_caregiver_role(
     summary="Register a new caregiver account",
     description="""
     Create a new caregiver account with email and password.
-    
+
     This endpoint allows new caregivers to register in the system.
     The email must be unique and not already registered.
     Password will be securely hashed before storage.
-    
+
     **Requirements:**
     - Valid email format
     - Password minimum 8 characters
     - First name and last name required
-    
+
     **Returns a caregiver profile with:**
     - Unique caregiver ID
     - Personal information
@@ -285,15 +285,15 @@ async def register(
     summary="Login as caregiver",
     description="""
     Authenticate a caregiver and receive a JWT access token.
-    
+
     Use the email and password provided during registration to authenticate.
     Upon successful authentication, you will receive a JWT token that must be
     included in the Authorization header of subsequent requests.
-    
+
     **Token Format:** `Bearer <access_token>`
-    
+
     **Token Expiration:** 60 minutes
-    
+
     The returned token contains:
     - Caregiver ID (sub claim)
     - Email address
@@ -350,7 +350,7 @@ async def login(
         if not caregiver:
             # Constant-time dummy comparison to prevent timing-based email enumeration
             _bcrypt.verify(body.password, _DUMMY_HASH)
-            logger.warning("Failed login attempt — email not found: %s", body.email)
+            logger.warning("Failed login attempt - email not found: %s", body.email)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid email or password",
@@ -359,7 +359,7 @@ async def login(
 
         # Verify password
         if not caregiver.verify_password(body.password):
-            logger.warning("Failed login attempt — wrong password for: %s", body.email)
+            logger.warning("Failed login attempt - wrong password for: %s", body.email)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid email or password",
@@ -394,12 +394,12 @@ async def login(
     summary="Get current caregiver profile",
     description="""
     Retrieve the profile information of the currently authenticated caregiver.
-    
+
     This endpoint requires a valid JWT token in the Authorization header.
     It returns the complete profile information for the authenticated caregiver.
-    
+
     **Authentication required:** Bearer token
-    
+
     Use this endpoint to:
     - Display caregiver profile in the UI
     - Verify token validity
@@ -598,18 +598,18 @@ async def logout(
     summary="Refresh JWT access token",
     description="""
     Generate a new JWT access token using a valid existing token.
-    
+
     Use this endpoint to refresh an expired or soon-to-expire token without
     requiring the user to log in again. The new token will have the same
     claims as the original token but with an updated expiration time.
-    
+
     **Authentication required:** Bearer token (can be near expiration)
-    
+
     **Use cases:**
     - Token is about to expire
     - Implementing silent authentication
     - Extending user session
-    
+
     **Token Expiration:** 60 minutes from refresh time
     """,
     responses={

@@ -1,6 +1,6 @@
-# Mnesya — Frontend
+# Mnesya - Frontend
 
-React Native / Expo mobile application for Mnesya — a reminder app for elderly people and their caregivers.
+React Native / Expo mobile application for Mnesya - a reminder app for elderly people and their caregivers.
 
 ---
 
@@ -18,14 +18,14 @@ React Native / Expo mobile application for Mnesya — a reminder app for elderly
 ## Installation
 
 ```bash
-# 1 — Clone the repo
+# 1 - Clone the repo
 git clone https://github.com/krapaud/mnesya.git
 cd mnesya/frontend
 
-# 2 — Install dependencies
+# 2 - Install dependencies
 npm install
 
-# 3 — Configure environment
+# 3 - Configure environment
 cp .env.example .env.local
 # Edit .env.local and set EXPO_PUBLIC_API_URL to your backend address:
 #   Local machine:  http://<your-local-ip>:8000   (use `ifconfig getifaddr en0` on macOS)
@@ -140,10 +140,10 @@ src/
 
 ## Internationalization
 
-The app is fully bilingual (French / English) using **i18next + react-i18next**.  
-Translation files are in `src/locales/`.  
-Language is detected automatically from device locale.  
-All user-facing strings must use `t('key')` — no hardcoded text.
+The app is fully bilingual (French / English) using **i18next + react-i18next**.
+Translation files are in `src/locales/`.
+Language is detected automatically from device locale.
+All user-facing strings must use `t('key')` - no hardcoded text.
 
 ---
 
@@ -155,7 +155,7 @@ npm run test:watch        # watch mode
 npm run test:coverage     # HTML coverage report in coverage/
 ```
 
-Tests use **Jest** + **@testing-library/react-native**.  
+Tests use **Jest** + **@testing-library/react-native**.
 Mock files are in `__mocks__/`.
 
 ---

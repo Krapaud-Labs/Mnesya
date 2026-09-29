@@ -20,7 +20,7 @@ from app.models.caregiver import CaregiverModel
 from app.models.reminder import ReminderModel
 from app.models.user import UserModel
 
-# Test database URL — définie via TEST_DATABASE_URL dans l'environnement
+# Test database URL - définie via TEST_DATABASE_URL dans l'environnement
 # Fallback vers l'URL Docker si non définie (usage dans docker-compose uniquement)
 TEST_DATABASE_URL = os.getenv(
     "TEST_DATABASE_URL", "postgresql://mnesya_user:changeme@db:5432/mnesya_test_db"

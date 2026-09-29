@@ -1,4 +1,4 @@
-# Docker Compose configuration — développement local
+# Docker Compose configuration - développement local
 # Copier docker/.env.example en docker/.env avant de lancer
 
 services:
@@ -65,7 +65,7 @@ services:
     stdin_open: true
     tty: true
 
-  # APScheduler Worker — runs background jobs for push notifications
+  # APScheduler Worker - runs background jobs for push notifications
   worker:
     build:
       context: ../backend

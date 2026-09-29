@@ -1,7 +1,7 @@
 """Initial schema with all tables
 
 Revision ID: 001
-Revises: 
+Revises:
 Create Date: 2026-02-17 16:00:00.000000
 
 """
@@ -32,7 +32,7 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_caregiver_email'), 'caregiver', ['email'], unique=True)
-    
+
     # Create user table
     op.create_table('user',
         sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
@@ -44,7 +44,7 @@ def upgrade() -> None:
         sa.Column('_updated_at', sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint('id')
     )
-    
+
     # Create reminder table (with scheduled_at)
     op.create_table('reminder',
         sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
@@ -59,7 +59,7 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
         sa.PrimaryKeyConstraint('id')
     )
-    
+
     # Create reminder_status table
     op.create_table('reminder_status',
         sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
@@ -70,7 +70,7 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(['reminder_id'], ['reminder.id'], ),
         sa.PrimaryKeyConstraint('id')
     )
-    
+
     # Create pairing_code table
     op.create_table('pairing_code',
         sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),

@@ -20,7 +20,7 @@ from app.api import (
     user,
 )
 from app.limiter import limiter
-from app.models import user_session_revocation  # noqa: F401 — ensures table is created
+from app.models import user_session_revocation  # noqa: F401 - ensures table is created
 
 # Initialize database
 database_url = os.environ["DATABASE_URL"]

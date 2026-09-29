@@ -44,7 +44,7 @@ class PushTokenModel(database):
     @property
     def id(self):
         """Get the token record's unique identifier.
-        
+
         Returns:
             UUID: The push token record's ID
         """
@@ -53,7 +53,7 @@ class PushTokenModel(database):
     @property
     def token(self) -> str:
         """Get the Expo push token.
-        
+
         Returns:
             str: The Expo push notification token
         """
@@ -62,10 +62,10 @@ class PushTokenModel(database):
     @token.setter
     def token(self, value: str) -> None:
         """Set the Expo push token with validation.
-        
+
         Args:
             value (str): The Expo push token
-            
+
         Raises:
             ValueError: If token is empty, too long, or has invalid format
         """
@@ -80,7 +80,7 @@ class PushTokenModel(database):
     @property
     def user_id(self):
         """Get the user ID.
-        
+
         Returns:
             UUID: The associated user's ID, or None if caregiver token
         """
@@ -89,7 +89,7 @@ class PushTokenModel(database):
     @user_id.setter
     def user_id(self, value) -> None:
         """Set the user ID.
-        
+
         Args:
             value (UUID): The user's unique identifier
         """
@@ -98,7 +98,7 @@ class PushTokenModel(database):
     @property
     def caregiver_id(self):
         """Get the caregiver ID.
-        
+
         Returns:
             UUID: The associated caregiver's ID, or None if user token
         """
@@ -107,7 +107,7 @@ class PushTokenModel(database):
     @caregiver_id.setter
     def caregiver_id(self, value) -> None:
         """Set the caregiver ID.
-        
+
         Args:
             value (UUID): The caregiver's unique identifier
         """
@@ -116,7 +116,7 @@ class PushTokenModel(database):
     @property
     def device_name(self) -> str:
         """Get the device name.
-        
+
         Returns:
             str: The device name or description, or None if not set
         """
@@ -125,10 +125,10 @@ class PushTokenModel(database):
     @device_name.setter
     def device_name(self, value: str) -> None:
         """Set the device name.
-        
+
         Args:
             value (str): The device name (max 100 characters)
-            
+
         Raises:
             ValueError: If device name exceeds 100 characters
         """
@@ -139,7 +139,7 @@ class PushTokenModel(database):
     @property
     def is_active(self) -> bool:
         """Get whether the token is active.
-        
+
         Returns:
             bool: True if the token is active and can receive notifications
         """
@@ -148,7 +148,7 @@ class PushTokenModel(database):
     @is_active.setter
     def is_active(self, value: bool) -> None:
         """Set whether the token is active.
-        
+
         Args:
             value (bool): True to activate, False to deactivate
         """
@@ -161,7 +161,7 @@ class PushTokenModel(database):
     @property
     def created_at(self) -> datetime:
         """Get the creation timestamp.
-        
+
         Returns:
             datetime: When this token was registered
         """
@@ -170,7 +170,7 @@ class PushTokenModel(database):
     @property
     def updated_at(self) -> datetime:
         """Get the last update timestamp.
-        
+
         Returns:
             datetime: When this token was last updated
         """

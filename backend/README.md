@@ -1,4 +1,4 @@
-# Mnesya — Backend
+# Mnesya - Backend
 
 FastAPI backend for the Mnesya reminder platform. Handles authentication, profile management, reminders, pairing, push notifications, and background scheduling.
 
@@ -14,51 +14,51 @@ FastAPI backend for the Mnesya reminder platform. Handles authentication, profil
 
 ---
 
-## Quick Start (Docker — recommended)
+## Quick Start (Docker - recommended)
 
 ```bash
-# 1 — Clone the repo
+# 1 - Clone the repo
 git clone https://github.com/krapaud/mnesya.git
 cd mnesya
 
-# 2 — Configure environment
+# 2 - Configure environment
 cp backend/.env.example backend/.env
 # Edit backend/.env (see Environment Variables section)
 
-# 3 — Start the stack
+# 3 - Start the stack
 cd docker
 cp .env.example .env   # fill in DB credentials and SECRET_KEY
 docker compose up --build
 ```
 
-The API will be available at `http://localhost:8000`.  
+The API will be available at `http://localhost:8000`.
 Swagger UI: `http://localhost:8000/docs` (Basic Auth required).
 
 ---
 
-## Quick Start (Local — without Docker)
+## Quick Start (Local - without Docker)
 
 ```bash
 cd backend
 
-# 1 — Create virtual environment
+# 1 - Create virtual environment
 python -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
 
-# 2 — Install dependencies
+# 2 - Install dependencies
 pip install -r requirements.txt
 
-# 3 — Configure environment
+# 3 - Configure environment
 cp .env.example .env
 # Edit .env with your local PostgreSQL credentials
 
-# 4 — Run database migrations
+# 4 - Run database migrations
 alembic upgrade head
 
-# 5 — Start the API
+# 5 - Start the API
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
-# 6 — Start the background worker (separate terminal)
+# 6 - Start the background worker (separate terminal)
 python -m worker.scheduler
 ```
 
@@ -71,7 +71,7 @@ Copy `backend/.env.example` to `backend/.env` and fill in:
 | Variable            | Required | Description                                                                        |
 | ------------------- | -------- | ---------------------------------------------------------------------------------- |
 | `DATABASE_URL`      | ✅       | PostgreSQL connection string (e.g. `postgresql://user:pass@localhost:5432/mnesya`) |
-| `SECRET_KEY`        | ✅       | JWT signing key — generate with `openssl rand -hex 32`                             |
+| `SECRET_KEY`        | ✅       | JWT signing key - generate with `openssl rand -hex 32`                             |
 | `DOCS_USERNAME`     | ✅       | HTTP Basic Auth username for Swagger/ReDoc access                                  |
 | `DOCS_PASSWORD`     | ✅       | HTTP Basic Auth password for Swagger/ReDoc access                                  |
 | `TEST_DATABASE_URL` | Tests    | Separate DB used by pytest                                                         |
@@ -140,7 +140,7 @@ alembic history
 Tests run against a separate test database in a Docker stack.
 
 ```bash
-# Full test suite (recommended — uses docker-compose.test.yml)
+# Full test suite (recommended - uses docker-compose.test.yml)
 cd docker
 docker compose -f docker-compose.test.yml up --build --abort-on-container-exit
 
@@ -204,9 +204,9 @@ Set `TESTING=true` to disable limits in test environments (UUID key strategy).
 
 ---
 
-## Deployment (Production — Coolify)
+## Deployment (Production - Coolify)
 
-Production runs via `docker/docker-compose.prod.yml`. All environment variables are injected by Coolify — no `.env` file needed in production.
+Production runs via `docker/docker-compose.prod.yml`. All environment variables are injected by Coolify - no `.env` file needed in production.
 
 Required Coolify variables:
 

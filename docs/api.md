@@ -1,12 +1,12 @@
 ---
 last_updated: 2026-09-29
 ---
-# API Reference — Mnesya
+# API Reference - Mnesya
 
-**Base URL (dev):** `http://localhost:8000`  
-**Base URL (prod):** `https://mnesya.com`  
-**Swagger UI:** `GET /docs` _(Basic Auth required — see `DOCS_USERNAME` / `DOCS_PASSWORD`)_  
-**ReDoc:** `GET /redoc` _(same credentials)_  
+**Base URL (dev):** `http://localhost:8000`
+**Base URL (prod):** `https://mnesya.com`
+**Swagger UI:** `GET /docs` _(Basic Auth required - see `DOCS_USERNAME` / `DOCS_PASSWORD`)_
+**ReDoc:** `GET /redoc` _(same credentials)_
 **OpenAPI JSON:** `GET /openapi.json`
 
 All endpoints expect and return `application/json`. Timestamps are ISO 8601 UTC.
@@ -21,7 +21,7 @@ Most endpoints require a **Bearer token** in the `Authorization` header:
 Authorization: Bearer <access_token>
 ```
 
-Tokens are obtained via `POST /api/auth/login` or `POST /api/auth/register`.  
+Tokens are obtained via `POST /api/auth/login` or `POST /api/auth/register`.
 Two token types exist:
 
 | Type      | Audience   | Lifetime | Obtained via               |
@@ -54,13 +54,13 @@ Exceeded limits return `429 Too Many Requests`.
 
 ## Endpoints
 
-### Authentication — `/api/auth`
+### Authentication - `/api/auth`
 
 #### `POST /api/auth/register`
 
 Register a new caregiver account.
 
-**Rate limit:** 3/minute  
+**Rate limit:** 3/minute
 **Auth:** None
 
 **Request body:**
@@ -101,7 +101,7 @@ Register a new caregiver account.
 
 Authenticate a caregiver and receive a JWT token.
 
-**Rate limit:** 5/minute  
+**Rate limit:** 5/minute
 **Auth:** None
 
 **Request body:**
@@ -163,7 +163,7 @@ Refresh the caregiver JWT token (issue a new 60-min token).
 
 #### `POST /api/auth/logout`
 
-Confirm logout. The client must discard the token — no server-side revocation.
+Confirm logout. The client must discard the token - no server-side revocation.
 
 **Auth:** Bearer (caregiver)
 
@@ -177,7 +177,7 @@ Confirm logout. The client must discard the token — no server-side revocation.
 
 ---
 
-### Caregiver Profile — `/api/caregivers`
+### Caregiver Profile - `/api/caregivers`
 
 #### `PUT /api/caregivers/me`
 
@@ -215,7 +215,7 @@ Update the authenticated caregiver's profile. All fields are optional (partial u
 
 ---
 
-### User Profiles — `/api/users`
+### User Profiles - `/api/users`
 
 #### `POST /api/users`
 
@@ -277,10 +277,10 @@ Get the currently authenticated user's profile (elderly user token).
 
 Get a specific user profile by ID.
 
-**Auth:** Bearer (caregiver)  
-**Path param:** `profile_id` — UUID
+**Auth:** Bearer (caregiver)
+**Path param:** `profile_id` - UUID
 
-**Response `200`:** user object  
+**Response `200`:** user object
 **Errors:** `401` · `403` no access · `404` · `500`
 
 ---
@@ -301,7 +301,7 @@ Update a user profile. All fields are optional.
 }
 ```
 
-**Response `200`:** updated user object  
+**Response `200`:** updated user object
 **Errors:** `400` · `401` · `403` · `404` · `500`
 
 ---
@@ -312,12 +312,12 @@ Permanently delete a user profile, all associated reminders, and pairing codes.
 
 **Auth:** Bearer (caregiver)
 
-**Response `204`:** no content  
+**Response `204`:** no content
 **Errors:** `401` · `403` · `404` · `500`
 
 ---
 
-### Pairing — `/api/pairing`
+### Pairing - `/api/pairing`
 
 #### `POST /api/pairing/generate`
 
@@ -399,7 +399,7 @@ Refresh a user (elderly) token. Verifies the existing token and issues a new 90-
 
 ---
 
-### Reminders — `/api/reminder`
+### Reminders - `/api/reminder`
 
 #### `GET /api/reminder/caregiver`
 
@@ -444,7 +444,7 @@ Get a single reminder by ID.
 
 **Auth:** Bearer (caregiver or user)
 
-**Response `200`:** reminder object  
+**Response `200`:** reminder object
 **Errors:** `401` · `404` · `500`
 
 ---
@@ -466,7 +466,7 @@ Create a new reminder.
 }
 ```
 
-**Response `201`:** reminder object  
+**Response `201`:** reminder object
 **Errors:** `400` · `401` · `403` · `500`
 
 ---
@@ -479,7 +479,7 @@ Update an existing reminder (partial update).
 
 **Request body:** any subset of `title`, `description`, `scheduled_at`
 
-**Response `200`:** updated reminder object  
+**Response `200`:** updated reminder object
 **Errors:** `400` · `401` · `403` · `404` · `500`
 
 ---
@@ -490,12 +490,12 @@ Delete a reminder.
 
 **Auth:** Bearer (caregiver)
 
-**Response `204`:** no content  
+**Response `204`:** no content
 **Errors:** `401` · `403` · `404` · `500`
 
 ---
 
-### Reminder Status — `/api/reminder-status`
+### Reminder Status - `/api/reminder-status`
 
 #### `GET /api/reminder-status/{reminder_id}/current`
 
@@ -531,7 +531,7 @@ Get the complete status history of a reminder (newest first).
 
 #### `PUT /api/reminder-status/{reminder_id}`
 
-Set a new status on a reminder. Creates a new entry — history is preserved.
+Set a new status on a reminder. Creates a new entry - history is preserved.
 
 **Auth:** Bearer (caregiver or user)
 
@@ -548,7 +548,7 @@ Set a new status on a reminder. Creates a new entry — history is preserved.
 | `POSTPONED` | Deferred by the user             |
 | `UNABLE`    | User could not complete the task |
 
-**Response `200`:** new status entry object  
+**Response `200`:** new status entry object
 **Errors:** `400` invalid status · `401` · `500`
 
 ---
@@ -567,7 +567,7 @@ Returns the list of valid status values.
 
 ---
 
-### Push Notifications — `/api/push-tokens`
+### Push Notifications - `/api/push-tokens`
 
 #### `POST /api/push-tokens/register`
 
@@ -618,7 +618,7 @@ Deactivate a push notification token (e.g. on logout).
 { "token": "ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]" }
 ```
 
-**Response `200`:** `{ "message": "Token deactivated" }`  
+**Response `200`:** `{ "message": "Token deactivated" }`
 **Errors:** `401` · `404` · `500`
 
 ---

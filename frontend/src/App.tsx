@@ -1,5 +1,5 @@
 /**
- * Root component — sets up navigation and notifications.
+ * Root component - sets up navigation and notifications.
  *
  * @module App
  */
@@ -67,7 +67,7 @@ const App: React.FC = () => {
                             );
                             await saveToken(response.data.access_token as string);
                         } catch {
-                            // Token already expired or refresh failed — the next API call
+                            // Token already expired or refresh failed - the next API call
                             // will trigger the 401 handler and redirect to Login.
                         }
                     }

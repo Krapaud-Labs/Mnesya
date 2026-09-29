@@ -55,7 +55,7 @@ const STATUS_CONFIG: Record<
 // ─── Helper ─────────────────────────────────────────────────────────────────
 
 /**
- * Formats an ISO date string to "dd/mm/yyyy hh:mm" — locale-independent.
+ * Formats an ISO date string to "dd/mm/yyyy hh:mm" - locale-independent.
  */
 const formatDate = (iso: string): string => {
     const d = new Date(iso);

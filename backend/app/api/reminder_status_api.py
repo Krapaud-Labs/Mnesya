@@ -39,18 +39,18 @@ def get_reminder_facade(db: Session = Depends(get_db)) -> ReminderFacade:
     summary="Get current reminder status",
     description="""
     Retrieve the current (most recent) status of a specific reminder.
-    
+
     Returns the latest status entry for the reminder. This represents the
     current state of the reminder in the system.
-    
+
     **Authentication required:** Bearer token (caregiver or user)
-    
+
     **Possible status values:**
     - PENDING: Reminder is scheduled and waiting
     - DONE: Reminder has been completed
     - POSTPONED: Reminder has been postponed
     - UNABLE: User was unable to complete the reminder
-    
+
     **Use cases:**
     - Display current reminder status in the UI
     - Check if a reminder has been completed
@@ -165,24 +165,24 @@ async def get_current_status(
     summary="Get reminder status history",
     description="""
     Retrieve the complete status change history for a reminder.
-    
+
     Returns all status entries for the reminder in chronological order
     (newest first). This provides a complete audit trail of all status
     changes throughout the reminder's lifecycle.
-    
+
     **Authentication required:** Bearer token (caregiver or user)
-    
+
     **History includes:**
     - All status changes from creation to present
     - Timestamps for each status change
     - Ordered from newest to oldest
-    
+
     **Use cases:**
     - Display status change timeline
     - Audit reminder completion history
     - Track user behavior patterns
     - Generate compliance reports
-    
+
     **Example sequence:**
     1. PENDING (created)
     2. POSTPONED (user postponed)
@@ -306,30 +306,30 @@ async def get_status_history(
     summary="Update reminder status",
     description="""
     Update the status of a reminder to track its lifecycle.
-    
+
     Creates a new status entry while preserving the complete history of
     previous statuses. This allows tracking of all status changes over time
     for audit and analytics purposes.
-    
+
     **Authentication required:** Bearer token (caregiver or user)
-    
+
     **Valid status values:**
     - **PENDING**: Reminder is scheduled and waiting to be completed
     - **DONE**: Reminder has been successfully completed by the user
     - **POSTPONED**: User has postponed the reminder to a later time
     - **UNABLE**: User was unable to complete the reminder
-    
+
     **Behavior:**
     - Creates a NEW status entry (doesn't modify existing)
     - Preserves complete history of all status changes
     - Latest entry becomes the "current" status
-    
+
     **Common workflows:**
     1. Reminder created → PENDING
     2. User completes task → DONE
     3. User can't do it now → POSTPONED
     4. User unable to complete → UNABLE
-    
+
     **Use cases:**
     - Mark reminder as completed
     - Postpone to later time
@@ -546,21 +546,21 @@ async def get_caregiver_activity_log(
     response_model=list[str],
     description="""
     Retrieve the list of all valid reminder status values.
-    
+
     Returns reference data for the possible status values that can be set
     on a reminder. This endpoint is useful for:
     - Populating dropdown menus
     - Validating status inputs
     - Displaying available options to users
-    
+
     **No authentication required** - This is reference data
-    
+
     **Status definitions:**
     - **PENDING**: Initial state, reminder is scheduled and waiting
     - **DONE**: Task has been completed successfully
     - **POSTPONED**: User has postponed the reminder
     - **UNABLE**: User was unable to complete the task
-    
+
     **Use cases:**
     - Initialize status selector UI components
     - Validate status before API calls

@@ -56,7 +56,7 @@ const RemindersListScreen: React.FC<Props> = ({ navigation }) => {
         setIsRefreshing(false);
     }, [reload]);
 
-    /** Controls the bottom fade indicator — hidden when scrolled to the end. */
+    /** Controls the bottom fade indicator - hidden when scrolled to the end. */
     const [showScrollFade, setShowScrollFade] = useState(true);
     const [isScrollable, setIsScrollable] = useState(false);
     const scrollContainerHeight = useRef(0);
@@ -77,7 +77,7 @@ const RemindersListScreen: React.FC<Props> = ({ navigation }) => {
         setShowScrollFade(!isAtBottom);
     };
 
-    // Skip the first focus — the hook already loads on mount.
+    // Skip the first focus - the hook already loads on mount.
     useFocusEffect(
         useCallback(() => {
             if (isFirstFocus.current) {
@@ -372,7 +372,7 @@ const RemindersListScreen: React.FC<Props> = ({ navigation }) => {
                         ))
                     )}
                 </ScrollView>
-                {/* Bottom fade — signals more content below */}
+                {/* Bottom fade - signals more content below */}
                 {showScrollFade && isScrollable && (
                     <View style={styles.scrollFade} pointerEvents="none">
                         <Ionicons name="chevron-down" size={24} color="#4A90E2" />

@@ -71,7 +71,7 @@ apiClient.interceptors.request.use(
                     token = newToken;
                 } catch {
                     // Refresh failed (token already expired or server error).
-                    // Let the request proceed with the old token — the 401 handler
+                    // Let the request proceed with the old token - the 401 handler
                     // will clear it and redirect the user to re-pair.
                 }
             }
@@ -92,7 +92,7 @@ apiClient.interceptors.request.use(
                     await saveToken(newToken);
                     token = newToken;
                 } catch {
-                    // Refresh failed — let the request proceed; the 401 handler
+                    // Refresh failed - let the request proceed; the 401 handler
                     // will clear the token and redirect to login.
                 }
             }
@@ -107,7 +107,7 @@ apiClient.interceptors.request.use(
     }
 );
 
-// Handle responses globally — clear token on 401 Unauthorized and redirect to login.
+// Handle responses globally - clear token on 401 Unauthorized and redirect to login.
 apiClient.interceptors.response.use(
     (response) => response,
     async (error) => {
