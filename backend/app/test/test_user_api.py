@@ -8,7 +8,6 @@ Tests cover:
 - DELETE /api/users/{profile_id} - Delete user profile
 """
 
-import pytest
 from datetime import date
 
 
@@ -89,7 +88,7 @@ class TestCreateUserProfile:
         """Test profile creation with future birthday fails."""
         client, _ = authenticated_client
 
-        from datetime import date, timedelta
+        from datetime import timedelta
         future_date = (date.today() + timedelta(days=365)).isoformat()
 
         response = client.post("/api/users", json={
@@ -111,9 +110,9 @@ class TestCreateUserProfile:
         client, caregiver = authenticated_client
 
         profiles_data = [
-            {"first_name": "User1", "last_name": "Test", "birthday": "1950-01-01"},
-            {"first_name": "User2", "last_name": "Test", "birthday": "1960-02-02"},
-            {"first_name": "User3", "last_name": "Test", "birthday": "1970-03-03"},
+            {"first_name": "UserOne", "last_name": "Test", "birthday": "1950-01-01"},
+            {"first_name": "UserTwo", "last_name": "Test", "birthday": "1960-02-02"},
+            {"first_name": "UserThree", "last_name": "Test", "birthday": "1970-03-03"},
         ]
 
         created_ids = []
@@ -410,8 +409,9 @@ class TestDeleteUserProfile:
         user_id = user.id
 
         # Create a pairing code for the user
+        from datetime import datetime, timedelta, timezone
+
         from app.models.pairing_code import PairingCodeModel
-        from datetime import datetime, timezone, timedelta
 
         pairing_code = PairingCodeModel()
         pairing_code.code = "TEST12"

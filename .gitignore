@@ -48,6 +48,18 @@ web-build/
 # Copilot
 .github/copilot-instructions.md
 
+# Kit project entrypoints and delivery workflow: keep tracked when present
+!.github/
+!.github/workflows/
+!.github/workflows/update-agentic-starter-kit.yml
+!AGENTS.md
+
+# Local kit update backups are recoverable workspace artifacts, not deliverables
+.codex/backups/
+
+# Codex orchestration kit is local agent state and is never part of product PRs
+.codex/
+
 # Project Management
 docs/trello-status.md
 docs/trello-status.txt
@@ -57,7 +69,7 @@ docs/concepts-a-reimplementer.md
 .DS_Store
 Thumbs.db
 
-# Environment — ne JAMAIS committer ces fichiers
+# Environment - ne JAMAIS committer ces fichiers
 .env
 .env.local
 .env.*.local

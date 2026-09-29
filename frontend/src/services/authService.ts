@@ -1,5 +1,5 @@
 /**
- * Service for authentication — login, register, logout, and profile.
+ * Service for authentication - login, register, logout, and profile.
  *
  * @module authService
  */

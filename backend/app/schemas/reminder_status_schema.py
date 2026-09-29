@@ -3,11 +3,11 @@
 This module defines Pydantic schemas for ReminderStatus entity validation and serialization.
 """
 
-from pydantic import BaseModel, Field, field_validator, ConfigDict
 from datetime import datetime
 from uuid import UUID
-from typing import List, Optional
+
 from app.models.reminder_status_enum import ReminderStatusEnum
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class ReminderStatusCreate(BaseModel):
@@ -118,7 +118,7 @@ class ReminderStatusListResponse(BaseModel):
         total (int): Total count of status entries
     """
 
-    reminder_statuses: List[ReminderStatusResponse]
+    reminder_statuses: list[ReminderStatusResponse]
     total: int
 
 

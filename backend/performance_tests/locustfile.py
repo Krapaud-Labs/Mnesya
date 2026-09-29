@@ -1,5 +1,5 @@
 """
-Mnesya Backend — Performance / Load Tests (Locust)
+Mnesya Backend - Performance / Load Tests (Locust)
 ===================================================
 
 Usage (against local Docker stack):
@@ -18,11 +18,9 @@ Typical scenarios:
 
 import random
 import string
-import uuid
 from datetime import datetime, timedelta, timezone
 
 from locust import HttpUser, TaskSet, between, task
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -126,7 +124,7 @@ class AuthTasks(TaskSet, AuthMixin):
 
     @task(1)
     def register_and_login(self):
-        """Full registration + login cycle — measures auth throughput."""
+        """Full registration + login cycle - measures auth throughput."""
         email = random_email()
         password = random_password()
         r = self.client.post(
@@ -148,7 +146,7 @@ class AuthTasks(TaskSet, AuthMixin):
 
     @task(2)
     def refresh_caregiver_token(self):
-        """Caregiver token refresh — validates /api/auth/refresh throughput."""
+        """Caregiver token refresh - validates /api/auth/refresh throughput."""
         self.client.post(
             "/api/auth/refresh",
             headers=self.auth_headers(),
@@ -157,7 +155,7 @@ class AuthTasks(TaskSet, AuthMixin):
 
 
 class ReminderTasks(TaskSet, AuthMixin):
-    """Reminder CRUD load — most business-critical path."""
+    """Reminder CRUD load - most business-critical path."""
 
     reminder_ids: list = []
 
@@ -346,7 +344,7 @@ class CaregiverUser(HttpUser):
 
 
 class HeavyReminderUser(HttpUser):
-    """Specialist user — heavily exercises the reminder endpoints."""
+    """Specialist user - heavily exercises the reminder endpoints."""
 
     wait_time = between(0.2, 1.0)
     tasks = [ReminderTasks]

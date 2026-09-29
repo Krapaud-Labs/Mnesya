@@ -1,5 +1,5 @@
 /**
- * Root component — sets up navigation and notifications.
+ * Root component - sets up navigation and notifications.
  *
  * @module App
  */
@@ -67,7 +67,7 @@ const App: React.FC = () => {
                             );
                             await saveToken(response.data.access_token as string);
                         } catch {
-                            // Token already expired or refresh failed — the next API call
+                            // Token already expired or refresh failed - the next API call
                             // will trigger the 401 handler and redirect to Login.
                         }
                     }
@@ -138,11 +138,9 @@ const App: React.FC = () => {
 
         // Cleanup listener on component unmount
         return () => subscription.remove();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handleNotificationNavigation = async () => {
-        // eslint-disable-next-line @typescript-eslint/no-deprecated
         const lastResponse = await Notifications.getLastNotificationResponseAsync();
         if (!lastResponse) return;
 

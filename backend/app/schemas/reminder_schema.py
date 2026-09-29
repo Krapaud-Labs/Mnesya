@@ -5,10 +5,10 @@ serialization.
 """
 
 import re
-from pydantic import BaseModel, Field, field_validator, ConfigDict
 from datetime import datetime, timezone
 from uuid import UUID
-from typing import List, Optional
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 _HTML_RE = re.compile(r"[<>\"'&]")
 
@@ -26,7 +26,7 @@ class ReminderCreate(BaseModel):
         user_id (UUID): ID of user this reminder is for
     """
     title: str = Field(..., min_length=1, max_length=200)
-    description: Optional[str] = Field(None, max_length=2000)
+    description: str | None = Field(None, max_length=2000)
     scheduled_at: datetime
     user_id: UUID
 
@@ -42,7 +42,7 @@ class ReminderCreate(BaseModel):
 
     @field_validator('description')
     @classmethod
-    def validate_description(cls, value: Optional[str]) -> Optional[str]:
+    def validate_description(cls, value: str | None) -> str | None:
         if value is None:
             return None
         value = value.strip()
@@ -78,15 +78,15 @@ class ReminderUpdate(BaseModel):
         caregiver_id (Optional[UUID]): Updated caregiver ID
         user_id (Optional[UUID]): Updated user ID
     """
-    title: Optional[str] = Field(None, min_length=1, max_length=200)
-    description: Optional[str] = Field(None, max_length=2000)
-    scheduled_at: Optional[datetime] = None
-    caregiver_id: Optional[UUID] = None
-    user_id: Optional[UUID] = None
+    title: str | None = Field(None, min_length=1, max_length=200)
+    description: str | None = Field(None, max_length=2000)
+    scheduled_at: datetime | None = None
+    caregiver_id: UUID | None = None
+    user_id: UUID | None = None
 
     @field_validator('title')
     @classmethod
-    def validate_title(cls, value: Optional[str]) -> Optional[str]:
+    def validate_title(cls, value: str | None) -> str | None:
         if value is None:
             return None
         value = value.strip()
@@ -98,7 +98,7 @@ class ReminderUpdate(BaseModel):
 
     @field_validator('description')
     @classmethod
-    def validate_description(cls, value: Optional[str]) -> Optional[str]:
+    def validate_description(cls, value: str | None) -> str | None:
         if value is None:
             return None
         value = value.strip()
@@ -130,13 +130,13 @@ class ReminderResponse(BaseModel):
     """
     id: UUID
     title: str
-    description: Optional[str]
+    description: str | None
     scheduled_at: datetime
     caregiver_id: UUID
     user_id: UUID
-    user_first_name: Optional[str] = None
-    user_last_name: Optional[str] = None
-    current_status: Optional[str] = None
+    user_first_name: str | None = None
+    user_last_name: str | None = None
+    current_status: str | None = None
     created_at: datetime
     updated_at: datetime
 
@@ -151,5 +151,5 @@ class ReminderListResponse(BaseModel):
         reminders (List[ReminderResponse]): List of reminder objects
         total (int): Total count of reminders
     """
-    reminders: List[ReminderResponse]
+    reminders: list[ReminderResponse]
     total: int

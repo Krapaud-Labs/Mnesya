@@ -6,8 +6,10 @@ Reminders are created by caregivers for users and track scheduled activities.
 
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import Column, String, DateTime, Text, ForeignKey
+
+from sqlalchemy import Column, DateTime, ForeignKey, String, Text
 from sqlalchemy.dialects.postgresql import UUID
+
 from app import database
 
 

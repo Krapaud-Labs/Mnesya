@@ -1,7 +1,9 @@
 """Repository for per-user session revocation."""
 
 from datetime import datetime, timezone
+
 from sqlalchemy.orm import Session
+
 from app.models.user_session_revocation import UserSessionRevocationModel
 
 

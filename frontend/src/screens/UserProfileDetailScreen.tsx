@@ -72,7 +72,6 @@ const UserProfileDetailScreen: React.FC<Props> = ({ navigation, route }: Props) 
     const [deleteError, setDeleteError] = useState<boolean>(false);
 
     const [isRefreshingList, setIsRefreshingList] = useState(false);
-    const [reloadCounter, setReloadCounter] = useState(0);
     const [showScrollFade, setShowScrollFade] = useState(true);
     const [isScrollable, setIsScrollable] = useState(false);
     const scrollContainerHeight = useRef(0);
@@ -84,7 +83,6 @@ const UserProfileDetailScreen: React.FC<Props> = ({ navigation, route }: Props) 
     const handleRefreshList = useCallback(async () => {
         setIsRefreshingList(true);
         await reloadReminders();
-        setReloadCounter((prev) => prev + 1);
         setIsRefreshingList(false);
     }, [reloadReminders]);
 
@@ -318,7 +316,6 @@ const UserProfileDetailScreen: React.FC<Props> = ({ navigation, route }: Props) 
                                         key={reminder.id}
                                         reminder={reminder}
                                         onDelete={handleDeleteReminder}
-                                        reloadTrigger={reloadCounter}
                                     />
                                 ))
                             )}

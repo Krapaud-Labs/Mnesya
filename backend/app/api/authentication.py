@@ -4,36 +4,37 @@ This module provides JWT-based authentication endpoints for caregivers.
 Includes login, registration, and token management.
 """
 
-from fastapi import APIRouter, HTTPException, Depends, status, Request
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from jose import JWTError, jwt
-from datetime import datetime, timedelta, timezone
-from typing import Optional
-from sqlalchemy.orm import Session
-import os
 import logging
-from app.limiter import limiter
+import os
 import uuid as _uuid
+from datetime import datetime, timedelta, timezone
 
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from jose import JWTError, jwt
 from passlib.hash import bcrypt as _bcrypt
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
+from uuid import UUID
+
+from app.limiter import limiter
+from app import get_db
+from app.persistence.revoked_token_repository import RevokedTokenRepository
+from app.persistence.user_session_revocation_repository import (
+    UserSessionRevocationRepository,
+)
+from app.schemas.authentication_schema import (
+    CaregiverProfile,
+    LoginRequest,
+    RegisterRequest,
+    TokenResponse,
+)
+from app.schemas.caregiver_schema import CaregiverResponse, CaregiverUpdate
+from app.services.caregiver_facade import CaregiverFacade
 
 # Pre-computed dummy hash used to normalise response time when an email is not
 # found, preventing timing-based account enumeration (ÉLEVÉ-01).
 _DUMMY_HASH = _bcrypt.hash("__dummy__")
-
-from app.schemas.authentication_schema import (
-    LoginRequest,
-    RegisterRequest,
-    TokenResponse,
-    CaregiverProfile,
-)
-from app.services.caregiver_facade import CaregiverFacade
-from app.schemas.caregiver_schema import CaregiverResponse, CaregiverUpdate
-from app import get_db
-from sqlalchemy.exc import IntegrityError
-from uuid import UUID
-from app.persistence.revoked_token_repository import RevokedTokenRepository
-from app.persistence.user_session_revocation_repository import UserSessionRevocationRepository
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +59,7 @@ def get_caregiver_facade(db: Session = Depends(get_db)) -> CaregiverFacade:
     return CaregiverFacade(db)
 
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
     """Create a JWT access token.
 
     Args:
@@ -111,7 +112,7 @@ def verify_token(
 
         jti = payload.get("jti")
         if jti and RevokedTokenRepository(db).is_revoked(jti):
-            logger.warning("Revoked token used — sub=%s jti=%s", payload.get("sub"), jti)
+            logger.warning("Revoked token used - sub=%s jti=%s", payload.get("sub"), jti)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Token has been revoked",
@@ -126,7 +127,7 @@ def verify_token(
                 from datetime import timezone as _tz
                 token_issued_at = datetime.fromtimestamp(iat, tz=_tz.utc)
                 if token_issued_at <= revoked_before:
-                    logger.warning("Session-revoked token used — sub=%s", sub)
+                    logger.warning("Session-revoked token used - sub=%s", sub)
                     raise HTTPException(
                         status_code=status.HTTP_401_UNAUTHORIZED,
                         detail="Token has been revoked",
@@ -143,6 +144,18 @@ def verify_token(
         )
 
 
+def require_caregiver_role(
+    token_payload: dict = Depends(verify_token),
+) -> dict:
+    """Dependency that rejects non-caregiver tokens."""
+    if token_payload.get("role") != "caregiver":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Caregiver role required",
+        )
+    return token_payload
+
+
 @router.post(
     "/register",
     response_model=CaregiverProfile,
@@ -150,16 +163,16 @@ def verify_token(
     summary="Register a new caregiver account",
     description="""
     Create a new caregiver account with email and password.
-    
+
     This endpoint allows new caregivers to register in the system.
     The email must be unique and not already registered.
     Password will be securely hashed before storage.
-    
+
     **Requirements:**
     - Valid email format
     - Password minimum 8 characters
     - First name and last name required
-    
+
     **Returns a caregiver profile with:**
     - Unique caregiver ID
     - Personal information
@@ -231,7 +244,7 @@ async def register(
         if existing_caregiver:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Registration failed",
+                detail="Email already registered",
             )
 
         # Create new caregiver
@@ -272,15 +285,15 @@ async def register(
     summary="Login as caregiver",
     description="""
     Authenticate a caregiver and receive a JWT access token.
-    
+
     Use the email and password provided during registration to authenticate.
     Upon successful authentication, you will receive a JWT token that must be
     included in the Authorization header of subsequent requests.
-    
+
     **Token Format:** `Bearer <access_token>`
-    
+
     **Token Expiration:** 60 minutes
-    
+
     The returned token contains:
     - Caregiver ID (sub claim)
     - Email address
@@ -337,7 +350,7 @@ async def login(
         if not caregiver:
             # Constant-time dummy comparison to prevent timing-based email enumeration
             _bcrypt.verify(body.password, _DUMMY_HASH)
-            logger.warning("Failed login attempt — email not found: %s", body.email)
+            logger.warning("Failed login attempt - email not found: %s", body.email)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid email or password",
@@ -346,7 +359,7 @@ async def login(
 
         # Verify password
         if not caregiver.verify_password(body.password):
-            logger.warning("Failed login attempt — wrong password for: %s", body.email)
+            logger.warning("Failed login attempt - wrong password for: %s", body.email)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid email or password",
@@ -371,7 +384,7 @@ async def login(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Login failed: {str(e)}",
+            detail=f"Login failed: {e!s}",
         )
 
 
@@ -381,12 +394,12 @@ async def login(
     summary="Get current caregiver profile",
     description="""
     Retrieve the profile information of the currently authenticated caregiver.
-    
+
     This endpoint requires a valid JWT token in the Authorization header.
     It returns the complete profile information for the authenticated caregiver.
-    
+
     **Authentication required:** Bearer token
-    
+
     Use this endpoint to:
     - Display caregiver profile in the UI
     - Verify token validity
@@ -467,7 +480,7 @@ async def get_current_user(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get profile: {str(e)}",
+            detail=f"Failed to get profile: {e!s}",
         )
 
 
@@ -528,7 +541,7 @@ async def update_current_user(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to update profile: {str(e)}",
+            detail=f"Failed to update profile: {e!s}",
         )
 
 
@@ -585,18 +598,18 @@ async def logout(
     summary="Refresh JWT access token",
     description="""
     Generate a new JWT access token using a valid existing token.
-    
+
     Use this endpoint to refresh an expired or soon-to-expire token without
     requiring the user to log in again. The new token will have the same
     claims as the original token but with an updated expiration time.
-    
+
     **Authentication required:** Bearer token (can be near expiration)
-    
+
     **Use cases:**
     - Token is about to expire
     - Implementing silent authentication
     - Extending user session
-    
+
     **Token Expiration:** 60 minutes from refresh time
     """,
     responses={
@@ -658,21 +671,9 @@ async def refresh_token(token_payload: dict = Depends(verify_token)):
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Token refresh failed: {str(e)}",
+            detail=f"Token refresh failed: {e!s}",
         )
-
-
-def require_caregiver_role(
-    token_payload: dict = Depends(verify_token),
-) -> dict:
-    """Dependency that rejects non-caregiver tokens."""
-    if token_payload.get("role") != "caregiver":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Caregiver role required",
-        )
-    return token_payload
 
 
 # Export for use in other modules
-__all__ = ["router", "verify_token", "require_caregiver_role"]
+__all__ = ["require_caregiver_role", "router", "verify_token"]

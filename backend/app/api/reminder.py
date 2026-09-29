@@ -6,21 +6,20 @@ Caregivers can create, read, update, and delete reminders for their users.
 
 import traceback
 from uuid import UUID
-from typing import List
 
-from fastapi import APIRouter, HTTPException, Depends, status, Body
+from fastapi import APIRouter, Body, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.services.reminder_facade import ReminderFacade
+from app import get_db
+from app.api.authentication import require_caregiver_role, verify_token
 from app.schemas.reminder_schema import (
-    ReminderResponse,
     ReminderCreate,
+    ReminderResponse,
     ReminderUpdate,
 )
-from app.services.user_facade import UserFacade
+from app.services.reminder_facade import ReminderFacade
 from app.services.reminder_status_facade import ReminderStatusFacade
-from app.api.authentication import verify_token, require_caregiver_role
-from app import get_db
+from app.services.user_facade import UserFacade
 
 router = APIRouter(prefix="/api/reminder", tags=["Reminder"])
 
@@ -67,21 +66,21 @@ def build_reminder_response(reminder, current_status: str = None) -> ReminderRes
 
 @router.get(
     "/caregiver",
-    response_model=List[ReminderResponse],
+    response_model=list[ReminderResponse],
     summary="Get all reminders by caregiver",
     description="""
     Retrieve all reminders created by the authenticated caregiver.
-    
+
     Returns a list of all reminders that the caregiver has created for their
     users. This includes reminders for all users associated with the caregiver.
-    
+
     **Authentication required:** Bearer token (caregiver)
-    
+
     **Response includes:**
     - Reminder details (title, description, scheduled time)
     - Associated user information (first name, last name)
     - Creation and update timestamps
-    
+
     **Use cases:**
     - Display all reminders in the caregiver's dashboard
     - Filter and search across all managed reminders
@@ -158,31 +157,31 @@ async def get_all_reminder_by_caregiver(
         traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retrieve reminders: {str(e)}",
+            detail=f"Failed to retrieve reminders: {e!s}",
         )
 
 
 @router.get(
     "/user",
-    response_model=List[ReminderResponse],
+    response_model=list[ReminderResponse],
     summary="Get all reminders for user",
     description="""
     Retrieve all reminders assigned to the authenticated user.
-    
+
     Returns a list of all reminders that have been created for the currently
     authenticated user (elderly person). This endpoint is typically used by
     the user's mobile app to display their personal reminders.
-    
+
     **Authentication required:** Bearer token (user)
-    
+
     **Note:** The user_id is extracted from the JWT token, so users can only
     see their own reminders.
-    
+
     **Response includes:**
     - Reminder details (title, description, scheduled time)
     - Caregiver information
     - Creation and update timestamps
-    
+
     **Use cases:**
     - Display reminders in the user's app
     - Show upcoming reminders on the home screen
@@ -266,7 +265,7 @@ async def get_all_reminder_by_user(
         traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retrieve reminders: {str(e)}",
+            detail=f"Failed to retrieve reminders: {e!s}",
         )
 
 
@@ -276,12 +275,12 @@ async def get_all_reminder_by_user(
     summary="Get reminder details",
     description="""
     Retrieve detailed information for a specific reminder by ID.
-    
+
     Returns complete details for a single reminder including title, description,
     scheduled time, and associated user information.
-    
+
     **Authentication required:** Bearer token (caregiver or user)
-    
+
     **Use cases:**
     - View detailed reminder information
     - Edit reminder (get current values)
@@ -375,7 +374,7 @@ async def get_reminder(
         traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retrieve reminder: {str(e)}",
+            detail=f"Failed to retrieve reminder: {e!s}",
         )
 
 
@@ -385,22 +384,22 @@ async def get_reminder(
     summary="Create a new reminder",
     description="""
     Create a new reminder for a user.
-    
+
     Creates a reminder that will be assigned to a specific user. The authenticated
     caregiver must have access to the user to create reminders for them.
-    
+
     **Authentication required:** Bearer token (caregiver)
-    
+
     **Required fields:**
     - title: Short descriptive title
     - description: Detailed description of the reminder
     - scheduled_at: When the reminder should trigger (ISO 8601 datetime)
     - user_id: UUID of the user to assign the reminder to
-    
+
     **Access control:**
     - Caregiver must be associated with the user
     - Returns 403 Forbidden if access is denied
-    
+
     **Use cases:**
     - Create medication reminders
     - Schedule appointments
@@ -516,7 +515,7 @@ async def create_reminder(
         traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to create reminder: {str(e)}",
+            detail=f"Failed to create reminder: {e!s}",
         )
 
 
@@ -526,21 +525,21 @@ async def create_reminder(
     summary="Update reminder",
     description="""
     Update an existing reminder's details.
-    
+
     Allows the caregiver who created the reminder to update its details.
     Supports partial updates - only the fields you provide will be updated.
-    
+
     **Authentication required:** Bearer token (caregiver)
-    
+
     **Updatable fields:**
     - title: Reminder title
     - description: Detailed description
     - scheduled_at: Scheduled time
-    
+
     **Access control:**
     - Only the caregiver who created the reminder can update it
     - Returns 403 Forbidden if access is denied
-    
+
     **Use cases:**
     - Reschedule a reminder
     - Update reminder description
@@ -662,7 +661,7 @@ async def update_reminder(
         if not update_data:
             return build_reminder_response(reminder)
 
-        # Perform update — pass as str to avoid UUID(uuid_obj) crash in facade
+        # Perform update - pass as str to avoid UUID(uuid_obj) crash in facade
         updated_reminder = reminder_facade.update_reminder(
             str(reminder.id), update_data
         )
@@ -679,7 +678,7 @@ async def update_reminder(
         traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to update reminder: {str(e)}",
+            detail=f"Failed to update reminder: {e!s}",
         )
 
 
@@ -732,7 +731,7 @@ async def postpone_reminder(
         traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to postpone reminder: {str(e)}",
+            detail=f"Failed to postpone reminder: {e!s}",
         )
 
 
@@ -742,17 +741,17 @@ async def postpone_reminder(
     summary="Delete reminder",
     description="""
     Permanently delete a reminder from the system.
-    
+
     Only the caregiver who created the reminder can delete it.
-    
+
     **Authentication required:** Bearer token (caregiver)
-    
+
     **Access control:**
     - Only the caregiver who created the reminder can delete it
     - Returns 403 Forbidden if access is denied
-    
+
     **Warning:** This action cannot be undone!
-    
+
     **What gets deleted:**
     - The reminder itself
     - Associated reminder status records
@@ -839,7 +838,7 @@ async def delete_reminder(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Failed to delete reminder",
             )
-        return None
+        return
 
     except HTTPException:
         raise
@@ -847,7 +846,7 @@ async def delete_reminder(
         traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to delete reminder: {str(e)}",
+            detail=f"Failed to delete reminder: {e!s}",
         )
 
 

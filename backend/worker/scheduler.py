@@ -10,15 +10,15 @@ Each job opens its own database session to avoid circular import issues.
 """
 
 import logging
+
+from app.persistence.push_token_repository import PushTokenRepository
+from app.persistence.reminder_repository import ReminderRepository
+from app.persistence.reminder_status_repository import ReminderStatusRepository
+from app.persistence.revoked_token_repository import RevokedTokenRepository
+from app.services.notification_services import NotificationService
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from sqlalchemy.orm import Session
-
-from app.persistence.reminder_repository import ReminderRepository
-from app.persistence.push_token_repository import PushTokenRepository
-from app.persistence.reminder_status_repository import ReminderStatusRepository
-from app.services.notification_services import NotificationService
-from app.persistence.revoked_token_repository import RevokedTokenRepository
 
 logger = logging.getLogger(__name__)
 
@@ -176,8 +176,9 @@ def send_caregiver_escalations():
 
 def cleanup_revoked_tokens() -> None:
     """Delete revoked tokens older than 60 minutes (they are already expired)."""
+    from datetime import datetime, timedelta, timezone
+
     from app import SessionLocal
-    from datetime import datetime, timezone, timedelta
 
     db: Session = SessionLocal()
     try:
@@ -230,9 +231,9 @@ def start_scheduler():
 
 
 if __name__ == "__main__":
-    import time
     import os
     import sys
+    import time
 
     logging.basicConfig(
         level=logging.INFO,

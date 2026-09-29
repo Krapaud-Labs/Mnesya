@@ -5,24 +5,23 @@ Revises: 004
 Create Date: 2026-03-18 00:00:00.000000
 
 Indexes added:
-- reminder.caregiver_id  — used by GET /api/reminder/caregiver (RemindersListScreen, DashboardScreen)
-- reminder.user_id       — used by GET /api/reminder/user (UserHomeScreen)
-- reminder.scheduled_at  — ORDER BY on all reminder list queries
-- reminder_status.reminder_id  — JOIN reminder_status → reminder
-- reminder_status.created_at   — WHERE clause in activity log (last 48h)
-- user.caregiver_ids (GIN)     — ARRAY contains filter in GET /api/users
+- reminder.caregiver_id  - used by GET /api/reminder/caregiver (RemindersListScreen, DashboardScreen)
+- reminder.user_id       - used by GET /api/reminder/user (UserHomeScreen)
+- reminder.scheduled_at  - ORDER BY on all reminder list queries
+- reminder_status.reminder_id  - JOIN reminder_status → reminder
+- reminder_status.created_at   - WHERE clause in activity log (last 48h)
+- user.caregiver_ids (GIN)     - ARRAY contains filter in GET /api/users
 """
 
-from typing import Sequence, Union
+from collections.abc import Sequence
 
 from alembic import op
 
-
 # revision identifiers, used by Alembic.
 revision: str = "005"
-down_revision: Union[str, None] = "004"
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | None = "004"
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:

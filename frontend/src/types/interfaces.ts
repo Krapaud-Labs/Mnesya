@@ -61,7 +61,7 @@ export interface UserProfileData {
     updated_at: string;
 }
 
-/** Response from creating a user profile — includes user data and the generated pairing code. */
+/** Response from creating a user profile - includes user data and the generated pairing code. */
 export interface UserWithPairingCodeResponse {
     user: UserProfileData;
     pairing_code: PairingCodeResponse;

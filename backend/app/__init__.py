@@ -4,17 +4,18 @@ This module handles the initialization of the FastAPI application,
 including database setup, CORS configuration, and API documentation.
 """
 
-from fastapi import FastAPI, Depends, HTTPException, status, Request
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
-from starlette.middleware.base import BaseHTTPMiddleware
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base, Session
-from contextlib import asynccontextmanager
-from typing import Generator
-import secrets
 import os
+import secrets
+from collections.abc import Generator
+from contextlib import asynccontextmanager
+
+from fastapi import Depends, FastAPI, HTTPException, Request, status
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session, declarative_base, sessionmaker
+from starlette.middleware.base import BaseHTTPMiddleware
 
 # ==================== Database setup ====================
 database = declarative_base()
@@ -24,9 +25,9 @@ SessionLocal = None
 
 def init_app(database_url: str):
     """Initialize the application database.
-    
+
     Creates the database engine, session maker, and creates all tables.
-    
+
     Args:
         database_url (str): Database connection URL
     """
@@ -38,10 +39,10 @@ def init_app(database_url: str):
 
 def get_db() -> Generator[Session, None, None]:
     """Dependency to get database session.
-    
+
     Yields:
         Session: SQLAlchemy database session
-        
+
     Note:
         Session is automatically closed after use
     """
@@ -55,13 +56,13 @@ def get_db() -> Generator[Session, None, None]:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Manage application lifespan.
-    
+
     Handles startup and shutdown events for the FastAPI application.
     Properly disposes of database engine on shutdown.
-    
+
     Args:
         app (FastAPI): The FastAPI application instance
-        
+
     Yields:
         None: Control to the application
     """
@@ -90,10 +91,10 @@ security = HTTPBasic()
 def verify_docs_credentials(
         credentials: HTTPBasicCredentials = Depends(security)):
     """Protects Swagger and ReDoc with HTTP Basic Auth using environment variables.
-    
+
     Args:
         credentials (HTTPBasicCredentials): HTTP Basic credentials from request
-        
+
     Raises:
         HTTPException: If credentials are invalid (401 Unauthorized)
     """
@@ -113,12 +114,12 @@ def verify_docs_credentials(
 
 def create_app():
     """Create and configure the FastAPI application.
-    
+
     Sets up the FastAPI application with:
     - CORS middleware for cross-origin requests
     - Protected API documentation endpoints (Swagger and ReDoc)
     - Application lifecycle management
-    
+
     Returns:
         FastAPI: Configured FastAPI application instance
     """
@@ -147,10 +148,10 @@ def create_app():
     async def custom_swagger(
             credentials: HTTPBasicCredentials = Depends(security)):
         """Protected Swagger UI endpoint.
-        
+
         Args:
             credentials (HTTPBasicCredentials): HTTP Basic credentials
-            
+
         Returns:
             HTMLResponse: Swagger UI HTML page
         """
@@ -162,10 +163,10 @@ def create_app():
     async def custom_redoc(
             credentials: HTTPBasicCredentials = Depends(security)):
         """Protected ReDoc endpoint.
-        
+
         Args:
             credentials (HTTPBasicCredentials): HTTP Basic credentials
-            
+
         Returns:
             HTMLResponse: ReDoc HTML page
         """

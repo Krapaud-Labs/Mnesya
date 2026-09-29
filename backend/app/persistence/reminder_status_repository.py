@@ -4,12 +4,13 @@ This module provides data access operations specific to ReminderStatus
 entities.
 """
 
-from typing import List
-from uuid import UUID
 from datetime import datetime, timedelta, timezone
+from uuid import UUID
+
 from sqlalchemy.orm import Session
-from app.models.reminder_status import ReminderStatusModel
+
 from app.models.reminder import ReminderModel
+from app.models.reminder_status import ReminderStatusModel
 from app.models.user import UserModel
 from app.persistence.base_repository import BaseRepository
 
@@ -26,7 +27,7 @@ class ReminderStatusRepository(BaseRepository[ReminderStatusModel]):
         ReminderStatusModel and database session."""
         super().__init__(ReminderStatusModel, db)
 
-    def get_statuses_by_reminder(self, reminder_id: UUID) -> List[ReminderStatusModel]:
+    def get_statuses_by_reminder(self, reminder_id: UUID) -> list[ReminderStatusModel]:
         """Get all status entries for a specific reminder.
 
         Args:
@@ -67,8 +68,8 @@ class ReminderStatusRepository(BaseRepository[ReminderStatusModel]):
         )
 
     def get_latest_statuses_for_reminder_ids(
-        self, reminder_ids: List[UUID]
-    ) -> List[ReminderStatusModel]:
+        self, reminder_ids: list[UUID]
+    ) -> list[ReminderStatusModel]:
         """Get the most recent status for each reminder in one query."""
         if not reminder_ids:
             return []
@@ -97,7 +98,7 @@ class ReminderStatusRepository(BaseRepository[ReminderStatusModel]):
 
     def get_recent_activity_by_caregiver(
         self, caregiver_id: UUID, hours: int = 48
-    ) -> List[ReminderStatusModel]:
+    ) -> list[ReminderStatusModel]:
         """Get all user-interaction statuses across all reminders of a caregiver
         over the last `hours` hours.
 

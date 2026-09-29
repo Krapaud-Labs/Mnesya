@@ -6,8 +6,10 @@ Each status entry represents a state change in a reminder's lifecycle.
 
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import Column, String, DateTime, ForeignKey
+
+from sqlalchemy import Column, DateTime, ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID
+
 from app import database
 from app.models.reminder_status_enum import ReminderStatusEnum
 
@@ -83,12 +85,12 @@ class ReminderStatusModel(database):
         """
         if not value or len(value.strip()) == 0:
             raise ValueError("Status is required")
-        
+
         value_upper = value.strip().upper()
         if not ReminderStatusEnum.is_valid(value_upper):
             valid_statuses = ", ".join(ReminderStatusEnum.values())
             raise ValueError(f"Invalid status. Must be one of: {valid_statuses}")
-        
+
         self._status = value_upper
 
     @property

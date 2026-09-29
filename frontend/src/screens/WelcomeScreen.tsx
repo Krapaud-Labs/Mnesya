@@ -1,5 +1,5 @@
 /**
- * Welcome screen — lets the user choose between user and caregiver profiles.
+ * Welcome screen - lets the user choose between user and caregiver profiles.
  *
  * @module WelcomeScreen
  */

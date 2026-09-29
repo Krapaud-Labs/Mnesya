@@ -4,22 +4,23 @@ This module initializes the FastAPI application, configures the database,
 and registers all API routers. This is the entry point for the Mnesya backend.
 """
 
-from app import create_app, init_app
 import os
-from app.models import user_session_revocation  # noqa: F401 — ensures table is created
-from app.api import (
-    authentication,
-    user,
-    caregiver,
-    pairing,
-    reminder,
-    reminder_status_api,
-    push_notification,
-)
+
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
-from app.limiter import limiter
 
+from app import create_app, init_app
+from app.api import (
+    authentication,
+    caregiver,
+    pairing,
+    push_notification,
+    reminder,
+    reminder_status_api,
+    user,
+)
+from app.limiter import limiter
+from app.models import user_session_revocation  # noqa: F401 - ensures table is created
 
 # Initialize database
 database_url = os.environ["DATABASE_URL"]

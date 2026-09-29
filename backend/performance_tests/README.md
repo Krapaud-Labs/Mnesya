@@ -1,4 +1,4 @@
-# Performance Testing — Mnesya Backend
+# Performance Testing - Mnesya Backend
 
 Tests de charge avec [Locust](https://locust.io/).
 
@@ -48,5 +48,5 @@ locust -f performance_tests/locustfile.py \
 
 ## Classes d'utilisateurs
 
-- **`CaregiverUser`** — parcours complet (auth, rappels, profils, pairing)
-- **`HeavyReminderUser`** — stress des endpoints `/api/reminder` uniquement
+- **`CaregiverUser`** - parcours complet (auth, rappels, profils, pairing)
+- **`HeavyReminderUser`** - stress des endpoints `/api/reminder` uniquement

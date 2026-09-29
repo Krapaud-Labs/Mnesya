@@ -110,7 +110,7 @@ const EmergencyModal: React.FC<EmergencyModalProps> = ({ visible, onClose }) => 
                                     onPress={() => handleCall(service.number)}
                                     activeOpacity={0.75}
                                     accessibilityRole="button"
-                                    accessibilityLabel={`${label} — ${service.number}`}
+                                    accessibilityLabel={`${label} - ${service.number}`}
                                     accessibilityHint={t('emergency.callHint', { number: service.number })}
                                 >
                                     <View style={[styles.categoryIcon, { backgroundColor: color }]}>

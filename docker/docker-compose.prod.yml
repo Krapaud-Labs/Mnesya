@@ -1,4 +1,4 @@
-# Docker Compose — Production (Coolify)
+# Docker Compose - Production (Coolify)
 #
 # Toutes les variables d'environnement sont injectées par Coolify.
 # Ne pas committer de valeurs ici.

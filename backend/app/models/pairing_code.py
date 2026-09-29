@@ -4,9 +4,11 @@ This module defines the PairingCode entity for user-caregiver pairing.
 """
 
 import uuid
-from datetime import datetime, timezone, timedelta
-from sqlalchemy import Column, String, DateTime, Boolean, ForeignKey
+from datetime import datetime, timezone
+
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID
+
 from app import database
 
 
@@ -52,7 +54,7 @@ class PairingCodeModel(database):
     @property
     def id(self):
         """Get the pairing code's unique identifier.
-        
+
         Returns:
             UUID: The pairing code's ID
         """
@@ -61,7 +63,7 @@ class PairingCodeModel(database):
     @property
     def code(self) -> str:
         """Get the pairing code string.
-        
+
         Returns:
             str: The 6-character pairing code
         """
@@ -70,10 +72,10 @@ class PairingCodeModel(database):
     @code.setter
     def code(self, value: str):
         """Set the pairing code with validation.
-        
+
         Args:
             value (str): The code to set (must be 6 characters)
-            
+
         Raises:
             ValueError: If code is not exactly 6 characters
         """
@@ -84,7 +86,7 @@ class PairingCodeModel(database):
     @property
     def user_id(self):
         """Get the associated user ID.
-        
+
         Returns:
             UUID: The user's ID
         """
@@ -93,7 +95,7 @@ class PairingCodeModel(database):
     @user_id.setter
     def user_id(self, value):
         """Set the associated user ID.
-        
+
         Args:
             value (UUID): The user's unique identifier
         """
@@ -102,7 +104,7 @@ class PairingCodeModel(database):
     @property
     def caregiver_id(self):
         """Get the associated caregiver ID.
-        
+
         Returns:
             UUID: The caregiver's ID
         """
@@ -111,7 +113,7 @@ class PairingCodeModel(database):
     @caregiver_id.setter
     def caregiver_id(self, value):
         """Set the associated caregiver ID.
-        
+
         Args:
             value (UUID): The caregiver's unique identifier
         """
@@ -120,7 +122,7 @@ class PairingCodeModel(database):
     @property
     def expires_at(self) -> datetime:
         """Get the expiration timestamp.
-        
+
         Returns:
             datetime: When this pairing code expires
         """
@@ -129,7 +131,7 @@ class PairingCodeModel(database):
     @expires_at.setter
     def expires_at(self, value: datetime):
         """Set the expiration timestamp.
-        
+
         Args:
             value (datetime): The expiration datetime
         """
@@ -138,7 +140,7 @@ class PairingCodeModel(database):
     @property
     def is_used(self) -> bool:
         """Get whether the code has been used.
-        
+
         Returns:
             bool: True if code has been used, False otherwise
         """
@@ -147,7 +149,7 @@ class PairingCodeModel(database):
     @is_used.setter
     def is_used(self, value: bool):
         """Set whether the code has been used.
-        
+
         Args:
             value (bool): True to mark as used, False otherwise
         """
@@ -156,7 +158,7 @@ class PairingCodeModel(database):
     @property
     def created_at(self) -> datetime:
         """Get the creation timestamp.
-        
+
         Returns:
             datetime: When this pairing code was created
         """
@@ -164,7 +166,7 @@ class PairingCodeModel(database):
 
     def is_valid(self) -> bool:
         """Check if code is valid (not used and not expired).
-        
+
         Returns:
             bool: True if code is still valid, False otherwise
         """

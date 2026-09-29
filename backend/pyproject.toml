@@ -1,0 +1,12 @@
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+# Keep the repository gate focused on correctness and undefined names. FastAPI's
+# dependency injection intentionally uses calls in function defaults, and the
+# legacy service layer still requires a separate exception-handling migration.
+select = ["E4", "E7", "E9", "F"]
+
+[tool.ruff.lint.per-file-ignores]
+"app/test/**/*.py" = ["E402"]

@@ -4,9 +4,10 @@ This module provides the generic repository pattern implementation for data acce
 All specific repositories inherit from BaseRepository to get standard CRUD operations.
 """
 
-from sqlalchemy.orm import Session
-from typing import Generic, TypeVar, Type, List, Optional
+from typing import Generic, TypeVar
 from uuid import UUID
+
+from sqlalchemy.orm import Session
 
 T = TypeVar('T')  # Generic type for the model class
 
@@ -28,7 +29,7 @@ class BaseRepository(Generic[T]):
         The session is automatically closed when the repository is destroyed.
     """
 
-    def __init__(self, model: Type[T], db: Session):
+    def __init__(self, model: type[T], db: Session):
         """Initialize the repository with a model class.
 
         Args:
@@ -58,7 +59,7 @@ class BaseRepository(Generic[T]):
             self.db.rollback()
             raise e
 
-    def get(self, entity_id: UUID) -> Optional[T]:
+    def get(self, entity_id: UUID) -> T | None:
         """Retrieve a single entity by its ID.
 
         Args:
@@ -70,7 +71,7 @@ class BaseRepository(Generic[T]):
         return self.db.query(self.model).filter(
             self.model._id == entity_id).first()
 
-    def get_all(self) -> List[T]:
+    def get_all(self) -> list[T]:
         """Retrieve all entities of this type.
 
         Returns:
@@ -81,7 +82,7 @@ class BaseRepository(Generic[T]):
         """
         return self.db.query(self.model).all()
 
-    def update(self, entity_id: UUID, data: dict) -> Optional[T]:
+    def update(self, entity_id: UUID, data: dict) -> T | None:
         """Update an existing entity with new data.
 
         Args:

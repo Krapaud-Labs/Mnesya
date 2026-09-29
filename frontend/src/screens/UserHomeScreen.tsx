@@ -30,7 +30,7 @@ import type { UserProfileData, ReminderData } from '../types/interfaces';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-type Props = NativeStackScreenProps<UserTabsParamList, 'Refresh'>;
+type Props = NativeStackScreenProps<UserTabsParamList, 'Refresh' | 'Emergency'>;
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -135,7 +135,7 @@ const UserHomeScreen: React.FC<Props> = ({ navigation }) => {
     const [userReminders, setUserReminders] = useState<ReminderData[]>([]);
     const [focusTrigger, setFocusTrigger] = useState(0);
 
-    /** Controls the bottom fade indicator — hidden when scrolled to the end. */
+    /** Controls the bottom fade indicator - hidden when scrolled to the end. */
     const [showScrollFade, setShowScrollFade] = useState(true);
     const [isScrollable, setIsScrollable] = useState(false);
     const scrollContainerHeight = useRef(0);
@@ -288,7 +288,7 @@ const UserHomeScreen: React.FC<Props> = ({ navigation }) => {
                         ))
                     )}
                 </ScrollView>
-                {/* Bottom fade — signals more content below */}
+                {/* Bottom fade - signals more content below */}
                 {showScrollFade && isScrollable && (
                     <View style={styles.scrollFade} pointerEvents="none">
                         <Ionicons name="chevron-down" size={24} color="#4A90E2" />

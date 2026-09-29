@@ -6,11 +6,11 @@ Includes comprehensive password validation for security.
 """
 
 import re
-from pydantic import BaseModel, Field, field_validator, ConfigDict
-from datetime import datetime, date
+from datetime import datetime
 from uuid import UUID
-from typing import List, Optional
+
 import validators
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 _NAME_RE = re.compile(r"^[A-Za-zÀ-ÖØ-öø-ÿ' \-]+$")
 
@@ -131,15 +131,15 @@ class CaregiverUpdate(BaseModel):
         current_password (Optional[str]): Current password, required
             when updating the password
     """
-    first_name: Optional[str] = Field(None, min_length=1, max_length=100)
-    last_name: Optional[str] = Field(None, min_length=1, max_length=100)
-    email: Optional[str] = None
-    password: Optional[str] = Field(None, min_length=8, max_length=255)
-    current_password: Optional[str] = Field(None, min_length=8, max_length=255)
+    first_name: str | None = Field(None, min_length=1, max_length=100)
+    last_name: str | None = Field(None, min_length=1, max_length=100)
+    email: str | None = None
+    password: str | None = Field(None, min_length=8, max_length=255)
+    current_password: str | None = Field(None, min_length=8, max_length=255)
 
     @field_validator('first_name', 'last_name')
     @classmethod
-    def validate_name(cls, value: Optional[str]) -> Optional[str]:
+    def validate_name(cls, value: str | None) -> str | None:
         if value is None:
             return None
         value = value.strip()
@@ -151,7 +151,7 @@ class CaregiverUpdate(BaseModel):
 
     @field_validator('email')
     @classmethod
-    def validate_email(cls, value: Optional[str]) -> Optional[str]:
+    def validate_email(cls, value: str | None) -> str | None:
         """Validate email format if provided.
 
         Args:
@@ -169,7 +169,7 @@ class CaregiverUpdate(BaseModel):
 
     @field_validator('password')
     @classmethod
-    def validate_password(cls, value: Optional[str]) -> Optional[str]:
+    def validate_password(cls, value: str | None) -> str | None:
         """Validate password meets security requirements if provided.
 
         Args:
@@ -248,5 +248,5 @@ class UserListResponse(BaseModel):
         caregivers (List[CaregiverResponse]): List of caregiver objects
         total (int): Total count of caregivers
     """
-    caregivers: List[CaregiverResponse]
+    caregivers: list[CaregiverResponse]
     total: int

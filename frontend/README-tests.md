@@ -4,8 +4,8 @@ Complete test suite for the Mnesya React Native application.
 
 ## Test Results
 
-**Last Run:** March 6, 2026  
-**Status:** ✅ **220/220 tests passed** (16 test suites)  
+**Last Run:** March 6, 2026
+**Status:** ✅ **220/220 tests passed** (16 test suites)
 **Execution Time:** ~3.2 seconds
 
 ## Test Structure
@@ -42,7 +42,7 @@ frontend/src/
 
 ## Test Suites Detail
 
-### 1. `useFormValidation` hook — 18 tests ✅
+### 1. `useFormValidation` hook - 18 tests ✅
 
 | # | Test Name | Status |
 |---|-----------|--------|
@@ -67,7 +67,7 @@ frontend/src/
 
 ---
 
-### 2. Validation utilities (`src/__tests__/utils/validation.test.ts`) — 42 tests ✅
+### 2. Validation utilities (`src/__tests__/utils/validation.test.ts`) - 42 tests ✅
 
 #### `cleanText`
 
@@ -135,7 +135,7 @@ frontend/src/
 
 ---
 
-### 3. `UpdateCaregiverProfileModal` component — 16 tests ✅
+### 3. `UpdateCaregiverProfileModal` component - 16 tests ✅
 
 | # | Test Name | Category | Status |
 |---|-----------|----------|--------|
@@ -158,7 +158,7 @@ frontend/src/
 
 ---
 
-### 4. `UpdateUserProfileModal` component — 21 tests ✅
+### 4. `UpdateUserProfileModal` component - 21 tests ✅
 
 | # | Test Name | Category | Status |
 |---|-----------|----------|--------|
@@ -186,7 +186,7 @@ frontend/src/
 
 ---
 
-### 5. `useCaregiverProfile` hook — 9 tests ✅
+### 5. `useCaregiverProfile` hook - 9 tests ✅
 
 | # | Test Name | Status |
 |---|-----------|--------|
@@ -202,7 +202,7 @@ frontend/src/
 
 ---
 
-### 6. `useCaregiverReminders` hook — 6 tests ✅
+### 6. `useCaregiverReminders` hook - 6 tests ✅
 
 | # | Test Name | Status |
 |---|-----------|--------|
@@ -215,7 +215,7 @@ frontend/src/
 
 ---
 
-### 7. `useReminderStatus` hook — 6 tests ✅
+### 7. `useReminderStatus` hook - 6 tests ✅
 
 | # | Test Name | Status |
 |---|-----------|--------|
@@ -228,7 +228,7 @@ frontend/src/
 
 ---
 
-### 8. `useUserProfile` hook — 7 tests ✅
+### 8. `useUserProfile` hook - 7 tests ✅
 
 | # | Test Name | Status |
 |---|-----------|--------|
@@ -242,7 +242,7 @@ frontend/src/
 
 ---
 
-### 9. `useUserProfiles` hook — 6 tests ✅
+### 9. `useUserProfiles` hook - 6 tests ✅
 
 | # | Test Name | Status |
 |---|-----------|--------|
@@ -255,7 +255,7 @@ frontend/src/
 
 ---
 
-### 10. `useUserReminders` hook — 6 tests ✅
+### 10. `useUserReminders` hook - 6 tests ✅
 
 | # | Test Name | Status |
 |---|-----------|--------|
@@ -268,7 +268,7 @@ frontend/src/
 
 ---
 
-### 11. `authService` — 24 tests ✅
+### 11. `authService` - 24 tests ✅
 
 | # | Test Name | Category | Status |
 |---|-----------|----------|--------|
@@ -299,7 +299,7 @@ frontend/src/
 
 ---
 
-### 12. `pairingService` — 7 tests ✅
+### 12. `pairingService` - 7 tests ✅
 
 | # | Test Name | Status |
 |---|-----------|--------|
@@ -313,7 +313,7 @@ frontend/src/
 
 ---
 
-### 13. `profileService` — 11 tests ✅
+### 13. `profileService` - 11 tests ✅
 
 | # | Test Name | Status |
 |---|-----------|--------|
@@ -331,7 +331,7 @@ frontend/src/
 
 ---
 
-### 14. `reminderService` — 16 tests ✅
+### 14. `reminderService` - 16 tests ✅
 
 | # | Test Name | Status |
 |---|-----------|--------|
@@ -354,7 +354,7 @@ frontend/src/
 
 ---
 
-### 15. `tokenService` — 11 tests ✅
+### 15. `tokenService` - 11 tests ✅
 
 | # | Test Name | Status |
 |---|-----------|--------|
@@ -372,9 +372,9 @@ frontend/src/
 
 ---
 
-### 16. Validation utilities (`src/utils/__tests__/validation.test.ts`) — 17 tests ✅
+### 16. Validation utilities (`src/utils/__tests__/validation.test.ts`) - 17 tests ✅
 
-> Subset of tests covering the same validators as `src/__tests__/utils/validation.test.ts` — primarily used for regression in the utils folder.
+> Subset of tests covering the same validators as `src/__tests__/utils/validation.test.ts` - primarily used for regression in the utils folder.
 
 | # | Test Name | Status |
 |---|-----------|--------|
@@ -402,22 +402,22 @@ frontend/src/
 
 | Category | File | Tests |
 |----------|------|-------|
-| Hook — form validation | `src/__tests__/hooks/useFormValidation.test.ts` | 18 |
-| Util — validation | `src/__tests__/utils/validation.test.ts` | 42 |
-| Component — caregiver modal | `src/components/__tests__/UpdateCaregiverProfileModal.test.tsx` | 16 |
-| Component — user modal | `src/components/__tests__/UpdateUserProfileModal.test.tsx` | 21 |
-| Hook — caregiver profile | `src/hooks/__tests__/useCaregiverProfile.test.ts` | 9 |
-| Hook — caregiver reminders | `src/hooks/__tests__/useCaregiverReminders.test.ts` | 6 |
-| Hook — reminder status | `src/hooks/__tests__/useReminderStatus.test.ts` | 6 |
-| Hook — user profile | `src/hooks/__tests__/useUserProfile.test.ts` | 7 |
-| Hook — user profiles list | `src/hooks/__tests__/useUserProfiles.test.ts` | 6 |
-| Hook — user reminders | `src/hooks/__tests__/useUserReminders.test.ts` | 6 |
-| Service — auth | `src/services/__tests__/authService.test.ts` | 24 |
-| Service — pairing | `src/services/__tests__/pairingService.test.ts` | 7 |
-| Service — profile | `src/services/__tests__/profileService.test.ts` | 11 |
-| Service — reminder | `src/services/__tests__/reminderService.test.ts` | 16 |
-| Service — token | `src/services/__tests__/tokenService.test.ts` | 11 |
-| Util — validation (utils/) | `src/utils/__tests__/validation.test.ts` | 17 |
+| Hook - form validation | `src/__tests__/hooks/useFormValidation.test.ts` | 18 |
+| Util - validation | `src/__tests__/utils/validation.test.ts` | 42 |
+| Component - caregiver modal | `src/components/__tests__/UpdateCaregiverProfileModal.test.tsx` | 16 |
+| Component - user modal | `src/components/__tests__/UpdateUserProfileModal.test.tsx` | 21 |
+| Hook - caregiver profile | `src/hooks/__tests__/useCaregiverProfile.test.ts` | 9 |
+| Hook - caregiver reminders | `src/hooks/__tests__/useCaregiverReminders.test.ts` | 6 |
+| Hook - reminder status | `src/hooks/__tests__/useReminderStatus.test.ts` | 6 |
+| Hook - user profile | `src/hooks/__tests__/useUserProfile.test.ts` | 7 |
+| Hook - user profiles list | `src/hooks/__tests__/useUserProfiles.test.ts` | 6 |
+| Hook - user reminders | `src/hooks/__tests__/useUserReminders.test.ts` | 6 |
+| Service - auth | `src/services/__tests__/authService.test.ts` | 24 |
+| Service - pairing | `src/services/__tests__/pairingService.test.ts` | 7 |
+| Service - profile | `src/services/__tests__/profileService.test.ts` | 11 |
+| Service - reminder | `src/services/__tests__/reminderService.test.ts` | 16 |
+| Service - token | `src/services/__tests__/tokenService.test.ts` | 11 |
+| Util - validation (utils/) | `src/utils/__tests__/validation.test.ts` | 17 |
 | **Total** | **16 suites** | **220** |
 
 ## Running Tests

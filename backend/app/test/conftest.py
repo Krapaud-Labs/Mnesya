@@ -1,26 +1,26 @@
 """Pytest configuration and shared fixtures for API tests."""
 
-import pytest
-import sys
 import os
-from datetime import datetime, date, timezone, timedelta
+import sys
+from datetime import date, datetime, timedelta, timezone
 from uuid import uuid4
+
+import pytest
+from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from fastapi.testclient import TestClient
 
 # Add parent directory to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
+from app import database as Base
+from app import get_db
 from app.main import app
-from app import get_db, database as Base
 from app.models.caregiver import CaregiverModel
-from app.models.user import UserModel
-from app.models.pairing_code import PairingCodeModel
 from app.models.reminder import ReminderModel
-from app.models.push_token import PushTokenModel
+from app.models.user import UserModel
 
-# Test database URL — définie via TEST_DATABASE_URL dans l'environnement
+# Test database URL - définie via TEST_DATABASE_URL dans l'environnement
 # Fallback vers l'URL Docker si non définie (usage dans docker-compose uniquement)
 TEST_DATABASE_URL = os.getenv(
     "TEST_DATABASE_URL", "postgresql://mnesya_user:changeme@db:5432/mnesya_test_db"

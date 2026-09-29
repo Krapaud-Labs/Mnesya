@@ -1,5 +1,5 @@
 /**
- * Main navigation stack — defines all routes and the initial screen based on auth state.
+ * Main navigation stack - defines all routes and the initial screen based on auth state.
  *
  * @module AppNavigator
  */

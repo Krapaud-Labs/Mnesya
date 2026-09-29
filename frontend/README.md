@@ -1,6 +1,6 @@
-# Mnesya — Frontend
+# Mnesya - Frontend
 
-React Native / Expo mobile application for Mnesya — a reminder app for elderly people and their caregivers.
+React Native / Expo mobile application for Mnesya - a reminder app for elderly people and their caregivers.
 
 ---
 
@@ -18,14 +18,14 @@ React Native / Expo mobile application for Mnesya — a reminder app for elderly
 ## Installation
 
 ```bash
-# 1 — Clone the repo
+# 1 - Clone the repo
 git clone https://github.com/krapaud/mnesya.git
 cd mnesya/frontend
 
-# 2 — Install dependencies
+# 2 - Install dependencies
 npm install
 
-# 3 — Configure environment
+# 3 - Configure environment
 cp .env.example .env.local
 # Edit .env.local and set EXPO_PUBLIC_API_URL to your backend address:
 #   Local machine:  http://<your-local-ip>:8000   (use `ifconfig getifaddr en0` on macOS)
@@ -53,6 +53,8 @@ cp .env.example .env.local
 | `npm run android`       | Launch on Android emulator                        |
 | `npm run web`           | Launch in browser (limited native features)       |
 | `npm test`              | Run Jest test suite                               |
+| `npm run lint`          | Run ESLint on the source tree                    |
+| `npx tsc --noEmit`      | Type-check the TypeScript project               |
 | `npm run test:watch`    | Run tests in watch mode                           |
 | `npm run test:coverage` | Run tests and generate coverage report            |
 | `npm run format`        | Format source files with Prettier                 |
@@ -138,10 +140,10 @@ src/
 
 ## Internationalization
 
-The app is fully bilingual (French / English) using **i18next + react-i18next**.  
-Translation files are in `src/locales/`.  
-Language is detected automatically from device locale.  
-All user-facing strings must use `t('key')` — no hardcoded text.
+The app is fully bilingual (French / English) using **i18next + react-i18next**.
+Translation files are in `src/locales/`.
+Language is detected automatically from device locale.
+All user-facing strings must use `t('key')` - no hardcoded text.
 
 ---
 
@@ -153,14 +155,14 @@ npm run test:watch        # watch mode
 npm run test:coverage     # HTML coverage report in coverage/
 ```
 
-Tests use **Jest** + **@testing-library/react-native**.  
+Tests use **Jest** + **@testing-library/react-native**.
 Mock files are in `__mocks__/`.
 
 ---
 
 ## Linting
 
-ESLint v9 is configured in `eslint.config.js`. The project must have **0 errors and 0 warnings** before any commit.
+ESLint v9 is configured in `eslint.config.js`. The project must have **0 errors and 0 warnings** before any commit. TypeScript is checked with `npx tsc --noEmit` using `tsconfig.json`.
 
 ```bash
 npx eslint src/

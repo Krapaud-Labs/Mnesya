@@ -83,7 +83,7 @@ Mnesya is a mobile reminder application designed to help elderly people (Users) 
 - ✅ Chronological reminder view with filters (date, profile, status) - Fully integrated
 - ✅ Status tracking (Done, Pending, Postponed, Unable) - Fully integrated
 - ✅ Tab navigation (Home | Reminders | Profile) - Implemented
-- ✅ **Activity log**: Bell icon in caregiver dashboard header — displays the last 48 h of user interactions (DONE / POSTPONED / UNABLE / MISSED), with a red unread badge when new entries are detected and auto-reload on screen focus
+- ✅ **Activity log**: Bell icon in caregiver dashboard header - displays the last 48 h of user interactions (DONE / POSTPONED / UNABLE / MISSED), with a red unread badge when new entries are detected and auto-reload on screen focus
 - ✅ **Rate limiting feedback**: HTTP 429 from Register (3/min) or Login (5/min) triggers a dedicated `RateLimitModal` instead of a generic error
 
 ### User Interface (Elderly Person)
@@ -136,7 +136,7 @@ Mnesya is a mobile reminder application designed to help elderly people (Users) 
 
 6. ✅ **Activity Log**: Caregiver opens dashboard bell → Frontend → FastAPI → PostgreSQL (JOIN reminder_status + reminder + user)
    - Frontend: `useActivityLog` hook + `ActivityLogModal` component, unread badge logic
-   - Backend: `GET /api/reminder-status/caregiver/recent` — 48 h window, DONE/POSTPONED/UNABLE/MISSED only
+   - Backend: `GET /api/reminder-status/caregiver/recent` - 48 h window, DONE/POSTPONED/UNABLE/MISSED only
 
 ## Technologies
 
@@ -160,7 +160,7 @@ Mnesya is a mobile reminder application designed to help elderly people (Users) 
 - **Framework** : Python 3.9+ with FastAPI 0.104.1
 - **Database** : PostgreSQL 13+ with psycopg2-binary
 - **ORM** : SQLAlchemy 2.0.23 with Alembic 1.12.1 (2 migrations)
-- **Authentication** : JWT with python-jose — implemented
+- **Authentication** : JWT with python-jose - implemented
 - **Async Tasks** : APScheduler 3.10.4 (3 background jobs every 60s)
   - **Push Notifications** : Expo Push Service (fully integrated)
 - **Current Implementation Status**:
@@ -176,12 +176,12 @@ Mnesya is a mobile reminder application designed to help elderly people (Users) 
   - ✅ Alembic migrations configured and applied (3 migrations)
   - ✅ Docker Compose full setup (PostgreSQL + Backend + Worker)
   - ✅ pytest test suite (authentication, pairing, user, caregiver, reminder, reminder_status, push_notification)
-  - ✅ Reminder API endpoints (`/api/reminders`) — full CRUD
+  - ✅ Reminder API endpoints (`/api/reminders`) - full CRUD
   - ✅ Reminder status update endpoint (`/api/reminder-status/{id}`)
-  - ✅ Push token registration (`/api/push-tokens`) — register, unregister, list
-  - ✅ APScheduler Worker — 3 jobs: T+0 user notification, T+5 retry, T+10 caregiver escalation
-  - ✅ Rate limiting — Register: 3/min, Login: 5/min (SlowAPI)
-  - ✅ Activity log endpoint (`GET /api/reminder-status/caregiver/recent`) — last 48 h, DONE/POSTPONED/UNABLE/MISSED
+  - ✅ Push token registration (`/api/push-tokens`) - register, unregister, list
+  - ✅ APScheduler Worker - 3 jobs: T+0 user notification, T+5 retry, T+10 caregiver escalation
+  - ✅ Rate limiting - Register: 3/min, Login: 5/min (SlowAPI)
+  - ✅ Activity log endpoint (`GET /api/reminder-status/caregiver/recent`) - last 48 h, DONE/POSTPONED/UNABLE/MISSED
 
 ### Infrastructure
 
@@ -193,8 +193,8 @@ Mnesya is a mobile reminder application designed to help elderly people (Users) 
 
 ### Current Status (Mar 2, 2026)
 
-**Frontend**: Fully operational — connected to real backend (auth, profiles, pairing, reminders, reminder status, activity log)  
-**Backend**: Fully operational — all MVP endpoints live  
+**Frontend**: Fully operational - connected to real backend (auth, profiles, pairing, reminders, reminder status, activity log)
+**Backend**: Fully operational - all MVP endpoints live
 **Docker**: Fully configured with PostgreSQL, Backend, and Worker services
 
 ### Prerequisites
@@ -222,7 +222,7 @@ docker-compose ps
 docker-compose logs -f backend
 ```
 
-The backend will be available at `http://localhost:8000`  
+The backend will be available at `http://localhost:8000`
 Health endpoint: `http://localhost:8000/health`
 
 ### Manual Installation
@@ -431,7 +431,7 @@ mnesya/
 
 ## API Documentation
 
-> Base URL: `http://localhost:8000`  
+> Base URL: `http://localhost:8000`
 > Interactive docs: `http://localhost:8000/docs` (Swagger UI)
 
 ### Authentication
@@ -484,7 +484,7 @@ mnesya/
 | `/api/reminder-status/{id}/current`     | GET    | Get current status of a reminder      | Yes             |
 | `/api/reminder-status/{id}/history`     | GET    | Get full status history of a reminder | Yes             |
 | `/api/reminder-status/{id}`             | PUT    | Update status (Done/Postponed/Unable) | Yes (User)      |
-| `/api/reminder-status/caregiver/recent` | GET    | Activity log — last 48 h interactions | Yes (Caregiver) |
+| `/api/reminder-status/caregiver/recent` | GET    | Activity log - last 48 h interactions | Yes (Caregiver) |
 | `/api/reminder-status/valid-statuses`   | GET    | List all valid status values          | Yes             |
 
 ### Push Notifications
@@ -608,7 +608,7 @@ docs: update README
 
 **📋 Complete Test Documentation**: [backend/app/test/README.md](backend/app/test/README.md)
 
-**Test Suite**: 296 tests (166 API integration tests + 130 unit tests)  
+**Test Suite**: 296 tests (166 API integration tests + 130 unit tests)
 **Status**: ✅ All tests passing
 
 ```bash
@@ -625,17 +625,17 @@ pytest app/test/ --cov=app
 
 **API Integration Tests (166 tests)**:
 
-- `test_authentication_api.py` — Register, login, token validation (19 tests)
-- `test_caregiver_api.py` — Caregiver profile CRUD (14 tests)
-- `test_pairing_api.py` — Generate and verify pairing codes (18 tests)
-- `test_user_api.py` — User profile CRUD (27 tests)
-- `test_reminder_api.py` — Reminder CRUD endpoints (36 tests)
-- `test_reminder_status_api.py` — Reminder status update endpoint (32 tests)
-- `test_push_notification_api.py` — Push token register, unregister, list (20 tests)
+- `test_authentication_api.py` - Register, login, token validation (19 tests)
+- `test_caregiver_api.py` - Caregiver profile CRUD (14 tests)
+- `test_pairing_api.py` - Generate and verify pairing codes (18 tests)
+- `test_user_api.py` - User profile CRUD (27 tests)
+- `test_reminder_api.py` - Reminder CRUD endpoints (36 tests)
+- `test_reminder_status_api.py` - Reminder status update endpoint (32 tests)
+- `test_push_notification_api.py` - Push token register, unregister, list (20 tests)
 
 **Unit Tests (130 tests)**:
 
-- `test.py` — Models validation, schemas validation, business logic, entity relationships
+- `test.py` - Models validation, schemas validation, business logic, entity relationships
   - Model tests (65): User, Caregiver, Reminder, ReminderStatus
   - Schema tests (49): Create/Update validation
   - Integration tests (16): Edge cases and model interactions
@@ -646,7 +646,7 @@ pytest app/test/ --cov=app
 
 **📋 Complete Test Documentation**: [frontend/README-tests.md](frontend/README-tests.md)
 
-**Test Suite**: 220 tests (16 test suites)  
+**Test Suite**: 220 tests (16 test suites)
 **Status**: ✅ All tests passing
 
 ```bash
@@ -661,22 +661,22 @@ npm test -- --coverage
 
 #### Frontend Test Files (220 tests across 16 suites)
 
-- `__tests__/hooks/useFormValidation.test.ts` — Form validation hook (18 tests)
-- `__tests__/utils/validation.test.ts` — Validation utility functions (42 tests)
-- `services/__tests__/authService.test.ts` — register, login API calls (24 tests)
-- `services/__tests__/tokenService.test.ts` — JWT storage and retrieval (11 tests)
-- `services/__tests__/reminderService.test.ts` — Reminder CRUD API calls (16 tests)
-- `services/__tests__/pairingService.test.ts` — Pairing code generate and verify (7 tests)
-- `services/__tests__/profileService.test.ts` — User profile CRUD API calls (11 tests)
-- `hooks/__tests__/useCaregiverProfile.test.ts` — Hook loading/error/reload behaviour (9 tests)
-- `hooks/__tests__/useUserProfile.test.ts` — User profile hook behaviour (7 tests)
-- `hooks/__tests__/useUserProfiles.test.ts` — Profiles list hook behaviour (6 tests)
-- `hooks/__tests__/useUserReminders.test.ts` — Reminders list hook behaviour (6 tests)
-- `hooks/__tests__/useCaregiverReminders.test.ts` — Caregiver reminders hook behaviour (6 tests)
-- `hooks/__tests__/useReminderStatus.test.ts` — Reminder status hook behaviour (6 tests)
-- `components/__tests__/UpdateUserProfileModal.test.tsx` — Modal rendering and validation (21 tests)
-- `components/__tests__/UpdateCaregiverProfileModal.test.tsx` — Modal rendering and validation (16 tests)
-- `utils/__tests__/validation.test.ts` — Form validation utility functions (42 tests)
+- `__tests__/hooks/useFormValidation.test.ts` - Form validation hook (18 tests)
+- `__tests__/utils/validation.test.ts` - Validation utility functions (42 tests)
+- `services/__tests__/authService.test.ts` - register, login API calls (24 tests)
+- `services/__tests__/tokenService.test.ts` - JWT storage and retrieval (11 tests)
+- `services/__tests__/reminderService.test.ts` - Reminder CRUD API calls (16 tests)
+- `services/__tests__/pairingService.test.ts` - Pairing code generate and verify (7 tests)
+- `services/__tests__/profileService.test.ts` - User profile CRUD API calls (11 tests)
+- `hooks/__tests__/useCaregiverProfile.test.ts` - Hook loading/error/reload behaviour (9 tests)
+- `hooks/__tests__/useUserProfile.test.ts` - User profile hook behaviour (7 tests)
+- `hooks/__tests__/useUserProfiles.test.ts` - Profiles list hook behaviour (6 tests)
+- `hooks/__tests__/useUserReminders.test.ts` - Reminders list hook behaviour (6 tests)
+- `hooks/__tests__/useCaregiverReminders.test.ts` - Caregiver reminders hook behaviour (6 tests)
+- `hooks/__tests__/useReminderStatus.test.ts` - Reminder status hook behaviour (6 tests)
+- `components/__tests__/UpdateUserProfileModal.test.tsx` - Modal rendering and validation (21 tests)
+- `components/__tests__/UpdateCaregiverProfileModal.test.tsx` - Modal rendering and validation (16 tests)
+- `utils/__tests__/validation.test.ts` - Form validation utility functions (42 tests)
 - **Tools**: Jest + React Native Testing Library + ESLint v9
 
 ### Manual Tests
@@ -712,7 +712,7 @@ Acceptance criteria checklist to verify before each Production deployment:
 
 ### CI/CD
 
-⚠️ Not yet configured — planned for future sprints:
+⚠️ Not yet configured - planned for future sprints:
 
 1. **On PR**: Run automated tests (backend pytest + frontend Jest)
 2. **Staging Deployment**: Auto-deploy `dev` branch if tests pass

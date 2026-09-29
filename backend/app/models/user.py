@@ -5,9 +5,11 @@ Users are the elderly individuals being cared for by caregivers.
 """
 
 import uuid
-from datetime import datetime, timezone, date
-from sqlalchemy import Column, String, DateTime, Date, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID, ARRAY
+from datetime import date, datetime, timezone
+
+from sqlalchemy import Column, Date, DateTime, ForeignKey, String
+from sqlalchemy.dialects.postgresql import ARRAY, UUID
+
 from app import database
 
 

@@ -101,7 +101,7 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
         setIsRefreshing(false);
     }, [reload]);
 
-    /** Controls the bottom fade indicator — hidden when scrolled to the end. */
+    /** Controls the bottom fade indicator - hidden when scrolled to the end. */
     const [showScrollFade, setShowScrollFade] = useState(true);
     const [isScrollable, setIsScrollable] = useState(false);
     const scrollContainerHeight = useRef(0);
@@ -123,7 +123,7 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
     };
 
     // Reload profiles and activity log when screen comes into focus.
-    // Skip the first focus — the hooks already load on mount.
+    // Skip the first focus - the hooks already load on mount.
     useFocusEffect(
         useCallback(() => {
             if (isFirstFocus.current) {
@@ -207,7 +207,7 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
                  * listWrapper is always in the layout to avoid position jumps
                  */}
                 <View style={styles.listWrapper}>
-                    {/* Initial loading state — hidden during pull-to-refresh */}
+                    {/* Initial loading state - hidden during pull-to-refresh */}
                     {isInitialLoading ? (
                         <View style={commonStyles.loadingContainer}>
                             <ActivityIndicator size="large" color="#4A90E2" />
@@ -282,7 +282,7 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
                             )}
                         </ScrollView>
                     )}
-                    {/* Bottom fade — signals more content below */}
+                    {/* Bottom fade - signals more content below */}
                     {!isInitialLoading && !error && showScrollFade && isScrollable && (
                         <View style={styles.scrollFade} pointerEvents="none">
                             <Ionicons name="chevron-down" size={24} color="#4A90E2" />

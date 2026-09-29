@@ -34,7 +34,7 @@ export const validateEmail = (email: string): string | null => {
 export const validatePassword = (password: string): string | null => {
     const trimmedPassword = password.trim();
 
-    // Check length constraints (8-72 characters — matches bcrypt server limit)
+    // Check length constraints (8-72 characters - matches bcrypt server limit)
     if (trimmedPassword.length < 8) {
         return 'register.errors.Password must be at least 8 characters';
     }

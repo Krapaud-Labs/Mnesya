@@ -4,13 +4,15 @@ This module implements the Facade pattern for Reminder business logic.
 It provides a simplified interface for reminder operations.
 """
 
+from uuid import UUID
+
 from sqlalchemy.orm import Session
+
 from app.models.reminder import ReminderModel
 from app.models.reminder_status import ReminderStatusModel
 from app.models.reminder_status_enum import ReminderStatusEnum
 from app.persistence.reminder_repository import ReminderRepository
 from app.persistence.reminder_status_repository import ReminderStatusRepository
-from uuid import UUID
 
 
 class ReminderFacade:

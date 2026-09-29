@@ -1,7 +1,9 @@
 """Revoked Token model module."""
 
 from datetime import datetime, timezone
-from sqlalchemy import Column, String, DateTime
+
+from sqlalchemy import Column, DateTime, String
+
 from app import database
 
 

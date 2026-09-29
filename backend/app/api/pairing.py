@@ -4,12 +4,15 @@ This module provides endpoints for generating and verifying pairing codes.
 Pairing codes allow users to connect their devices with their profiles.
 """
 
-from fastapi import APIRouter, HTTPException, Depends, status, Request
-from sqlalchemy.orm import Session
 from datetime import timedelta
 from uuid import UUID
-from app.limiter import limiter
 
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from sqlalchemy.orm import Session
+
+from app import get_db
+from app.api.authentication import create_access_token, verify_token
+from app.limiter import limiter
 from app.schemas.pairing_code_schema import (
     PairingCodeCreate,
     PairingCodeResponse,
@@ -17,11 +20,8 @@ from app.schemas.pairing_code_schema import (
     PairingCodeVerifyResponse,
     UserTokenRefreshResponse,
 )
-
 from app.services.pairing_facade import PairingFacade
 from app.services.user_facade import UserFacade
-from app.api.authentication import verify_token, create_access_token
-from app import get_db
 
 ACCESS_TOKEN_EXPIRE_DAYS = 14
 
@@ -263,7 +263,7 @@ async def verify_code(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Login failed: {str(e)}",
+            detail=f"Login failed: {e!s}",
         )
 
 
