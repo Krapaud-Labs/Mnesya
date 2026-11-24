@@ -48,11 +48,13 @@ web-build/
 # Copilot
 .github/copilot-instructions.md
 
-# Kit project entrypoints and delivery workflow: keep tracked when present
+# Kit delivery workflow: keep tracked when present
 !.github/
 !.github/workflows/
 !.github/workflows/update-agentic-starter-kit.yml
-!AGENTS.md
+
+# Agent instructions are local to each workspace
+/AGENTS.md
 
 # Local kit update backups are recoverable workspace artifacts, not deliverables
 .codex/backups/

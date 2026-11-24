@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-09-29
+last_updated: 2026-11-19
 ---
 # Journal qualité, bugs et risques
 
@@ -25,6 +25,7 @@ Une entrée `fixed` n est pas résolue tant qu une preuve de vérification indé
 | QJ-006 | 2026-09-29 | audit de code | test/exploitation | élevée | backend/tests | tests backend non exécutables localement sans PostgreSQL; Docker daemon indisponible | pytest avec variables d'environnement éphémères | coordinateur | 2026-09-29-full-code-audit | exécuter la suite dans Docker/CI avec PostgreSQL disponible | bloqué par connexion refusée sur localhost:5432 | blocked | |
 | QJ-007 | 2026-09-29 | audit de dépendances | sécurité | élevée | frontend | npm signale 13 vulnérabilités résiduelles, dont 2 élevées et 11 modérées, dans image-size/PostCSS et la chaîne Expo | sortie npm audit après `npm audit fix` | coordinateur | 2026-09-29-full-code-audit | appliquer les mises à jour non cassantes; planifier la montée Expo 57 séparément | 24 vulnérabilités corrigées; le reliquat nécessite une mise à niveau majeure Expo | open | |
 | QJ-008 | 2026-09-29 | audit de code | test/contrat | moyenne | backend | quatre tests révélaient des attentes obsolètes ou un message d'erreur incohérent | suite Docker initiale: 162 passed, 4 failed | coordinateur | 2026-09-29-full-code-audit | aligner le message API, fournir le mot de passe courant pour les changements sensibles et corriger les données de test invalides | suite Docker finale: 166 passed | verified | 2026-09-29 |
+| QJ-009 | 2026-11-19 | revue visuelle initialisation | accessibilité | élevée | frontend mobile | onglets sous 16 px, contrastes insuffisants et parcours pilulier non attesté | revues frontend/QA statiques et captures docs/img; détails dans design/visual-direction.md et MVP-008 | équipe produit | 2026-09-29-onboarding-reprise | corriger les écarts dans MVP-008 et fournir des rendus iOS/Android | revue QA indépendante après corrections; aucune modification de code dans cette initialisation | open | |
 
 ## Fiche détaillée obligatoire pour les niveaux élevé et critique
 
@@ -42,3 +43,18 @@ Une entrée `fixed` n est pas résolue tant qu une preuve de vérification indé
 - Tests de non régression : non applicable avant décision
 - Vérification indépendante : à effectuer par conformité et demandeur
 - Risque résiduel et décision humaine éventuelle : décision humaine obligatoire
+
+### QJ-009
+
+- Détecté par : revues statiques frontend et QA
+- Date et contexte : 2026-11-19, revue de complétude de conception
+- Catégorie : accessibilité, conception et test
+- Gravité et justification : élevée, les tailles de texte et contrastes observés contredisent les exigences explicites du cahier
+- Actifs, utilisateurs ou composants affectés : personnes accompagnées et aidants; navigation mobile, réponse aux rappels et parcours pilulier
+- Scénario reproductible : inspecter les styles d'onglets et de réponse au rappel; recalculer les ratios depuis les couleurs source
+- Preuves conservées : docs/design/visual-direction.md, captures sous docs/img/, carte Trello MVP-008
+- Cause racine ou hypothèse : la direction visuelle et l'implémentation n'ont pas encore été rapprochées par une validation rendue
+- Correction choisie et alternatives écartées : conserver les constats ouverts dans MVP-008; aucune modification de code produit dans ce work item
+- Tests de non régression : non exécutés; revues en lecture seule
+- Vérification indépendante : à effectuer après corrections avec rendus iOS/Android et contrôle des seuils d'accessibilité
+- Risque résiduel et décision humaine éventuelle : readiness reste review; la livraison visuelle doit attendre les preuves et corrections

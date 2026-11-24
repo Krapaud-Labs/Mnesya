@@ -1,11 +1,11 @@
 ---
-last_updated: 2026-09-29
+last_updated: 2026-11-19
 ---
 # Dossier de conception du projet
 
 ## Statut
 
-review, 2026-09-29, coordinateur. Approval remains pending independent audit and human production decisions.
+review, 2026-11-19, coordinateur. La validation visuelle et les décisions humaines de production restent ouvertes; voir `design/design-readiness.md`.
 
 ## Rôle
 
@@ -31,4 +31,7 @@ Ce dossier est la source de vérité entre le besoin métier, la conception et l
 | Données | entités, règles, rétention | `design/data-model.md` | 2026-09-29 |
 | Contrats | API, événements, interfaces | `design/api-contracts.md` | 2026-09-29 |
 | Sécurité | menaces et protections | `design/security-design.md` | 2026-09-29 |
+| Expérience visuelle | direction artistique et inventaire des médias | `design/visual-direction.md`, `design/media-inventory.md` | 2026-11-19 |
+| Journal qualité | risques, bugs, revues et corrections | `quality/quality-journal.md` | 2026-11-19 |
 | Roadmap et décisions | plan et arbitrages | `delivery/roadmap.md`, `delivery/decision-log.md` | 2026-09-29 |
+| Suivi Trello | cartes, listes et checklists observés | `project-management/trello-board.md` | 2026-11-19 |
